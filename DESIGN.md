@@ -10,6 +10,8 @@ Revision 3 in Figma file `Y0U7GeXRJxDj0p72fYLe1l`:
 
 Layouts switch at 600px and 1024px, and flow between the reference widths. Desktop keeps five process cards across. Tablet uses two columns; mobile stacks them. Payment comes before launch in all three layouts.
 
+The landing hero fills the page width and at least the visible viewport height, using `100dvh` with a `100vh` fallback. It grows when the copy needs more room on short or narrow screens. Artwork covers the full section. The header's outer edges, hero text and section text share `--page-gutter`: 24px on phones, 48px on tablets and compact desktops, 64px on larger desktops, and the centered content gutter on wide screens.
+
 Tablet hero buttons keep 54px hit areas; the Figma tablet buttons collapse to the height of their text. This makes the implemented hero slightly taller.
 
 ## Brand

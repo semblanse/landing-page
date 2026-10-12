@@ -58,11 +58,14 @@ button:disabled {
   outline: 2px solid currentColor;
   outline-offset: 5px;
 }
+:root {
+  --page-gutter: 64px;
+}
 section {
   scroll-margin-top: 24px;
 }
 .section-pad {
-  padding: 64px;
+  padding: 64px var(--page-gutter);
 }
 .section-lead {
   font-size: 22px;
@@ -114,7 +117,7 @@ section {
   align-items: center;
   justify-content: space-between;
   gap: 32px;
-  margin: 24px 40px;
+  margin: 24px var(--page-gutter);
   min-height: 88px;
   padding: 18px 40px;
   background: var(--ink);
@@ -123,7 +126,7 @@ section {
 .hero-nav {
   position: absolute;
   z-index: 3;
-  inset: 24px 40px auto;
+  inset: 24px var(--page-gutter) auto;
   margin: 0;
 }
 .site-nav nav {
@@ -196,7 +199,12 @@ section {
 }
 .hero {
   position: relative;
-  min-height: 882px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  width: 100%;
+  min-height: 100vh;
+  min-height: 100dvh;
   overflow: hidden;
   background: var(--ink);
   color: var(--cream);
@@ -208,7 +216,7 @@ section {
   pointer-events: none;
 }
 .hero-art img {
-  width: calc(100% + 88px);
+  width: 100%;
   height: 100%;
   object-fit: cover;
   object-position: left top;
@@ -220,7 +228,8 @@ section {
 }
 .hero-content {
   position: relative;
-  padding: 167px 64px 47px;
+  width: 100%;
+  padding: 167px var(--page-gutter) 47px;
   display: flex;
   flex-direction: column;
   gap: 24px;
@@ -1161,15 +1170,16 @@ section {
   max-width: 900px;
 }
 @media (min-width: 1600px) {
-  .hero-content,
-  .section-pad,
+  :root {
+    --page-gutter: max(64px, calc((100vw - 1440px) / 2 + 64px));
+  }
   .inputs-section,
   .advertiser-section,
   .questions,
   .closing,
   .footer-navigation,
   .copyright {
-    padding-inline: max(64px, calc((100vw - 1440px) / 2 + 64px));
+    padding-inline: var(--page-gutter);
   }
   .advertiser-section,
   .questions,
@@ -1178,8 +1188,8 @@ section {
   }
 }
 @media (max-width: 1199px) and (min-width: 1024px) {
-  .section-pad {
-    padding-inline: 48px;
+  :root {
+    --page-gutter: 48px;
   }
   .site-nav {
     gap: 20px;
@@ -1187,9 +1197,6 @@ section {
   }
   .site-nav nav {
     gap: 22px;
-  }
-  .hero-content {
-    padding-inline: 48px;
   }
   .stage-grid {
     gap: 16px;
@@ -1263,18 +1270,21 @@ section {
   }
 }
 @media (max-width: 1023px) {
+  :root {
+    --page-gutter: 48px;
+  }
   h2 {
     font-size: 48px;
     line-height: 51px;
     letter-spacing: -0.025em;
   }
   .section-pad {
-    padding: 56px 48px;
+    padding: 56px var(--page-gutter);
   }
   .site-nav {
     min-height: 64px;
     padding: 12px 16px;
-    margin: 16px 32px;
+    margin: 16px var(--page-gutter);
     background: var(--ink);
     color: var(--cream);
     display: grid;
@@ -1282,7 +1292,7 @@ section {
     gap: 0 16px;
   }
   .hero-nav {
-    inset: 16px 32px auto;
+    top: 16px;
     margin: 0;
   }
   .brand {
@@ -1363,12 +1373,8 @@ section {
     line-height: 18px;
     color: var(--sage);
   }
-  .hero {
-    min-height: 580px;
-  }
   .hero-art {
     opacity: 1;
-    height: 162.82vw;
   }
   .hero-art:after {
     content: "";
@@ -1386,7 +1392,7 @@ section {
     object-position: center;
   }
   .hero-content {
-    padding: 120px 48px 32px;
+    padding: 120px var(--page-gutter) 32px;
   }
   .hero-title {
     font-size: 72px;
@@ -1696,22 +1702,18 @@ section {
   }
 }
 @media (max-width: 599px) {
+  :root {
+    --page-gutter: 24px;
+  }
   .section-pad {
-    padding: 24px;
+    padding: 24px var(--page-gutter);
   }
   .site-nav {
-    margin: 16px;
+    margin: 16px var(--page-gutter);
     gap: 12px;
   }
   .hero-nav {
-    inset: 16px 16px auto;
     margin: 0;
-  }
-  .hero {
-    min-height: 808px;
-  }
-  .hero-art {
-    height: 100%;
   }
   .hero-art:after {
     background: rgba(24, 35, 27, 0.64);
@@ -1720,7 +1722,7 @@ section {
     color: var(--cream);
   }
   .hero-content {
-    padding: 120px 24px 32px;
+    padding: 120px var(--page-gutter) 32px;
     gap: 24px;
   }
   .hero-title {
