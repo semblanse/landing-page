@@ -469,7 +469,13 @@ export function Footer() {
       <p className="copyright">© 2026 Semblanse. All rights reserved.</p>
       <div className="footer-wordmark" aria-label="Semblanse">
         <Reveal>
-          <img src={asset("footer-dither")} alt="" loading="lazy" />
+          <img
+            src={asset("footer-dither")}
+            alt=""
+            width={1429}
+            height={364}
+            loading="lazy"
+          />
         </Reveal>
       </div>
     </footer>
