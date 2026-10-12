@@ -95,6 +95,20 @@ export function Reveal({
   const ref = useRef<HTMLElement>(null);
   useEffect(() => (ref.current ? watch(ref.current) : undefined), []);
   const Tag = as;
+  // A wipe starts fully clipped, and a fully clipped element never counts
+  // as in view. An unclipped host is watched in its place.
+  if (kind === "wipe" || kind === "wipe-left")
+    return (
+      <Tag ref={ref as Ref<never>} className="reveal-host" {...rest}>
+        <div
+          className={className}
+          data-reveal={kind}
+          style={delay ? ({ "--d": `${delay}s` } as CSSProperties) : undefined}
+        >
+          {children}
+        </div>
+      </Tag>
+    );
   return (
     <Tag
       ref={ref as Ref<never>}
@@ -186,5 +200,32 @@ export function useMediaQuery(query: string) {
     subscribe,
     () => window.matchMedia(query).matches,
     () => false,
+  );
+}
+
+let probe: HTMLDivElement | undefined;
+/**
+ * The height of the screen with the browser's toolbars showing. Phone
+ * browsers resize the viewport as their toolbars slide away, so a
+ * `min-height` media query flips mid-scroll there, and reports far less
+ * than the device height. This value holds still.
+ */
+export function useSmallViewportHeight() {
+  const subscribe = useCallback((notify: () => void) => {
+    window.addEventListener("orientationchange", notify);
+    return () => window.removeEventListener("orientationchange", notify);
+  }, []);
+  return useSyncExternalStore(
+    subscribe,
+    () => {
+      if (!probe) {
+        probe = document.createElement("div");
+        probe.style.cssText =
+          "position:fixed;top:0;width:0;height:100vh;height:100svh;visibility:hidden;pointer-events:none";
+        document.body.appendChild(probe);
+      }
+      return probe.offsetHeight;
+    },
+    () => 0,
   );
 }

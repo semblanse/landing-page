@@ -3,7 +3,12 @@ import { motion, useTransform, type MotionValue } from "motion/react";
 import { useEffect, useRef, useState, type RefObject } from "react";
 import { Button } from "@/components/ui/button";
 import { asset } from "./brand";
-import { Reveal, useMediaQuery, useScrollProgress } from "./motion";
+import {
+  Reveal,
+  useMediaQuery,
+  useScrollProgress,
+  useSmallViewportHeight,
+} from "./motion";
 function ExampleAction({
   children,
   secondary = false,
@@ -49,7 +54,7 @@ function FocusCard({
   );
 }
 // How much of a covered card stays in view: its top padding and its label.
-const TAB = 40;
+const TAB = 38;
 /**
  * A phone card in the scroll stack. Each card pins one tab lower than the
  * one before, so the labels of every earlier card stay in view as a pile.
@@ -94,9 +99,12 @@ export function StageCards() {
     useRef<HTMLElement>(null),
   ];
   // On phones the cards form a scroll stack, each sliding over the last.
-  // Short screens cannot fit the heading, a tab and a whole card, so they
-  // keep the plain list.
-  const phone = useMediaQuery("(max-width: 599px) and (min-height: 740px)");
+  // Very short screens cannot fit the heading, the tabs and a whole card,
+  // so they keep the plain list. The height is measured with the browser's
+  // toolbars showing: a phone reports much less than its screen height.
+  const narrow = useMediaQuery("(max-width: 599px)");
+  const viewportHeight = useSmallViewportHeight();
+  const phone = narrow && viewportHeight >= 620;
   // On desktop the five cards sit in one row and scroll draws the progress
   // line across them. Stacked layouts reveal each card as it arrives.
   const row = useMediaQuery("(min-width: 1024px)");

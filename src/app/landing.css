@@ -353,7 +353,8 @@ section {
 .js [data-reveal="wipe-left"] {
   clip-path: inset(0 0 0 100%);
 }
-.js [data-reveal].in {
+.js [data-reveal].in,
+.js .reveal-host.in > [data-reveal] {
   opacity: 1;
   transform: none;
   clip-path: inset(0);
@@ -901,7 +902,7 @@ section {
   outline-offset: 6px;
 }
 /* Campaign, channels and term take a brief outline in turn (Figma 495:5823). */
-.js .licence-stage.in .licence-field[data-focus] {
+.js .reveal-host.in .licence-field[data-focus] {
   animation: field-focus 1.3s var(--ease) calc(0.9s + var(--i) * 0.5s);
 }
 @keyframes field-focus {
@@ -1800,7 +1801,6 @@ html:has(.workspace-viewport[data-expanded]) {
   }
   .licence-stage {
     padding: 24px;
-    background: var(--lilac);
   }
   .licence {
     min-height: 0;
@@ -2028,7 +2028,9 @@ html:has(.workspace-viewport[data-expanded]) {
     background: var(--sage);
   }
   .process:has([data-stacked]) .process-head h2 {
-    margin-bottom: 12px;
+    margin-bottom: 6px;
+    font-size: 40px;
+    line-height: 44px;
   }
   .process:has([data-stacked]) .process-head .section-lead {
     margin-bottom: 0;
@@ -2038,15 +2040,36 @@ html:has(.workspace-viewport[data-expanded]) {
   }
   [data-stacked] .stage-card {
     position: sticky;
-    top: calc(var(--stack-top, 137px) + var(--i) * 40px);
-    padding-top: 12px;
+    top: calc(var(--stack-top, 124px) + var(--i) * 38px);
+    padding-block: 10px 14px;
     box-shadow: 0 -10px 24px -18px #18231b66;
+  }
+  /* Tighter cards, so each fits under the heading and tabs on a phone with
+     its browser toolbars showing. */
+  [data-stacked] .card-actions,
+  [data-stacked] .story-quote,
+  [data-stacked] .approval-preview {
+    margin-top: 16px;
+  }
+  [data-stacked] .card-actions {
+    gap: 8px;
+  }
+  [data-stacked] .card-note {
+    padding-top: 12px;
+  }
+  [data-stacked] .approval-preview img {
+    width: 84px;
+    height: 112px;
+  }
+  [data-stacked] .results-chart {
+    height: 150px;
+    margin-top: 20px;
   }
   /* The tab is the pressable strip of a covered card. */
   .stage-tab {
     position: absolute;
     inset: 0 0 auto;
-    height: 40px;
+    height: 38px;
     border: 0;
     background: none;
     visibility: hidden;
@@ -2127,12 +2150,6 @@ html:has(.workspace-viewport[data-expanded]) {
   }
   .licence {
     padding: 20px;
-  }
-  .licence-brand img {
-    display: none;
-  }
-  .licence-brand {
-    color: var(--green);
   }
   .licence h3 {
     font-size: 32px;
