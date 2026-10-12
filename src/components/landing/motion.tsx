@@ -82,7 +82,7 @@ export function Headline({
 }) {
   const reduce = useReducedMotion();
   return (
-    <h1 className={className}>
+    <h1 className={className} aria-label={lines.join(" ")}>
       {lines.map((line, i) => (
         <span className="headline-mask" key={line}>
           <motion.span

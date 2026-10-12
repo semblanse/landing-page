@@ -25,12 +25,6 @@ export function Brand({
         />
         {!light && <img src={asset("549:3403/imgIcon1")} alt="" />}
       </span>
-      {light && (
-        <span className="brand-mark brand-mobile-symbol" aria-hidden="true">
-          <img src={asset("554:2846/imgIcon")} alt="" />
-          <img src={asset("554:2846/imgIcon1")} alt="" />
-        </span>
-      )}
       {!markOnly && <span>semblanse</span>}
     </Link>
   );

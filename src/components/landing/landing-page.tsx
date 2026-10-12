@@ -6,35 +6,76 @@ STORY: Understand the campaign, see the process, choose a pilot enquiry.
 FIRST VIEWPORT: Dark profile artwork behind a three-line title and two actions.
 FORM: Preserve Figma 549:2779, with 554:2845 and 555:2910 responsive layouts.
 */
-import { useRef, useState, useEffect } from "react";
+import { useRef, useState } from "react";
 import Link from "next/link";
+import { Menu, X, Maximize } from "lucide-react";
 import { motion, useInView, useReducedMotion } from "motion/react";
 import {
-  Dialog,
-  DialogContent,
-  DialogTitle,
-  DialogDescription,
-} from "@/components/ui/dialog";
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
 import { Button } from "@/components/ui/button";
 import { Action, Brand, asset } from "./brand";
 import { Reveal, Headline, ease } from "./motion";
 import { StageCards } from "./stage-cards";
 import { FAQ } from "./faq";
-import { WorkspacePoster } from "./workspace-poster";
 
 export function Navigation({ home = false }: { home?: boolean }) {
+  const [open, setOpen] = useState(false);
+  const toggle = useRef<HTMLButtonElement>(null);
   return (
-    <header className={`site-nav ${home ? "hero-nav" : ""}`}>
+    <Collapsible
+      open={open}
+      onOpenChange={setOpen}
+      render={<header className={`site-nav ${home ? "hero-nav" : ""}`} />}
+      onKeyDown={(event) => {
+        if (event.key === "Escape" && open) {
+          setOpen(false);
+          toggle.current?.focus();
+        }
+      }}
+    >
       <Brand light />
       <nav aria-label="Main navigation">
         <Link href="/#how-it-works">How it works</Link>
         <Link href="/#your-control">Your control</Link>
         <Link href="/#for-advertisers">For advertisers</Link>
       </nav>
-      <Action href="/creator-pilot" variant="cream">
+      <Action
+        href="/creator-pilot"
+        variant="cream"
+        className="desktop-creator-action"
+      >
         Apply as a creator
       </Action>
-    </header>
+      <CollapsibleTrigger
+        ref={toggle}
+        render={<Button variant="ghost" size="icon" className="menu-toggle" />}
+        aria-label={open ? "Close menu" : "Open menu"}
+      >
+        {open ? <X /> : <Menu />}
+      </CollapsibleTrigger>
+      <CollapsibleContent className="mobile-menu">
+        <div className="mobile-menu-inner">
+          <nav aria-label="Mobile navigation" onClick={() => setOpen(false)}>
+            <Link href="/#how-it-works">How it works</Link>
+            <Link href="/#your-control">Your control</Link>
+            <Link href="/#for-advertisers">For advertisers</Link>
+            <Link href="/pilot">Pilot overview</Link>
+            <Link href="/about">About</Link>
+            <Link href="/contact">Contact</Link>
+            <Action href="/creator-pilot" variant="cream">
+              Apply as a creator
+            </Action>
+            <Link href="/brand-pilot">Book a pilot call</Link>
+          </nav>
+          <p className="mobile-menu-notice">
+            Signing up grants no rights to your likeness.
+          </p>
+        </div>
+      </CollapsibleContent>
+    </Collapsible>
   );
 }
 function ProfileEchoes({ accent = false }: { accent?: boolean }) {
@@ -83,8 +124,7 @@ function Inputs() {
     <section className="inputs-section" id="your-input">
       <div className="input-intro">
         <h2>
-          What we need
-          <br />
+          What we need <br />
           from you
         </h2>
         <p>
@@ -130,8 +170,7 @@ function Inputs() {
         </Reveal>
         <Reveal className="input-row" delay={0.12}>
           <blockquote className="context-art">
-            “My morning routine
-            <br />
+            “My morning routine <br />
             always starts with...”
           </blockquote>
           <div className="input-copy">
@@ -169,8 +208,7 @@ function Licence() {
       <div className="control-grid">
         <div>
           <h2>
-            Your likeness,
-            <br />
+            Your likeness, <br />
             your terms.
           </h2>
           <p className="control-lead">
@@ -233,8 +271,7 @@ function Licence() {
             <div className="licence-field">
               <small>CREATIVE LIMITS</small>
               <p>
-                ✓ Everyday running story
-                <br />× Injury or performance claims
+                ✓ Everyday running story <br />× Injury or performance claims{" "}
                 <br />× Reuse outside this campaign
               </p>
             </div>
@@ -249,8 +286,7 @@ function Licence() {
       </div>
       <Reveal className="record-banner">
         <h3>
-          Every use is
-          <br />
+          Every use is <br />
           on record.
         </h3>
         <p>
@@ -273,16 +309,14 @@ function Advertisers() {
           />
         </Reveal>
         <h3>
-          You make the ads.
-          <br />
+          You make the ads. <br />
           We clear the rights.
         </h3>
       </div>
       <div className="advertiser-copy">
         <p className="eyebrow">FOR BRANDS &amp; CREATIVE AGENCIES</p>
         <h2>
-          Real creators
-          <br />
+          Real creators <br />
           in your AI ads.
         </h2>
         <div className="bring-grid">
@@ -327,63 +361,56 @@ function Advertisers() {
   );
 }
 function ProductDemo() {
-  const [open, setOpen] = useState(false);
-  const ref = useRef<HTMLDivElement>(null);
-  const [scale, setScale] = useState(1);
-  useEffect(() => {
-    const node = ref.current;
-    if (!node) return;
-    const observer = new ResizeObserver(([entry]) =>
-      setScale(entry.contentRect.width / 1312),
-    );
-    observer.observe(node);
-    return () => observer.disconnect();
-  }, []);
+  const video = useRef<HTMLVideoElement>(null);
+  const [fullscreenError, setFullscreenError] = useState(false);
+  async function fullscreen() {
+    const player = video.current as
+      | (HTMLVideoElement & {
+          webkitEnterFullscreen?: () => void;
+        })
+      | null;
+    if (!player) return;
+    try {
+      if (player.webkitEnterFullscreen) player.webkitEnterFullscreen();
+      else await player.requestFullscreen();
+      setFullscreenError(false);
+    } catch {
+      setFullscreenError(true);
+    }
+  }
   return (
-    <>
-      <Reveal className="workspace-video" kind="scale">
-        <div ref={ref} className="workspace-viewport">
-          <div
-            className="workspace-native"
-            style={{ transform: `scale(${scale})` }}
-            aria-hidden="true"
-            inert
-          >
-            <WorkspacePoster />
-          </div>
-          <div className="workspace-shade" />
-          <Button
-            variant="cream"
-            className="play-demo"
-            onClick={() => setOpen(true)}
-            aria-label="Play creator workspace demo"
-          >
-            <svg viewBox="0 0 24 24" aria-hidden="true">
-              <path d="M7 4v16l14-8Z" fill="currentColor" />
-            </svg>
-          </Button>
-          <span className="preview-label">Product demo · example data</span>
-        </div>
-      </Reveal>
-      <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="demo-dialog">
-          <DialogTitle>Creator workspace · product preview</DialogTitle>
-          <DialogDescription>
-            Example campaigns and figures. The workspace is in development.
-          </DialogDescription>
-          {open && (
-            <video
-              controls
-              autoPlay
-              playsInline
-              preload="metadata"
-              src="/media/creator-demo.mp4"
-              aria-label="Semblanse creator workspace demonstration"
-            />
-          )}
-        </DialogContent>
-      </Dialog>
-    </>
+    <Reveal className="workspace-video" kind="scale">
+      <div className="workspace-viewport">
+        <video
+          ref={video}
+          className="workspace-player"
+          controls
+          autoPlay
+          muted
+          loop
+          playsInline
+          preload="metadata"
+          poster="/media/creator-demo-poster.jpg"
+          src="/media/creator-demo.mp4"
+          aria-label="Semblanse creator workspace demonstration"
+        />
+      </div>
+      <div className="preview-meta">
+        <p className="preview-label">Product preview · example data</p>
+        <Button
+          variant="outline"
+          className="fullscreen-demo"
+          onClick={fullscreen}
+        >
+          <Maximize aria-hidden="true" /> Fullscreen demo
+        </Button>
+      </div>
+      {fullscreenError && (
+        <p className="preview-label" role="status">
+          Use the fullscreen control inside the video player.
+        </p>
+      )}
+    </Reveal>
   );
 }
 export function Footer() {
@@ -393,8 +420,7 @@ export function Footer() {
         <div className="footer-purpose">
           <Brand markOnly />
           <p>
-            Creator likeness.
-            <br />
+            Creator likeness. <br />
             Licensed by campaign.
           </p>
           <small>
@@ -540,8 +566,8 @@ export function LandingPage() {
         <section className="workspace section-pad" id="workspace">
           <p className="workspace-eyebrow">PRODUCT PREVIEW · IN DEVELOPMENT</p>
           <h2>
-            Offers, approvals and
-            <br className="desktop-break" /> payments in one place.
+            Offers, approvals and <br className="desktop-break" /> payments in
+            one place.
           </h2>
           <p className="section-lead">
             A preview of the creator workspace we’re building. It’s in
@@ -562,8 +588,7 @@ export function LandingPage() {
         <section className="questions" id="questions">
           <div className="questions-poster">
             <h2>
-              Before
-              <br className="desktop-break" /> you join.
+              Before <br className="desktop-break" /> you join.
             </h2>
             <p>
               Straight answers for creators and brands. Pick your side, and ask
@@ -579,14 +604,12 @@ export function LandingPage() {
           <div className="closing-copy">
             <Reveal>
               <h2>
-                Make room for
-                <br />
+                Make room for <br />
                 another brand deal.
               </h2>
             </Reveal>
             <p>
-              Creators: join our first paid campaigns.
-              <br />
+              Creators: join our first paid campaigns. <br />
               Agencies: test licensed creators against your current best ads.
             </p>
             <div className="closing-actions">

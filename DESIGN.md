@@ -2,11 +2,11 @@
 
 Revision 3 in Figma file `Y0U7GeXRJxDj0p72fYLe1l`:
 
-| Layout | Root frame | Width |
-| --- | --- | --- |
+| Layout  | Root frame | Width  |
+| ------- | ---------- | ------ |
 | Desktop | `549:2779` | 1440px |
-| Mobile | `554:2845` | 390px |
-| Tablet | `555:2910` | 834px |
+| Mobile  | `554:2845` | 390px  |
+| Tablet  | `555:2910` | 834px  |
 
 Layouts switch at 600px and 1024px, and flow between the reference widths. Desktop keeps five process cards across. Tablet uses two columns; mobile stacks them. Payment comes before launch in all three layouts.
 
@@ -14,16 +14,16 @@ Tablet hero buttons keep 54px hit areas; the Figma tablet buttons collapse to th
 
 ## Brand
 
-| Token | Value |
-| --- | --- |
-| Ink | `#18231b` |
-| Cream | `#f5f2e9` |
-| Sage | `#b8c9a8` |
-| Green | `#1f6f22` |
-| Lilac | `#d9cdea` |
-| Display font | GFS Didot |
-| UI font | Albert Sans |
-| Corner radius | 0 |
+| Token         | Value       |
+| ------------- | ----------- |
+| Ink           | `#18231b`   |
+| Cream         | `#f5f2e9`   |
+| Sage          | `#b8c9a8`   |
+| Green         | `#1f6f22`   |
+| Lilac         | `#d9cdea`   |
+| Display font  | GFS Didot   |
+| UI font       | Albert Sans |
+| Corner radius | 0           |
 
 Fonts are served from the build. The UI follows shadcn's editable source model, with brand variants for buttons, tabs, fields and dialogs.
 
@@ -33,14 +33,14 @@ The original Figma assets are stored in `public/figma/`. The local asset map rec
 
 Figma's dither effects were exported from the effect nodes, preserving the exact rendered pattern in PNGs. They do not require a WebGPU effect at runtime.
 
-| Export | Figma node |
-| --- | --- |
-| Hero dither | `549:2783` |
-| Advertiser dither | `549:3085` |
-| Closing dither | `549:3402` |
-| Footer dither wordmark | `549:3447` |
+| Export                 | Figma node                              |
+| ---------------------- | --------------------------------------- |
+| Hero dither            | `549:2783`                              |
+| Advertiser dither      | `549:3085`                              |
+| Closing dither         | `549:3402`                              |
+| Footer dither wordmark | `549:3447`, full export copy `578:3029` |
 
-Mobile and tablet use their revised hero crop with the matching vertical gradient. Only artwork is rasterized. Headings, copy, controls, licence, cards and the workspace poster are HTML.
+Mobile and tablet use their revised hero crop with the matching vertical gradient. Only artwork is rasterized. Headings, copy, controls, licence and cards are HTML. The workspace demo plays the supplied video inline, muted and looped, with native controls and a fullscreen action.
 
 ## Motion
 
@@ -50,4 +50,8 @@ Lenis smooths wheel and anchor scrolling. Touch scroll stays native. Content rem
 
 ## Linked pages
 
-The landing page links to branded preview routes with copy from the corresponding Figma pages. Their enquiries do not submit data; legal text remains draft. Those routes support the landing preview and do not claim a live product or live creator onboarding.
+All seven linked pages use the current Revision 3 desktop and mobile frames in section `563:3280`. See `src/components/linked-pages/SOURCE.md` for source IDs and layout details. Their enquiries do not submit data; legal text remains draft. Those routes support the landing preview and do not claim a live product or live creator onboarding.
+
+## Mobile fixes
+
+The mobile and tablet header uses the desktop ink color and an accessible shadcn Collapsible menu. Responsive line breaks retain spaces. Process cards fit their content; fixed minimum heights and large inner gaps were removed. Didot uses its supplied regular weight, and Albert Sans uses real variable weights without font synthesis. The footer shows the full dither wordmark on cream, exported from a separate Figma copy so the source stays intact.

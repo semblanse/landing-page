@@ -33,8 +33,7 @@ export function StageCards() {
       <p className="card-muted">Example creator fee</p>
       <hr />
       <p className="card-small">
-        Instagram + Facebook
-        <br />
+        Instagram + Facebook <br />
         Canada · 30 days
       </p>
       <div className="card-actions offer-actions">
@@ -74,10 +73,9 @@ export function StageCards() {
           alt="Illustrated ad preview"
         />
         <p>
-          Video 01
-          <br />
+          Video 01 <br />
           <span>
-            Version 2<br />
+            Version 2 <br />
             30s · 9:16
           </span>
         </p>
