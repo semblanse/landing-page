@@ -4,7 +4,6 @@ import { Navigation, Footer } from "@/components/landing/landing-page";
 import { EnquiryPage } from "@/components/linked-pages/enquiry";
 import { AboutPage, PilotPage } from "@/components/linked-pages/editorial";
 import { LegalPage } from "@/components/linked-pages/legal";
-import content from "@/components/linked-pages/content.json";
 import "../linked-pages.css";
 
 const titles: Record<string, string> = {
@@ -18,7 +17,7 @@ const titles: Record<string, string> = {
 };
 
 export function generateStaticParams() {
-  return Object.keys(content).map((slug) => ({ slug }));
+  return Object.keys(titles).map((slug) => ({ slug }));
 }
 
 export async function generateMetadata({
@@ -36,7 +35,7 @@ export default async function LinkedPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  if (!(slug in content)) notFound();
+  if (!(slug in titles)) notFound();
   return (
     <>
       <a className="skip-link" href="#main">

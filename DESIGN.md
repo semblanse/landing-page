@@ -83,7 +83,7 @@ Lenis smooths wheel and anchor scrolling. Touch scroll stays native. Reduced mot
 
 ## Linked pages
 
-All seven linked pages use the current Revision 3 desktop and mobile frames in section `563:3280`. See `src/components/linked-pages/SOURCE.md` for source IDs and layout details. Their enquiries do not submit data; legal text remains draft. Those routes support the landing preview and do not claim a live product or live creator onboarding.
+The seven secondary pages, their three confirmations and the 404 follow the current Revision 3 section (`582:3029`). See `src/components/linked-pages/SOURCE.md` for frame IDs and the two additions that are not in Figma. Their forms do not submit data and say so; legal text remains draft.
 
 ## Mobile fixes
 

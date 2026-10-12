@@ -40,6 +40,13 @@ export function Navigation({ home = false }: { home?: boolean }) {
     if (Math.abs(y - previous) < 4) return;
     setHidden(y > previous && y > 240 && !open);
   });
+  // The open phone menu fills the screen, so the page behind stays put.
+  useEffect(() => {
+    if (!open) return;
+    const root = document.documentElement;
+    root.classList.add("menu-open");
+    return () => root.classList.remove("menu-open");
+  }, [open]);
   return (
     <Collapsible
       open={open}
@@ -48,6 +55,7 @@ export function Navigation({ home = false }: { home?: boolean }) {
         <header
           className={`site-nav ${home ? "hero-nav" : ""}`}
           data-hidden={hidden || undefined}
+          data-menu-open={open || undefined}
         />
       }
       onKeyDown={(event) => {
@@ -78,7 +86,7 @@ export function Navigation({ home = false }: { home?: boolean }) {
         {open ? <X /> : <Menu />}
       </CollapsibleTrigger>
       <CollapsibleContent className="mobile-menu">
-        <div className="mobile-menu-inner">
+        <div className="mobile-menu-inner" data-lenis-prevent>
           <nav aria-label="Mobile navigation" onClick={() => setOpen(false)}>
             <Link href="/#how-it-works">How it works</Link>
             <Link href="/#your-control">Your control</Link>
@@ -86,14 +94,16 @@ export function Navigation({ home = false }: { home?: boolean }) {
             <Link href="/pilot">Pilot overview</Link>
             <Link href="/about">About</Link>
             <Link href="/contact">Contact</Link>
-            <Action href="/creator-pilot" variant="cream">
-              Apply as a creator
-            </Action>
-            <Link href="/brand-pilot">Book a pilot call</Link>
           </nav>
-          <p className="mobile-menu-notice">
-            Signing up grants no rights to your likeness.
-          </p>
+          <div className="mobile-menu-actions" onClick={() => setOpen(false)}>
+            <Action href="/creator-pilot">Apply as a creator</Action>
+            <Action href="/brand-pilot" variant="cream">
+              Book a pilot call
+            </Action>
+            <p className="mobile-menu-notice">
+              Applying grants no rights to your likeness.
+            </p>
+          </div>
         </div>
       </CollapsibleContent>
     </Collapsible>
@@ -584,7 +594,7 @@ export function Footer() {
           {
             title: "Company",
             links: [
-              ["About Semblanse", "/about"],
+              ["About", "/about"],
               ["Contact", "/contact"],
               ["Privacy", "/privacy"],
               ["Terms", "/terms"],

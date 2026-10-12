@@ -1,17 +1,16 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useRef, useState, type ReactNode } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Action } from "@/components/landing/brand";
-import { ArrowLink, EditorialRows, PageTitle, ProfileAccent } from "./shared";
-import content from "./content.json";
-import { DitherImage } from "@/components/landing/dither";
+import { DitherImage, heroDither } from "@/components/landing/dither";
+import { PosterPage, ProfileRow, TextLink } from "./shared";
 
-type Kind = "creator-pilot" | "brand-pilot" | "contact";
+export type EnquiryKind = "creator-pilot" | "brand-pilot" | "contact";
 
 function Field({
   name,
@@ -19,27 +18,29 @@ function Field({
   placeholder,
   type = "text",
   optional = false,
-  message = false,
+  rows,
   autoComplete,
 }: {
   name: string;
   label: string;
-  placeholder: string;
+  placeholder?: string;
   type?: string;
   optional?: boolean;
-  message?: boolean;
+  /** Renders a multi-line field of this height in rows. */
+  rows?: number;
   autoComplete?: string;
 }) {
   return (
-    <div className="lp-field">
+    <div className="sp-field">
       <Label htmlFor={name}>
         {label}
-        {optional && <span> Optional</span>}
+        {optional && <span>(optional)</span>}
       </Label>
-      {message ? (
+      {rows ? (
         <Textarea
           id={name}
           name={name}
+          rows={rows}
           placeholder={placeholder}
           required={!optional}
         />
@@ -59,20 +60,23 @@ function Field({
 
 function Choice({
   label,
+  hint,
   name,
   options,
   defaultValue,
   multiple = false,
 }: {
   label: string;
+  hint?: string;
   name: string;
   options: string[];
   defaultValue?: string;
   multiple?: boolean;
 }) {
   return (
-    <fieldset className="lp-choice">
+    <fieldset className="sp-choice">
       <legend>{label}</legend>
+      {hint && <p className="sp-hint">{hint}</p>}
       <div>
         {options.map((option) => (
           <label key={option}>
@@ -91,360 +95,400 @@ function Choice({
   );
 }
 
-function EnquiryForm({
-  kind,
-  onPreview,
-}: {
-  kind: Kind;
-  onPreview: () => void;
-}) {
-  const [instagramPreview, setInstagramPreview] = useState(false);
-  const creator = kind === "creator-pilot";
-  const brand = kind === "brand-pilot";
+function Consent({ children }: { children: ReactNode }) {
   return (
-    <div
-      className={`lp-form-stage ${creator ? "lp-lilac" : brand ? "lp-sage" : "lp-green"}`}
-    >
-      <form
-        className="lp-form"
-        onSubmit={(event) => {
-          event.preventDefault();
-          onPreview();
-        }}
-      >
-        <h2>
-          {creator
-            ? "Apply as a creator"
-            : brand
-              ? "Request a pilot call"
-              : "Send a message"}
-        </h2>
-        {creator ? (
-          <>
-            <p>
-              Start by confirming your account. Then tell us a little about what
-              you make.
-            </p>
-            <Button
-              className="lp-instagram"
-              type="button"
-              onClick={() => setInstagramPreview(true)}
-            >
-              <img src="/linked-pages/563-2975-imgCameraGlyph.svg" alt="" />
-              Continue with Instagram
-            </Button>
-            <p className="lp-form-small">
-              We only use this to confirm the account is yours. We can’t post
-              for you or see your messages.
-            </p>
-            {instagramPreview && (
-              <p className="lp-preview-notice" role="status">
-                Instagram sign-in is a preview. No account was connected. You
-                can try the form below.
-              </p>
-            )}
-          </>
-        ) : brand ? (
-          <p>
-            Takes two minutes. Nothing is agreed until you approve the terms.
+    <label className="sp-consent">
+      <input type="checkbox" required />
+      <span>{children}</span>
+    </label>
+  );
+}
+
+const privacy = <Link href="/privacy">Privacy Policy</Link>;
+
+const pages = {
+  "creator-pilot": {
+    tone: "ink",
+    title: "Your likeness.\nYour call.",
+    lead: "Applying takes a few minutes. You join our waitlist, and we’ll reach out when a campaign fits you.",
+    notesTitle: "What happens next",
+    notes: [
+      [
+        "We confirm it’s you.",
+        "Signing in with Instagram means no one else can apply as you.",
+      ],
+      [
+        "We reach out when a campaign fits.",
+        "You see the brand, fee, channels and term before anything starts.",
+      ],
+      [
+        "You decide.",
+        "Accept, ask for changes or say no. Nothing is used until you accept.",
+      ],
+    ],
+    formTitle: "Tell us about you.",
+    submit: "Join the waitlist",
+    small: "Applying grants no rights to your likeness.",
+  },
+  "brand-pilot": {
+    tone: "green",
+    title: "Put a real\ncreator in your\nnext AI ad.",
+    lead: "Tell us about your brand or your clients. We’ll reply by email with times for a short call to scope a first campaign.",
+    notesTitle: "On the call",
+    notes: [
+      [
+        "Your brief.",
+        "What you’re selling, who it’s for, and the creators who could fit.",
+      ],
+      [
+        "Your production setup.",
+        "Who makes your ads, the tools they use, and how creator approval fits your schedule.",
+      ],
+      [
+        "Price and the test.",
+        "What a pilot costs, and which of your ads we’ll compare it against.",
+      ],
+    ],
+    formTitle: "Tell us about your brand.",
+    submit: "Request a pilot call",
+    small: "Nothing is agreed until you’ve seen and accepted a quote.",
+  },
+  contact: {
+    tone: "lilac",
+    title: "Get in touch.",
+    lead: "Questions about the pilots, a partnership or press? Send us a note and we’ll reply by email.",
+    notesTitle: "",
+    notes: [],
+    formTitle: "Send us a note.",
+    submit: "Send message",
+    small: "",
+  },
+} as const;
+
+function Fields({ kind }: { kind: EnquiryKind }) {
+  const [instagram, setInstagram] = useState(false);
+  if (kind === "creator-pilot")
+    return (
+      <>
+        <div className="sp-instagram">
+          <p className="sp-label">First, confirm your Instagram account</p>
+          <Button
+            type="button"
+            className="sp-instagram-button"
+            aria-pressed={instagram}
+            onClick={() => setInstagram(true)}
+          >
+            <span className="sp-camera" aria-hidden="true" />
+            {instagram
+              ? "Preview only: no account was connected"
+              : "Continue with Instagram"}
+          </Button>
+          <p className="sp-hint">
+            We only use this to confirm the account is yours. We can’t post for
+            you or see your messages.
           </p>
-        ) : null}
-        <p className="lp-preview-notice">
-          Preview form. Your details stay in this browser and are not sent.
-        </p>
-        <Field
-          name="full-name"
-          label="FULL NAME"
-          placeholder="Your name"
-          autoComplete="name"
-        />
+        </div>
+        <hr />
+        <Field name="name" label="Full name" autoComplete="name" />
         <Field
           name="email"
-          label={brand ? "WORK EMAIL" : "EMAIL"}
-          placeholder={brand ? "you@company.com" : "you@example.com"}
+          label="Email"
           type="email"
+          placeholder="you@example.com"
           autoComplete="email"
         />
-        {creator ? (
-          <>
-            <Choice
-              label="WHAT DO YOU MAKE?"
-              name="category"
-              options={[
-                "Fitness",
-                "Food",
-                "Beauty",
-                "Lifestyle",
-                "Outdoors",
-                "Parenting",
-                "Something else",
-              ]}
-              defaultValue="Fitness"
-              multiple
-            />
-            <Field
-              name="creator-profile"
-              label="TIKTOK OR YOUTUBE"
-              placeholder="Link to your profile"
-              type="url"
-              optional
-            />
-            <Choice
-              label="WHERE DO YOU LIVE?"
-              name="country"
-              options={["Canada", "United States", "Somewhere else"]}
-              defaultValue="Canada"
-            />
-            <Field
-              name="boundaries"
-              label="ANYTHING YOU’D NEVER PROMOTE?"
-              placeholder="Topics, brands or claims that are off limits for you"
-              optional
-              message
-            />
-          </>
-        ) : brand ? (
-          <>
-            <Field
-              name="company"
-              label="COMPANY"
-              placeholder="Brand or agency name"
-              autoComplete="organization"
-            />
-            <Choice
-              label="YOU ARE"
-              name="team"
-              options={["An agency", "A brand"]}
-              defaultValue="An agency"
-            />
-            <Field
-              name="product"
-              label="WHAT DO YOU SELL?"
-              placeholder="e.g. DTC skincare. Agencies: who your clients are"
-            />
-            <Choice
-              label="MONTHLY PAID SOCIAL SPEND"
-              name="spend"
-              options={[
-                "Under $10K",
-                "$10K–$50K",
-                "$50K+",
-                "Prefer not to say",
-              ]}
-              defaultValue="$10K–$50K"
-            />
-            <Field
-              name="test"
-              label="WHAT WOULD YOU WANT TO TEST?"
-              placeholder="A product, an audience, or an ad you’d like to beat"
-              optional
-              message
-            />
-          </>
-        ) : (
-          <>
-            <Choice
-              label="I’M A"
-              name="enquirer"
-              options={[
-                "Creator",
-                "Brand or agency",
-                "Investor",
-                "Press",
-                "Something else",
-              ]}
-            />
-            <Field
-              name="message"
-              label="MESSAGE"
-              placeholder="How can we help?"
-              message
-            />
-          </>
-        )}
-        <label className="lp-consent">
-          <input type="checkbox" required />
-          <span>
-            {creator
-              ? "I’m 18 or older, and I agree to the "
-              : "I agree to the "}
-            <Link href="/privacy">Privacy Policy</Link>
-            {creator && (
-              <>
-                {" and "}
-                <Link href="/terms">Terms</Link>
-              </>
-            )}
-            .
-          </span>
-        </label>
-        <Button type="submit" className="lp-submit">
-          {creator
-            ? "Join the waitlist"
-            : brand
-              ? "Request a pilot call"
-              : "Send message"}
-          <span className="sr-only"> — preview only</span>
-        </Button>
-        <p className="lp-form-small lp-center">
-          {creator
-            ? "Applying grants no rights to your likeness."
-            : brand
-              ? "We’ll reply by email with times for a short call."
-              : "We’ll reply by email."}
-        </p>
-      </form>
+        <Choice
+          label="What do you make?"
+          hint="Pick any that fit."
+          name="category"
+          multiple
+          defaultValue="Fitness"
+          options={[
+            "Fitness",
+            "Food",
+            "Beauty",
+            "Lifestyle",
+            "Outdoors",
+            "Parenting",
+            "Something else",
+          ]}
+        />
+        <Field
+          name="profile"
+          label="TikTok or YouTube"
+          type="url"
+          placeholder="Link to your profile"
+          optional
+        />
+        <Choice
+          label="Where do you live?"
+          name="country"
+          defaultValue="Canada"
+          options={["Canada", "United States", "Somewhere else"]}
+        />
+        <Field
+          name="limits"
+          label="Anything you’d never promote?"
+          placeholder="Topics, brands or claims that are off limits for you"
+          rows={4}
+          optional
+        />
+        <Consent>
+          I’m 18 or older, and I agree to the {privacy} and{" "}
+          <Link href="/terms">Terms</Link>.
+        </Consent>
+      </>
+    );
+  if (kind === "brand-pilot")
+    return (
+      <>
+        <Field name="name" label="Full name" autoComplete="name" />
+        <Field
+          name="email"
+          label="Work email"
+          type="email"
+          placeholder="you@company.com"
+          autoComplete="email"
+        />
+        <Field
+          name="company"
+          label="Company"
+          placeholder="Brand or agency name"
+          autoComplete="organization"
+        />
+        <Choice
+          label="Are you a brand or an agency?"
+          name="type"
+          defaultValue="Agency"
+          options={["Brand", "Agency"]}
+        />
+        <Field
+          name="sell"
+          label="What do you sell, or who are your clients?"
+          placeholder="e.g. DTC skincare, or the supplement brands you run ads for"
+        />
+        <Choice
+          label="Monthly paid social spend"
+          hint="Agencies: across the clients you’d test with."
+          name="spend"
+          defaultValue="$10K–$50K"
+          options={[
+            "Under $10K",
+            "$10K–$50K",
+            "Over $50K",
+            "Prefer not to say",
+          ]}
+        />
+        <Field
+          name="test"
+          label="What would you want to test?"
+          placeholder="A product, an audience, or an ad you’d like to beat"
+          rows={4}
+          optional
+        />
+        <Consent>I agree to the {privacy}.</Consent>
+      </>
+    );
+  return (
+    <>
+      <Field name="name" label="Full name" autoComplete="name" />
+      <Field
+        name="email"
+        label="Email"
+        type="email"
+        placeholder="you@example.com"
+        autoComplete="email"
+      />
+      <Choice
+        label="I’m a…"
+        name="role"
+        options={[
+          "Creator",
+          "Brand or agency",
+          "Investor",
+          "Press",
+          "Something else",
+        ]}
+      />
+      <Field
+        name="message"
+        label="Message"
+        placeholder="How can we help?"
+        rows={5}
+      />
+      <Consent>I agree to the {privacy}.</Consent>
+    </>
+  );
+}
+
+function Artwork({ kind }: { kind: EnquiryKind }) {
+  if (kind === "creator-pilot")
+    return (
+      <DitherImage
+        className="sp-panel-art"
+        src="/figma/source/cap-scene.webp"
+        alt=""
+        flipX
+      />
+    );
+  if (kind === "brand-pilot")
+    return (
+      <DitherImage
+        className="sp-panel-art"
+        src="/figma/source/creator-recording.webp"
+        alt=""
+      />
+    );
+  // The landing hero artwork, with its treatment: 36% on white over ink.
+  return (
+    <div className="sp-panel-art sp-panel-art-hero">
+      <DitherImage
+        src="/figma/source/hero.webp"
+        alt=""
+        position={[0.9, 0.5]}
+        settings={heroDither}
+      />
     </div>
   );
 }
 
-function Confirmation({ kind, onBack }: { kind: Kind; onBack: () => void }) {
-  const creator = kind === "creator-pilot";
-  const brand = kind === "brand-pilot";
-  return (
-    <section
-      className={`lp-confirmation ${creator ? "lp-green" : brand ? "lp-ink" : "lp-sage"}`}
-      tabIndex={-1}
-    >
-      <div className="lp-confirmation-copy">
-        <p className="lp-eyebrow">
-          {creator
-            ? "APPLICATION PREVIEW"
-            : brand
-              ? "PILOT REQUEST PREVIEW"
-              : "MESSAGE PREVIEW"}
-        </p>
-        <PageTitle>
-          {creator
-            ? "You’re at\nthe next step."
-            : brand
-              ? "Ready for\na pilot call."
-              : "Thanks for\ntrying the form."}
-        </PageTitle>
-        <p className="lp-lead">
-          This is the end of the preview. No enquiry was sent, no account was
-          connected, and no rights were granted.
-        </p>
-        {brand ? (
+const previewNote = "Preview only. No details left this browser.";
+
+function Confirmation({ kind }: { kind: EnquiryKind }) {
+  const home = (variant: "default" | "cream") => (
+    <Action href="/" variant={variant}>
+      Back to the homepage
+    </Action>
+  );
+  if (kind === "creator-pilot")
+    return (
+      <PosterPage
+        tone="ink"
+        title={"You’re on\nthe waitlist."}
+        actions={
           <>
-            <p className="lp-eyebrow">BEFORE THE CALL, IT HELPS TO HAVE</p>
-            <ul className="lp-confirmation-list">
-              <li>Your product and the audience you’re targeting</li>
-              <li>A recent ad that performed well</li>
-              <li>The AI tools your team uses today</li>
-            </ul>
+            {home("default")}
+            <TextLink href="/#how-it-works">See how a campaign works</TextLink>
           </>
-        ) : (
-          <div className="lp-confirmation-links">
-            <ArrowLink href={creator ? "/#how-it-works" : "/#questions"}>
-              {creator ? "See how a campaign works" : "Read the FAQ"}
-            </ArrowLink>
-            <ArrowLink href={creator ? "/#your-control" : "/pilot"}>
-              {creator
-                ? "Read how we protect your likeness"
-                : "See the pilot overview"}
-            </ArrowLink>
-            <ArrowLink href={creator ? "/#questions" : "/#your-control"}>
-              {creator
-                ? "Read the creator FAQ"
-                : "How we protect your likeness"}
-            </ArrowLink>
-          </div>
-        )}
-        <div className="lp-actions">
-          <Action href="/" variant={kind === "contact" ? "default" : "cream"}>
-            Back to the homepage
-          </Action>
-          <Button className="lp-back" variant="outline" onClick={onBack}>
-            Back to preview form
-          </Button>
-        </div>
-      </div>
-      {kind === "contact" ? (
-        <ProfileAccent contact />
-      ) : (
-        <DitherImage
-          className="lp-confirmation-art"
-          src={
-            creator
-              ? "/figma/source/cap-scene.webp"
-              : "/figma/source/creator-recording.webp"
-          }
-          alt=""
-        />
-      )}
-    </section>
+        }
+        note={previewNote}
+        profiles={<ProfileRow />}
+      >
+        Thanks for applying. When a campaign fits what you make, we’ll email you
+        the brand, fee, channels and term, and you decide. There’s nothing else
+        to do for now.
+      </PosterPage>
+    );
+  if (kind === "brand-pilot")
+    return (
+      <PosterPage
+        tone="green"
+        title={"We’ll send\nyou some times."}
+        actions={
+          <>
+            {home("cream")}
+            <TextLink href="/pilot">See the pilot overview</TextLink>
+          </>
+        }
+        note={previewNote}
+        profiles={<ProfileRow tones={{ a: "var(--ink)" }} />}
+      >
+        Look out for an email from us with a few times for a short call. It
+        helps to have your product, a recent ad that worked, and the AI tools
+        your team uses.
+      </PosterPage>
+    );
+  return (
+    <PosterPage
+      tone="lilac"
+      title={"Thanks for\nwriting."}
+      actions={
+        <>
+          {home("default")}
+          <TextLink href="/#questions">Read the FAQ</TextLink>
+          <TextLink href="/pilot">See the pilot overview</TextLink>
+        </>
+      }
+      note={previewNote}
+      profiles={<ProfileRow tones={{ c: "#4f405e" }} />}
+    >
+      We’ll reply to the email you gave us. In the meantime, the FAQ and the
+      pilot overview answer most questions.
+    </PosterPage>
   );
 }
 
-export function EnquiryPage({ kind }: { kind: Kind }) {
-  const [preview, setPreview] = useState(false);
-  const sectionRef = useRef<HTMLDivElement>(null);
-  const t = content[kind].sections[0].text;
-  const creator = kind === "creator-pilot";
-  const brand = kind === "brand-pilot";
-  function showPreview(value: boolean) {
-    setPreview(value);
+export function EnquiryPage({ kind }: { kind: EnquiryKind }) {
+  const [sent, setSent] = useState(false);
+  const wrap = useRef<HTMLDivElement>(null);
+  const page = pages[kind];
+  function submit() {
+    setSent(true);
     requestAnimationFrame(() => {
-      sectionRef.current?.scrollIntoView({
-        block: "start",
-        behavior: "instant",
-      });
-      sectionRef.current
-        ?.querySelector<HTMLElement>(value ? ".lp-confirmation" : "input")
+      window.scrollTo({ top: 0, behavior: "instant" });
+      wrap.current
+        ?.querySelector<HTMLElement>(".sp-poster")
         ?.focus({ preventScroll: true });
     });
   }
+  if (sent)
+    return (
+      <div ref={wrap}>
+        <Confirmation kind={kind} />
+      </div>
+    );
   return (
-    <div ref={sectionRef}>
-      {preview ? (
-        <Confirmation kind={kind} onBack={() => showPreview(false)} />
-      ) : (
-        <section
-          className={`lp-enquiry lp-enquiry-${kind}`}
-          data-figma-node={content[kind].id}
-        >
-          <div
-            className={`lp-enquiry-story ${creator ? "lp-ink" : brand ? "lp-lilac" : ""}`}
-          >
-            <p className="lp-eyebrow">{t[0]}</p>
-            <PageTitle>{t[1]}</PageTitle>
-            <p className="lp-lead">{t[2]}</p>
-            {creator || brand ? (
-              <div className="lp-enquiry-explainer">
-                <p className="lp-eyebrow">{t[3]}</p>
-                <EditorialRows
-                  texts={t.slice(4, creator ? 10 : 12)}
-                  bullets={creator}
-                />
+    <div ref={wrap} className="sp-split">
+      <div className={`sp-panel sp-${page.tone}`}>
+        <div className="sp-panel-copy">
+          <h1 className="sp-panel-title">{page.title}</h1>
+          <p className="sp-panel-lead">{page.lead}</p>
+          <div className="sp-notes">
+            {page.notesTitle && <h2>{page.notesTitle}</h2>}
+            {page.notes.map(([title, copy]) => (
+              <div key={title}>
+                <h3>{title}</h3>
+                <p>{copy}</p>
               </div>
-            ) : (
-              <div className="lp-contact-paths">
-                <Link href="/creator-pilot" className="lp-sage">
-                  <p className="lp-eyebrow">{t[3]}</p>
-                  <h2>{t[4]}</h2>
-                  <div>
-                    {t[5]}
-                    <span aria-hidden="true">→</span>
-                  </div>
-                </Link>
-                <Link href="/brand-pilot" className="lp-lilac">
-                  <p className="lp-eyebrow">{t[7]}</p>
-                  <h2>{t[8]}</h2>
-                  <div>
-                    {t[9]}
-                    <span aria-hidden="true">→</span>
-                  </div>
-                </Link>
-              </div>
+            ))}
+            {kind === "contact" && (
+              <>
+                <div>
+                  <h3>Want to be in a campaign?</h3>
+                  <TextLink href="/creator-pilot">Apply as a creator</TextLink>
+                </div>
+                <div>
+                  <h3>Planning a campaign?</h3>
+                  <TextLink href="/brand-pilot">Book a pilot call</TextLink>
+                </div>
+              </>
             )}
-            {!brand && <ProfileAccent contact={kind === "contact"} />}
           </div>
-          <div className="lp-enquiry-form-side">
-            <EnquiryForm kind={kind} onPreview={() => showPreview(true)} />
+        </div>
+        <Artwork kind={kind} />
+      </div>
+      <div className="sp-form-column">
+        <h2 className="sp-form-title">{page.formTitle}</h2>
+        <form
+          className="sp-form"
+          onSubmit={(event) => {
+            event.preventDefault();
+            submit();
+          }}
+        >
+          <Fields kind={kind} />
+          <div className="sp-submit">
+            <Button type="submit" className="sp-submit-button">
+              {page.submit}
+            </Button>
+            {page.small && <p className="sp-hint">{page.small}</p>}
+            {/* Not in Figma. The form is not connected, and says so. */}
+            <p className="sp-hint">
+              Preview form. Your details stay in this browser and are not sent.
+            </p>
           </div>
-        </section>
-      )}
+        </form>
+      </div>
     </div>
   );
 }
