@@ -1,0 +1,379 @@
+{
+  "creator-pilot": {
+    "id": "495:9832",
+    "name": "Semblanse · Creator pilot · Desktop",
+    "sections": [
+      {
+        "id": "495:9852",
+        "name": "Hero · creator",
+        "text": [
+          "Creator pilot",
+          "Your likeness.\nYour say.",
+          "Take part in paid AI ad campaigns built around your stories, your limits and your approval. The brand handles production.",
+          "Join the creator pilot",
+          "Signing up grants no rights to your likeness."
+        ]
+      },
+      {
+        "id": "495:9861",
+        "name": "Editorial · A campaign you\ncan say yes to.",
+        "text": [
+          "A campaign you\ncan say yes to.",
+          "Know the offer",
+          "See the brand, campaign use, fee and licence term before you agree. Each campaign has its own terms.",
+          "Bring your context",
+          "Share the stories, experience and point of view that should guide the ad. Set what is allowed and what is off limits.",
+          "Approve the finished ad",
+          "Review each finished version. Ask for changes or approve it before it runs."
+        ]
+      },
+      {
+        "id": "495:9874",
+        "name": "Your context and boundaries",
+        "text": [
+          "Your limits belong\nin the brief.",
+          "What you bring",
+          "Your face and voice, once agreed. Your real experience, tone and stories. The details that make the portrayal feel like you.",
+          "What you decide",
+          "The brands and products you will work with. The claims and portrayals you allow. Where the approved ad may run and for how long."
+        ]
+      },
+      {
+        "id": "495:9883",
+        "name": "Enquiry · creator",
+        "text": [
+          "Start with\na hello.",
+          "Tell us where to find your work. We’ll share the pilot details before you decide whether to take part.",
+          "Pilot enquiries start with a conversation. Campaign fit, rights and fees are agreed before you take part.",
+          "Your name",
+          "Your name",
+          "Email address",
+          "Email address",
+          "Creator profile",
+          "Link to your public profile",
+          "We use these details to reply about the creator pilot. This form does not grant permission to use your face or voice.",
+          "Privacy",
+          "Terms",
+          "Request pilot details"
+        ]
+      }
+    ]
+  },
+  "brand-pilot": {
+    "id": "495:10073",
+    "name": "Semblanse · Brand & agency pilot · Desktop",
+    "sections": [
+      {
+        "id": "495:10093",
+        "name": "Hero · brand",
+        "text": [
+          "Brand & agency pilot",
+          "More creator ads.\nWithout more shoots.",
+          "Work with creators who bring real context to the ad. Agree the campaign rights, produce with your chosen tools, and get each finished version approved.",
+          "Ask about a pilot"
+        ]
+      },
+      {
+        "id": "495:10101",
+        "name": "Editorial · From a brief\nto an approved ad.",
+        "text": [
+          "From a brief\nto an approved ad.",
+          "Shape the campaign",
+          "Start with the product, audience, creative idea and intended use. We help define a pilot that fits.",
+          "Agree the rights",
+          "Match with a creator and agree the fee, portrayal, tools, channels, territory and term before production.",
+          "Produce and review",
+          "Use the creator’s context to guide the ad. Share finished versions for approval and work within the agreed licence."
+        ]
+      },
+      {
+        "id": "495:10114",
+        "name": "Brand production and permission",
+        "text": [
+          "Creative is yours.\nPermission is theirs.",
+          "A licence for each campaign. A record of every approval. The creator’s stories and judgment guide the portrayal."
+        ]
+      },
+      {
+        "id": "495:10117",
+        "name": "Enquiry · brand",
+        "text": [
+          "Let’s scope\nyour pilot.",
+          "Tell us about your team and the campaign you have in mind. We’ll discuss fit, scope and pricing together.",
+          "Pilot enquiries start with a conversation. Campaign fit, rights and fees are agreed before you take part.",
+          "Your name",
+          "Your name",
+          "Work email",
+          "Work email",
+          "Company or agency",
+          "Company or agency",
+          "Campaign idea",
+          "Product, audience and intended use",
+          "We use these details to reply to your enquiry.",
+          "Privacy",
+          "Terms",
+          "Request a pilot call"
+        ]
+      }
+    ]
+  },
+  "about": {
+    "id": "496:1768",
+    "name": "Semblanse · About Semblanse · Desktop",
+    "sections": [
+      {
+        "id": "496:1788",
+        "name": "About · opening statement",
+        "text": [
+          "About Semblanse",
+          "Someone’s face.\nSomeone’s voice.\nSomeone’s say.",
+          "Creator identity carries stories, trust and judgment. Our work starts with the person behind it."
+        ]
+      },
+      {
+        "id": "496:1792",
+        "name": "One identity · many approved possibilities",
+        "text": ["More possibilities.\nThe same person’s permission."]
+      },
+      {
+        "id": "496:1811",
+        "name": "Editorial · Built around\npermission.",
+        "text": [
+          "Built around\npermission.",
+          "Specific to a campaign",
+          "Semblanse is being built for campaign-specific creator identity licensing. Brands and creators agree the intended portrayal and use.",
+          "Shaped by the creator",
+          "A creator’s context helps guide the ad. Their boundaries and final approval remain part of the process.",
+          "Clear about our stage",
+          "We’re developing the workspace and running our first campaigns hands-on. The screens on this site show the product we’re building."
+        ]
+      },
+      {
+        "id": "496:1824",
+        "name": "Closing invitation",
+        "text": [
+          "Help shape what comes next.",
+          "Join the creator pilot or talk with us about a brand campaign.",
+          "For creators",
+          "For brands"
+        ]
+      }
+    ]
+  },
+  "contact": {
+    "id": "496:1981",
+    "name": "Semblanse · Contact · Desktop",
+    "sections": [
+      {
+        "id": "496:2001",
+        "name": "Hero · contact",
+        "text": [
+          "Contact Semblanse",
+          "Let’s talk.",
+          "Have a campaign in mind, a question about the pilot, or something you want us to know? Start here."
+        ]
+      },
+      {
+        "id": "496:2007",
+        "name": "Choose your enquiry",
+        "text": [
+          "Want to take part?",
+          "The creator pilot is the place to share your profile and hear about campaigns.",
+          "Creator pilot",
+          "Planning a campaign?",
+          "Tell us about your team, the product and the ad you have in mind.",
+          "Brand & agency pilot"
+        ]
+      },
+      {
+        "id": "496:2019",
+        "name": "Enquiry · contact",
+        "text": [
+          "Send us\na message.",
+          "For general questions, pilot support or a concern about your likeness, share enough detail for us to route your message.",
+          "Pilot enquiries start with a conversation. Campaign fit, rights and fees are agreed before you take part.",
+          "Your name",
+          "Your name",
+          "Email address",
+          "Email address",
+          "Subject",
+          "What is your message about?",
+          "Message",
+          "Tell us how we can help",
+          "We use these details to reply to your enquiry.",
+          "Privacy",
+          "Terms",
+          "Send message"
+        ]
+      }
+    ]
+  },
+  "pilot": {
+    "id": "496:2204",
+    "name": "Semblanse · Pilot overview · Desktop",
+    "sections": [
+      {
+        "id": "496:2224",
+        "name": "Pilot · opening poster",
+        "text": [
+          "Pilot overview",
+          "The first campaigns.\nBuilt together.",
+          "We’re running our first campaigns hands-on while we build the workspace. Creators and brands help shape the process by taking part in a scoped campaign.",
+          "Join as a creator",
+          "Talk about a brand pilot"
+        ]
+      },
+      {
+        "id": "496:2233",
+        "name": "A pilot from offer to payment",
+        "text": [
+          "One campaign.\nFive clear stages.",
+          "01",
+          "Offer",
+          "Agree the brand, fee and campaign rights.",
+          "02",
+          "Context",
+          "Share the stories and limits that guide the ad.",
+          "03",
+          "Approval",
+          "Review the finished version before it runs.",
+          "04",
+          "Results",
+          "See the results the brand reports.",
+          "05",
+          "Payment",
+          "Receive the agreed fee at the agreed milestone."
+        ]
+      },
+      {
+        "id": "496:2256",
+        "name": "Editorial · Before you\ntake part.",
+        "text": [
+          "Before you\ntake part.",
+          "A clear scope",
+          "The pilot starts with a specific campaign. Fit, fees, rights and the production plan need agreement before the work begins.",
+          "A creator’s decision",
+          "Joining the list grants no rights to a likeness. A creator can review an offer before deciding to take part.",
+          "A shared record",
+          "The proposed workspace brings together context, terms, versions, approvals, payment and licence expiry. Its public screens are product previews."
+        ]
+      },
+      {
+        "id": "496:2269",
+        "name": "Closing invitation",
+        "text": [
+          "Choose your next step.",
+          "Tell us who you are and what you want to make.",
+          "Creator pilot",
+          "Brand & agency pilot"
+        ]
+      }
+    ]
+  },
+  "privacy": {
+    "id": "496:2435",
+    "name": "Semblanse · Privacy · Draft · Desktop",
+    "sections": [
+      {
+        "id": "496:2455",
+        "name": "Policy opening",
+        "text": [
+          "Privacy · Draft for review",
+          "Privacy, plainly.",
+          "How information fits into the proposed enquiry and campaign process.",
+          "Draft for review",
+          "This page is a design and content draft. The legal operator, live data practices and final terms need confirmation before publication."
+        ]
+      },
+      {
+        "id": "496:2462",
+        "name": "Policy content",
+        "text": [
+          "On this page",
+          "Information you share",
+          "Why we ask for it",
+          "Campaign materials",
+          "Tools and data recipients",
+          "Retention and deletion",
+          "Your choices",
+          "Cookies and site data",
+          "Contact and policy updates",
+          "Information you share",
+          "Enquiries ask for contact details and the information needed to understand your interest in a pilot. Creator enquiries may include a public profile link; brand enquiries may include a company and campaign idea.",
+          "Why we ask for it",
+          "The intended use is to reply to your enquiry, discuss pilot fit and arrange the next steps you agree to. Any other use needs clear notice.",
+          "Campaign materials",
+          "A campaign may involve face or voice material, creator context, boundaries, licence terms and approval records. The collection and use of these materials must be explained before you take part. Signing up alone grants no likeness rights.",
+          "Tools and data recipients",
+          "The published policy must identify the service providers that handle site enquiries and campaign materials. A campaign agreement should name the production tools and explain who may access its source material.",
+          "Retention and deletion",
+          "The published policy must state how long enquiry details, campaign files and approval records remain in storage, and how deletion requests work. These periods are still to be confirmed.",
+          "Your choices",
+          "You can ask questions about the information you share, request a correction, or raise a privacy concern through Contact. Campaign permissions, expiry and renewal belong in the relevant campaign agreement.",
+          "Cookies and site data",
+          "The published policy must describe any analytics, cookies or similar tools the live site actually uses. The current design does not establish which tools will run on the site.",
+          "Contact and policy updates",
+          "The final policy needs the legal operator’s name, a working privacy contact and an effective date. We will publish those details once the operating process is confirmed."
+        ]
+      },
+      {
+        "id": "496:2507",
+        "name": "Policy questions",
+        "text": ["A question about this page?", "Contact Semblanse"]
+      }
+    ]
+  },
+  "terms": {
+    "id": "496:2672",
+    "name": "Semblanse · Terms · Draft · Desktop",
+    "sections": [
+      {
+        "id": "496:2692",
+        "name": "Policy opening",
+        "text": [
+          "Terms · Draft for review",
+          "Clear terms.\nSpecific permission.",
+          "The proposed ground rules for the site and pilot process.",
+          "Draft for review",
+          "This page is a design and content draft. The legal operator, live data practices and final terms need confirmation before publication."
+        ]
+      },
+      {
+        "id": "496:2699",
+        "name": "Policy content",
+        "text": [
+          "On this page",
+          "The pilot stage",
+          "Enquiries and participation",
+          "Permission to use a likeness",
+          "Context and final approval",
+          "Production tools and materials",
+          "Fees and payment",
+          "Expiry, renewal and concerns",
+          "Final terms and updates",
+          "The pilot stage",
+          "Semblanse is developing a workspace for creator identity licensing and running initial campaigns hands-on. Public product screens and campaign figures illustrate the proposed experience.",
+          "Enquiries and participation",
+          "Sending an enquiry expresses interest. Campaign participation depends on fit and a separate agreement. Share accurate contact and profile details so the team can reply.",
+          "Permission to use a likeness",
+          "Creating an enquiry or joining a list grants no rights to a person’s face or voice. Each campaign requires an agreed licence that defines the creator, brand, portrayal, channels, territory and term.",
+          "Context and final approval",
+          "Creator context and stated boundaries guide the portrayal. The proposed process requires the creator to review each finished ad before it runs. Any new use or extension needs the permissions set out in the agreement.",
+          "Production tools and materials",
+          "Brands generally handle production with their chosen tools unless a managed pilot agrees otherwise. The campaign agreement needs to identify approved tools, access to source materials and any storage or deletion terms.",
+          "Fees and payment",
+          "The parties agree scope, price and payment milestones for each campaign. Public sample fees do not set the price of a future campaign. The campaign agreement records the payment rules.",
+          "Expiry, renewal and concerns",
+          "The campaign agreement should state when permission ends, how renewal works and what happens if the agreed use changes. Use Contact to raise a question or concern about an enquiry or pilot.",
+          "Final terms and updates",
+          "Before publication, confirm the legal operator, service terms, governing law, cancellation rules and dispute process. These draft site terms do not replace the separate campaign agreement."
+        ]
+      },
+      {
+        "id": "496:2744",
+        "name": "Policy questions",
+        "text": ["A question about this page?", "Contact Semblanse"]
+      }
+    ]
+  }
+}
