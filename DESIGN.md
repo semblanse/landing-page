@@ -44,7 +44,9 @@ Figma's dither effects were exported from the effect nodes, preserving the exact
 
 Tablet uses its revised hero crop with the matching vertical gradient. Mobile uses a new 9:16 portrait adaptation of the source artwork, made with built-in imagegen and a fine ordered dither. A uniform 64% ink overlay matches the desktop artwork's dark treatment. The image fills the hero's full content height, including both notes, and ends at a hard edge above the solid ink stories section. It does not fade into that section. See [the mobile artwork prompt](docs/mobile-hero-artwork.md).
 
-Only artwork is rasterized. Headings, copy, controls, licence and cards are HTML. The workspace demo plays the supplied video inline, muted and looped, with native controls and a fullscreen action.
+Only artwork is rasterized. Headings, copy, controls, licence and cards are HTML. The workspace demo starts when at least a quarter of the player enters view and pauses outside it. It plays inline, muted and looped, with native controls and a fullscreen action.
+
+The input section keeps the heading within its own column, with a clear gap from the examples. The FAQ shows four common questions first, with one expandable answer open at a time and a control for the full list. Bright green marks the selected audience. The footer uses the full wordmark without a moving reveal; its frame removes only the blank cream below the lettering, placing the intact wordmark at the page bottom.
 
 ## Motion
 

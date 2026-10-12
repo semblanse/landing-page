@@ -2,6 +2,13 @@
 import { useState } from "react";
 import { motion, useReducedMotion } from "motion/react";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
+import { Button } from "@/components/ui/button";
 const creators = [
   [
     "Do I have to film or post the ads?",
@@ -76,11 +83,15 @@ const brands = [
 ];
 export function FAQ() {
   const [audience, setAudience] = useState("creators");
+  const [showAll, setShowAll] = useState(false);
   const reduce = useReducedMotion();
   return (
     <Tabs
       value={audience}
-      onValueChange={(v) => setAudience(String(v))}
+      onValueChange={(v) => {
+        setAudience(String(v));
+        setShowAll(false);
+      }}
       className="faq-tabs"
     >
       <TabsList className="faq-tab-list" aria-label="Questions by audience">
@@ -98,12 +109,26 @@ export function FAQ() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3 }}
           >
-            {rows.map(([q, a]) => (
-              <div className="faq-row" key={q}>
-                <h3>{q}</h3>
-                <p>{a}</p>
-              </div>
-            ))}
+            <Accordion defaultValue={[rows[0][0]]} className="faq-accordion">
+              {(showAll ? rows : rows.slice(0, 4)).map(([q, a]) => (
+                <AccordionItem className="faq-row" key={q} value={q}>
+                  <AccordionTrigger>{q}</AccordionTrigger>
+                  <AccordionContent>
+                    <p>{a}</p>
+                  </AccordionContent>
+                </AccordionItem>
+              ))}
+            </Accordion>
+            <Button
+              variant="outline"
+              className="faq-more"
+              aria-expanded={showAll}
+              onClick={() => setShowAll((current) => !current)}
+            >
+              {showAll
+                ? "Show fewer questions"
+                : `Show all ${rows.length} questions`}
+            </Button>
           </motion.div>
         </TabsContent>
       ))}

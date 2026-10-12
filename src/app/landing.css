@@ -519,8 +519,8 @@ section {
 }
 .inputs-section {
   display: grid;
-  grid-template-columns: minmax(0, 848fr) minmax(0, 421fr);
-  gap: 40px;
+  grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+  gap: 64px;
   padding: 72px 64px 72px 0;
   background: var(--lilac);
   min-height: 795px;
@@ -535,9 +535,8 @@ section {
   text-align: right;
 }
 .input-intro h2 {
-  font-size: 80px;
-  line-height: 68px;
-  margin-left: -85px;
+  font-size: clamp(52px, 4.6vw, 80px);
+  line-height: 1.04;
 }
 .input-intro p {
   font-size: 18px;
@@ -915,7 +914,6 @@ section {
 .questions {
   display: grid;
   grid-template-columns: 480px minmax(0, 1fr);
-  min-height: 1361px;
 }
 .questions-poster {
   display: flex;
@@ -963,17 +961,21 @@ section {
   justify-content: flex-start;
   height: 50px;
   padding: 14px;
-  border: 0;
+  border: 1px solid #18231b60;
   font-size: 16px;
   font-weight: 600;
-  background: #3a8440;
-  color: #fff;
+  background: transparent;
+  color: var(--ink);
   box-shadow: none !important;
   border-radius: 0;
 }
 .faq-tab-list [data-slot="tabs-trigger"][data-active] {
-  background: var(--ink);
-  color: var(--lilac);
+  background: var(--green);
+  border-color: var(--green);
+  color: var(--cream);
+}
+.faq-tab-list [data-slot="tabs-trigger"]:hover:not([data-active]) {
+  background: #18231b0a;
 }
 .faq-tab-list [data-slot="tabs-trigger"]:after {
   display: none;
@@ -982,24 +984,37 @@ section {
   gap: 28px;
 }
 .faq-row {
-  display: grid;
-  grid-template-columns: minmax(0, 300fr) minmax(0, 504fr);
-  gap: 28px;
+  display: block;
   border-top: 1px solid #18231b38;
-  padding-top: 22px;
-  margin-bottom: 28px;
+  border-bottom: 0;
 }
 .faq-row:last-child {
-  margin-bottom: 0;
+  border-bottom: 1px solid #18231b38;
 }
-.faq-row h3 {
+.faq-row [data-slot="accordion-trigger"] {
+  padding: 22px 0;
+  min-height: 64px;
+  font-family: var(--font-display);
   font-size: 28px;
+  font-weight: 400;
   line-height: 32px;
   letter-spacing: 0;
+}
+.faq-row [data-slot="accordion-trigger-icon"] {
+  margin-top: 5px;
 }
 .faq-row p {
   font-size: 20px;
   line-height: 28px;
+  max-width: 65ch;
+}
+.faq-more {
+  margin-top: 24px;
+  min-height: 48px;
+  padding-inline: 20px;
+  background: transparent;
+  border-color: var(--ink);
+  color: var(--ink);
 }
 .closing {
   display: grid;
@@ -1082,9 +1097,16 @@ section {
   line-height: 20px;
 }
 .footer-wordmark {
-  padding-bottom: max(16px, env(safe-area-inset-bottom));
+  position: relative;
+  width: 100%;
+  /* The lettering ends at source row 297. Remove only the blank cream below it. */
+  aspect-ratio: 1429 / 300;
+  overflow: hidden;
 }
 .footer-wordmark img {
+  position: absolute;
+  inset: 0 auto auto 0;
+  display: block;
   width: 100%;
   height: auto;
 }
@@ -1639,10 +1661,6 @@ section {
   .answers {
     padding: 0 48px 56px;
   }
-  .faq-row {
-    gap: 24px;
-    grid-template-columns: 1fr 1fr;
-  }
   .faq-row p {
     font-size: 18px;
     line-height: 25px;
@@ -1933,14 +1951,8 @@ section {
     padding: 10px 12px;
     font-size: 14px;
   }
-  .faq-row {
-    display: flex;
-    flex-direction: column;
-    gap: 14px;
-    padding-top: 20px;
-    margin-bottom: 24px;
-  }
-  .faq-row h3 {
+  .faq-row [data-slot="accordion-trigger"] {
+    padding-block: 20px;
     font-size: 24px;
     line-height: 28px;
   }

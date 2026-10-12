@@ -6,7 +6,7 @@ STORY: Understand the campaign, see the process, choose a pilot enquiry.
 FIRST VIEWPORT: Dark profile artwork behind a three-line title and two actions.
 FORM: Preserve Figma 549:2779, with 554:2845 and 555:2910 responsive layouts.
 */
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { Menu, X, Maximize } from "lucide-react";
 import { motion, useInView, useReducedMotion } from "motion/react";
@@ -362,7 +362,19 @@ function Advertisers() {
 }
 function ProductDemo() {
   const video = useRef<HTMLVideoElement>(null);
+  const inView = useInView(video, { amount: 0.25 });
+  const [autoplayBlocked, setAutoplayBlocked] = useState(false);
   const [fullscreenError, setFullscreenError] = useState(false);
+  useEffect(() => {
+    const player = video.current;
+    if (!player) return;
+    if (inView) {
+      player.muted = true;
+      void player.play().catch(() => setAutoplayBlocked(true));
+    } else {
+      player.pause();
+    }
+  }, [inView]);
   async function fullscreen() {
     const player = video.current as
       | (HTMLVideoElement & {
@@ -371,8 +383,9 @@ function ProductDemo() {
       | null;
     if (!player) return;
     try {
-      if (player.webkitEnterFullscreen) player.webkitEnterFullscreen();
-      else await player.requestFullscreen();
+      if (player.requestFullscreen) await player.requestFullscreen();
+      else if (player.webkitEnterFullscreen) player.webkitEnterFullscreen();
+      else throw new Error("Fullscreen is unavailable");
       setFullscreenError(false);
     } catch {
       setFullscreenError(true);
@@ -385,7 +398,6 @@ function ProductDemo() {
           ref={video}
           className="workspace-player"
           controls
-          autoPlay
           muted
           loop
           playsInline
@@ -393,6 +405,7 @@ function ProductDemo() {
           poster="/media/creator-demo-poster.jpg"
           src="/media/creator-demo.mp4"
           aria-label="Semblanse creator workspace demonstration"
+          onPlay={() => setAutoplayBlocked(false)}
         />
       </div>
       <div className="preview-meta">
@@ -405,6 +418,11 @@ function ProductDemo() {
           <Maximize aria-hidden="true" /> Fullscreen demo
         </Button>
       </div>
+      {autoplayBlocked && (
+        <p className="preview-label" role="status">
+          Press play to view the demo.
+        </p>
+      )}
       {fullscreenError && (
         <p className="preview-label" role="status">
           Use the fullscreen control inside the video player.
@@ -468,15 +486,13 @@ export function Footer() {
       </div>
       <p className="copyright">© 2026 Semblanse. All rights reserved.</p>
       <div className="footer-wordmark" aria-label="Semblanse">
-        <Reveal>
-          <img
-            src={asset("footer-dither")}
-            alt=""
-            width={1429}
-            height={364}
-            loading="lazy"
-          />
-        </Reveal>
+        <img
+          src={asset("footer-dither")}
+          alt=""
+          width={1429}
+          height={364}
+          loading="lazy"
+        />
       </div>
     </footer>
   );
