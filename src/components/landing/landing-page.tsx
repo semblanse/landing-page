@@ -492,6 +492,10 @@ export function LandingPage() {
           <Reveal className="hero-art" kind="scale">
             <picture>
               <source
+                media="(max-width: 599px)"
+                srcSet="/figma/hero-mobile-portrait-dither.webp"
+              />
+              <source
                 media="(max-width: 1023px)"
                 srcSet={asset("554:2846/imgImage2")}
               />

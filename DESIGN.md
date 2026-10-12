@@ -40,7 +40,9 @@ Figma's dither effects were exported from the effect nodes, preserving the exact
 | Closing dither         | `549:3402`                              |
 | Footer dither wordmark | `549:3447`, full export copy `578:3029` |
 
-Mobile and tablet use their revised hero crop with the matching vertical gradient. Only artwork is rasterized. Headings, copy, controls, licence and cards are HTML. The workspace demo plays the supplied video inline, muted and looped, with native controls and a fullscreen action.
+Tablet uses its revised hero crop with the matching vertical gradient. Mobile uses a new 9:16 portrait adaptation of the source artwork, made with built-in imagegen and a fine ordered dither. A uniform 64% ink overlay matches the desktop artwork's dark treatment. The image fills the hero's full content height, including both notes, and ends at a hard edge above the solid ink stories section. It does not fade into that section. See [the mobile artwork prompt](docs/mobile-hero-artwork.md).
+
+Only artwork is rasterized. Headings, copy, controls, licence and cards are HTML. The workspace demo plays the supplied video inline, muted and looped, with native controls and a fullscreen action.
 
 ## Motion
 

@@ -1710,6 +1710,15 @@ section {
   .hero {
     min-height: 808px;
   }
+  .hero-art {
+    height: 100%;
+  }
+  .hero-art:after {
+    background: rgba(24, 35, 27, 0.64);
+  }
+  .hero .mobile-eyebrow {
+    color: var(--cream);
+  }
   .hero-content {
     padding: 120px 24px 32px;
     gap: 24px;
