@@ -1670,6 +1670,12 @@ html:has(.workspace-viewport[data-expanded]) {
     font-size: 14px;
     line-height: 20px;
   }
+  /* Both actions give way together, so the pair never runs past the page
+     gutter on narrow tablets. */
+  .hero-actions .brand-action {
+    flex-shrink: 1;
+    min-width: 0;
+  }
   .hero-actions .brand-action:nth-child(2) {
     padding-inline: 18px;
     width: 320px;
