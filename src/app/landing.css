@@ -1311,8 +1311,10 @@ html:has(.workspace-viewport[data-expanded]) {
   line-height: 20px;
 }
 /* Figma 549:3446: a 182px window on a 1440px frame, which crops the
-   wordmark through its x-height. */
+   wordmark through its x-height. The word is real text at the Figma size and
+   position, scaled with the footer's width. */
 .footer-wordmark {
+  container-type: inline-size;
   width: 100%;
   aspect-ratio: 1440 / 182;
   overflow: hidden;
@@ -1320,16 +1322,27 @@ html:has(.workspace-viewport[data-expanded]) {
 .footer-wordmark > div {
   height: 100%;
 }
-.dither-wordmark > span {
+/* The dither is painted through the letters. Over one flat colour Figma's
+   ordered dither repeats every 16 blocks, so the effect on this layer
+   (549:3447) is this tile at 2px a block. scripts/wordmark-dither.mjs
+   generates it from the layer's settings. */
+.footer-wordmark span {
   display: block;
-  padding-left: 0.5vw;
-  font: 23.4vw/1 var(--font-display);
+  margin: calc(-57.19 / 1440 * 100cqw) 0 0 calc(-8 / 1440 * 100cqw);
+  font: calc(336.43 / 1440 * 100cqw) / 1.08 var(--font-display);
   letter-spacing: -0.04em;
-  color: var(--green);
   white-space: nowrap;
+  color: var(--green);
 }
-.js .dither-wordmark:not([data-dither="failed"]) > span {
-  visibility: hidden;
+@supports (background-clip: text) or (-webkit-background-clip: text) {
+  .footer-wordmark span {
+    background: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAMAAAAoLQ9TAAAADFBMVEVVqlUAVQBVVVUAVVVMtmLtAAAACXBIWXMAAAPoAAAD6AG1e1JrAAAAKklEQVQY02NgZABBZgYYjQmYgOLIGBNAxJnhNANONQx4zGAmwh0MtHYHADaUAF1XtP2MAAAAAElFTkSuQmCC")
+      0 0 / 32px 32px;
+    -webkit-background-clip: text;
+    background-clip: text;
+    image-rendering: pixelated;
+    color: transparent;
+  }
 }
 .subpage-hero {
   padding: 88px 64px;

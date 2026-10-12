@@ -15,5 +15,7 @@ for (const [file, hash, name] of sources) {
   const info = await sharp(`public/figma/${file}`)
     .webp({ quality: 90, effort: 6 })
     .toFile(out);
-  console.log(`${hash} ${file} -> ${out} (${info.width}x${info.height}, ${info.size} bytes)`);
+  console.log(
+    `${hash} ${file} -> ${out} (${info.width}x${info.height}, ${info.size} bytes)`,
+  );
 }

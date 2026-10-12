@@ -26,7 +26,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Action, Brand, asset } from "./brand";
 import { Lines, Reveal, useMediaQuery, useScrollProgress } from "./motion";
-import { DitherImage, DitherWordmark, heroDither } from "./dither";
+import { DitherImage, heroDither } from "./dither";
 import { StageCards } from "./stage-cards";
 import { FAQ } from "./faq";
 
@@ -614,7 +614,7 @@ export function Footer() {
       <p className="copyright">© 2026 Semblanse. All rights reserved.</p>
       <div ref={wordmark} className="footer-wordmark" aria-hidden="true">
         <motion.div style={rise.enabled ? { y } : undefined}>
-          <DitherWordmark />
+          <span>semblanse</span>
         </motion.div>
       </div>
     </footer>

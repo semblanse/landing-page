@@ -49,7 +49,7 @@ The dither is applied in the browser by `src/components/landing/dither.tsx`. It 
 
 Figma runs the effect as WebGPU compute passes. Only its ordered (Bayer) styles are used in this file, and those are a pure function of each block, so the port is a single WebGL fragment pass over a canvas whose pixels are the blocks. Blocks stay 2 CSS pixels at every screen density. Without JavaScript or WebGL the original artwork shows undithered.
 
-The footer wordmark is live GFS Didot text, fitted to the page width and dithered by the same shader. Its frame keeps Figma's 1440:182 proportion (`549:3446`), which crops the lettering through its x-height. The closing artwork is mirrored, as in Figma.
+The footer wordmark is real GFS Didot text at the Figma size and position, scaled with the footer width. Its frame keeps Figma’s 1440:182 proportion (`549:3446`), which crops the lettering through its x-height. The dither is painted through the letters with `background-clip: text`: over one flat colour the ordered dither repeats every 16 blocks, so the effect on this layer is a single tile, generated from the layer’s settings by `scripts/wordmark-dither.mjs`. The closing artwork is mirrored, as in Figma.
 
 The hero follows the desktop treatment at every width: the dithered layer on white, at 36% over ink. Tablet and phone add a top-to-bottom ink gradient for legibility and centre the crop on the profile.
 

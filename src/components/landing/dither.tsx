@@ -32,12 +32,6 @@ export const artworkDither: DitherSettings = {
 };
 // The hero layer (549:2783) is the same effect, a little brighter.
 export const heroDither: DitherSettings = { ...artworkDither, brightness: 111 };
-export const wordmarkDither: DitherSettings = {
-  algorithm: "Bayer 16x16",
-  pixelSize: 2,
-  levels: 4,
-  brightness: 131,
-};
 
 // Same recursion and quadrant order as the Figma source.
 function bayerMatrix(n: number): number[][] {
@@ -338,77 +332,6 @@ export function DitherImage({
           transform: flipX ? "scaleX(-1)" : undefined,
         }}
       />
-      <canvas ref={canvas} aria-hidden="true" />
-    </div>
-  );
-}
-
-/**
- * The footer wordmark: live Didot text, fitted to the full width and
- * dithered. The frame is shorter than the lettering, which crops the bottom
- * of the word as in Figma node 549:3446.
- */
-export function DitherWordmark({
-  text = "semblanse",
-  className = "",
-}: {
-  text?: string;
-  className?: string;
-}) {
-  const [fontReady, setFontReady] = useState(false);
-  useEffect(() => {
-    let live = true;
-    document.fonts
-      .load('400 200px "GFS Didot"', text)
-      .then(() => live && setFontReady(true));
-    return () => {
-      live = false;
-    };
-  }, [text]);
-  const paint: Painter | null = fontReady
-    ? (ctx, width) => {
-        const tracking = -0.04;
-        const measure = (size: number) => {
-          ctx.font = `400 ${size}px "GFS Didot", serif`;
-          const glyphs = [...text].map((glyph) => ({
-            glyph,
-            metrics: ctx.measureText(glyph),
-          }));
-          let x = 0;
-          const placed = glyphs.map(({ glyph, metrics }) => {
-            const at = x;
-            x += metrics.width + tracking * size;
-            return { glyph, metrics, at };
-          });
-          const last = placed[placed.length - 1];
-          return {
-            placed,
-            left: -placed[0].metrics.actualBoundingBoxLeft,
-            right: last.at + last.metrics.actualBoundingBoxRight,
-            ascent: Math.max(
-              ...placed.map((g) => g.metrics.actualBoundingBoxAscent),
-            ),
-          };
-        };
-        // Fit the inked width to the frame, with Figma's 8px-in-1440 margin.
-        const margin = (width * 8) / 1440;
-        const probe = measure(200);
-        const size = (200 * (width - margin * 2)) / (probe.right - probe.left);
-        const fitted = measure(size);
-        ctx.fillStyle = "#1f6f22";
-        ctx.textBaseline = "alphabetic";
-        for (const { glyph, at } of fitted.placed)
-          ctx.fillText(glyph, margin - fitted.left + at, fitted.ascent + 2);
-      }
-    : null;
-  const { wrap, canvas, state } = useDither(wordmarkDither, paint);
-  return (
-    <div
-      ref={wrap}
-      className={`dither dither-wordmark ${className}`}
-      data-dither={state}
-    >
-      <span aria-hidden="true">{text}</span>
       <canvas ref={canvas} aria-hidden="true" />
     </div>
   );
