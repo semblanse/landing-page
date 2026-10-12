@@ -8,7 +8,7 @@ FORM: Preserve Figma 549:2779, with 554:2845 and 555:2910 responsive layouts.
 */
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { Menu, X, Pause, Play } from "lucide-react";
+import { Menu, X, Maximize } from "lucide-react";
 import {
   motion,
   useInView,
@@ -450,8 +450,7 @@ function ProductDemo() {
   const video = useRef<HTMLVideoElement>(null);
   const reduce = useReducedMotion();
   const inView = useInView(frame, { amount: 0.4 });
-  const [playing, setPlaying] = useState(false);
-  const [progress, setProgress] = useState(0);
+  const [expanded, setExpanded] = useState(false);
   // Once the visitor pauses, scrolling back must not restart the demo.
   const pausedByVisitor = useRef(false);
   useEffect(() => {
@@ -464,12 +463,32 @@ function ProductDemo() {
       player.pause();
     }
   }, [inView, reduce]);
-  function toggle() {
-    const player = video.current;
+  useEffect(() => {
+    if (!expanded) return;
+    const previousFocus = document.activeElement;
+    frame.current?.querySelector<HTMLButtonElement>(".demo-exit")?.focus();
+    const exit = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setExpanded(false);
+    };
+    window.addEventListener("keydown", exit);
+    return () => {
+      window.removeEventListener("keydown", exit);
+      if (previousFocus instanceof HTMLElement)
+        previousFocus.focus({ preventScroll: true });
+    };
+  }, [expanded]);
+  async function fullscreen() {
+    const player = video.current as
+      (HTMLVideoElement & { webkitEnterFullscreen?: () => void }) | null;
     if (!player) return;
-    pausedByVisitor.current = !player.paused;
-    if (player.paused) void player.play().catch(() => undefined);
-    else player.pause();
+    try {
+      if (player.requestFullscreen) await player.requestFullscreen();
+      else if (player.webkitEnterFullscreen) player.webkitEnterFullscreen();
+      else throw new Error("Fullscreen is unavailable");
+    } catch {
+      // Embedded browsers may block native fullscreen. Fill their viewport.
+      setExpanded(true);
+    }
   }
   // The frame grows to full size as it scrolls into view.
   const grow = useScrollProgress(frame, ["start 0.98", "start 0.35"]);
@@ -479,12 +498,15 @@ function ProductDemo() {
       <motion.div
         ref={frame}
         className="workspace-viewport"
-        data-playing={playing || undefined}
-        style={grow.enabled ? { scale } : undefined}
+        data-expanded={expanded || undefined}
+        data-lenis-prevent={expanded || undefined}
+        style={grow.enabled && !expanded ? { scale } : undefined}
       >
         <video
           ref={video}
           className="workspace-player"
+          controls
+          tabIndex={0}
           muted
           loop
           playsInline
@@ -492,28 +514,33 @@ function ProductDemo() {
           poster="/media/creator-demo-poster.jpg"
           src="/media/creator-demo.mp4"
           aria-label="Semblanse creator workspace demonstration"
-          onClick={toggle}
-          onPlay={() => setPlaying(true)}
-          onPause={() => setPlaying(false)}
-          onTimeUpdate={(event) => {
-            const player = event.currentTarget;
-            if (player.duration)
-              setProgress(player.currentTime / player.duration);
+          onPlay={() => {
+            pausedByVisitor.current = false;
+          }}
+          onPause={() => {
+            if (inView) pausedByVisitor.current = true;
           }}
         />
-        <button
-          type="button"
-          className="workspace-toggle"
-          onClick={toggle}
-          aria-label={playing ? "Pause the demo" : "Play the demo"}
-        >
-          {playing ? <Pause aria-hidden="true" /> : <Play aria-hidden="true" />}
-        </button>
-        <div className="workspace-progress" aria-hidden="true">
-          <span style={{ transform: `scaleX(${progress})` }} />
-        </div>
+        {expanded && (
+          <Button
+            variant="cream"
+            className="demo-exit fullscreen-demo"
+            onClick={() => setExpanded(false)}
+          >
+            <X aria-hidden="true" /> Exit fullscreen
+          </Button>
+        )}
       </motion.div>
-      <p className="preview-label">Product preview · example data</p>
+      <div className="preview-meta">
+        <p className="preview-label">Product preview · example data</p>
+        <Button
+          variant="cream"
+          className="fullscreen-demo"
+          onClick={fullscreen}
+        >
+          <Maximize aria-hidden="true" /> Fullscreen demo
+        </Button>
+      </div>
     </div>
   );
 }

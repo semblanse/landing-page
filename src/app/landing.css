@@ -1048,53 +1048,44 @@ section {
   height: 100%;
   object-fit: contain;
   background: var(--ink);
-  cursor: pointer;
 }
-/* The demo plays in its frame. One quiet control, and a progress hairline. */
-.workspace-toggle {
-  position: absolute;
-  left: 16px;
-  bottom: 19px;
-  display: grid;
-  place-items: center;
-  width: 44px;
-  height: 44px;
-  border: 0;
-  background: var(--ink);
-  color: var(--cream);
-  transition:
-    opacity 0.25s,
-    background-color 0.25s;
+.preview-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 12px;
 }
-.workspace-toggle svg {
-  width: 18px;
-  height: 18px;
-  fill: currentColor;
+.preview-meta .preview-label {
+  margin-top: 0;
 }
-.workspace-toggle:hover {
-  background: var(--green);
+.fullscreen-demo {
+  min-height: 44px;
+  padding-inline: 14px;
 }
-@media (hover: hover) {
-  .workspace-viewport[data-playing] .workspace-toggle {
-    opacity: 0;
-  }
-  .workspace-viewport[data-playing]:hover .workspace-toggle,
-  .workspace-viewport .workspace-toggle:focus-visible {
-    opacity: 1;
-  }
+.workspace-viewport[data-expanded] {
+  position: fixed;
+  z-index: 100;
+  inset: 0;
+  height: 100dvh;
+  aspect-ratio: auto;
+  transform: none !important;
+  will-change: auto;
 }
-.workspace-progress {
-  position: absolute;
-  inset: auto 0 0;
-  height: 3px;
-  background: #18231b40;
-  pointer-events: none;
-}
-.workspace-progress span {
+.workspace-video:has([data-expanded]):before {
+  content: "";
   display: block;
-  height: 100%;
-  background: var(--lilac);
-  transform-origin: left;
+  aspect-ratio: 16/9;
+}
+.demo-exit {
+  position: absolute;
+  top: max(16px, env(safe-area-inset-top));
+  right: max(16px, env(safe-area-inset-right));
+}
+html:has(.workspace-viewport[data-expanded]) {
+  overflow: hidden;
+  scrollbar-gutter: stable;
 }
 .preview-label {
   margin-top: 12px;

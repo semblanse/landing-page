@@ -57,7 +57,7 @@ Only artwork is drawn on canvas. Headings, copy, controls, licence and cards are
 
 ## Product demo
 
-The workspace demo plays inside its frame. It starts, muted and looped, when 40% of the frame is in view and pauses outside it. One control pauses and resumes it; a visitor's pause is kept when they scroll back. It does not autoplay under reduced motion.
+The workspace demo plays inside its frame. It starts, muted and looped, when 40% of the frame is in view and pauses outside it. Browser controls support seeking, playback, sound and fullscreen. A separate fullscreen action stays visible below the frame, with the iPhone video fullscreen API as a fallback. Browsers that block native fullscreen use the full viewport, with an Exit fullscreen button and Escape to return. A visitor's pause is kept when they scroll back. It does not autoplay under reduced motion.
 
 ## Motion
 
