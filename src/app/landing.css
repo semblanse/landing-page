@@ -1228,6 +1228,17 @@ section {
   .stage-card:after {
     display: none;
   }
+  .approval-preview {
+    gap: 8px;
+  }
+  .approval-preview img {
+    width: 70px;
+    height: 112px;
+  }
+  .approval-preview p {
+    font-size: 12px;
+    line-height: 17px;
+  }
   .inputs-section {
     padding-right: 48px;
     gap: 24px;
@@ -2033,6 +2044,30 @@ section {
   }
   .subpage-content h2 {
     font-size: 42px;
+  }
+}
+@media (max-width: 359px) {
+  .site-nav {
+    gap: 8px;
+    padding-inline: 12px;
+  }
+  .site-nav .brand {
+    font-size: 19px;
+    gap: 6px;
+  }
+  .site-nav .brand-mark {
+    width: 20px;
+    height: 20px;
+  }
+  .site-nav .brand-mark img {
+    height: 20px;
+  }
+  .site-nav .brand-mark img + img {
+    left: 7.5px;
+  }
+  .site-nav .brand-action {
+    width: 112px;
+    font-size: 12px;
   }
 }
 @media (prefers-reduced-motion: reduce) {
