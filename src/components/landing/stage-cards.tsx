@@ -1,9 +1,9 @@
 "use client";
-import { motion, useReducedMotion } from "motion/react";
-import { useState } from "react";
+import { motion, useTransform, type MotionValue } from "motion/react";
+import { useEffect, useRef, useState, type RefObject } from "react";
 import { Button } from "@/components/ui/button";
 import { asset } from "./brand";
-import { ease } from "./motion";
+import { Reveal, useMediaQuery, useScrollProgress } from "./motion";
 function ExampleAction({
   children,
   secondary = false,
@@ -24,8 +24,86 @@ function ExampleAction({
     </Button>
   );
 }
+const stages = ["Offer", "Stories", "Approval", "Payment", "Launch"];
+/** A card that takes focus when the progress line reaches it. */
+function FocusCard({
+  index,
+  progress,
+  children,
+}: {
+  index: number;
+  progress: MotionValue<number>;
+  children: React.ReactNode;
+}) {
+  const at = index / stages.length;
+  const opacity = useTransform(progress, [at - 0.04, at + 0.1], [0.45, 1]);
+  const y = useTransform(progress, [at - 0.04, at + 0.16], [18, 0]);
+  return (
+    <motion.article
+      className="stage-card"
+      style={{ opacity, y }}
+      aria-label={`Stage ${index + 1}: ${stages[index]}`}
+    >
+      {children}
+    </motion.article>
+  );
+}
+// How much of a covered card stays in view: its top padding and its label.
+const TAB = 40;
+/**
+ * A phone card in the scroll stack. Each card pins one tab lower than the
+ * one before, so the labels of every earlier card stay in view as a pile.
+ * Pressing a covered card's tab scrolls back to it.
+ */
+function StackCard({
+  index,
+  self,
+  onOpen,
+  children,
+}: {
+  index: number;
+  self: RefObject<HTMLElement | null>;
+  onOpen: (index: number) => void;
+  children: React.ReactNode;
+}) {
+  return (
+    <article
+      ref={self}
+      className="stage-card"
+      style={{ "--i": index } as React.CSSProperties}
+      aria-label={`Stage ${index + 1}: ${stages[index]}`}
+    >
+      {children}
+      <button
+        type="button"
+        className="stage-tab"
+        onClick={() => onOpen(index)}
+        aria-label={`Back to stage ${index + 1}: ${stages[index]}`}
+      />
+    </article>
+  );
+}
 export function StageCards() {
-  const reduce = useReducedMotion();
+  const flow = useRef<HTMLDivElement>(null);
+  const grid = useRef<HTMLDivElement>(null);
+  const cardRefs = [
+    useRef<HTMLElement>(null),
+    useRef<HTMLElement>(null),
+    useRef<HTMLElement>(null),
+    useRef<HTMLElement>(null),
+    useRef<HTMLElement>(null),
+  ];
+  // On phones the cards form a scroll stack, each sliding over the last.
+  // Short screens cannot fit the heading, a tab and a whole card, so they
+  // keep the plain list.
+  const phone = useMediaQuery("(max-width: 599px) and (min-height: 740px)");
+  // On desktop the five cards sit in one row and scroll draws the progress
+  // line across them. Stacked layouts reveal each card as it arrives.
+  const row = useMediaQuery("(min-width: 1024px)");
+  const { progress, enabled } = useScrollProgress(grid, [
+    "start 0.85",
+    "start 0.32",
+  ]);
   const cards = [
     <>
       <span className="card-label">Offer</span>
@@ -100,7 +178,7 @@ export function StageCards() {
         <span>Released</span>
       </div>
       <hr />
-      <p className="card-small">Paid to You</p>
+      <p className="card-small">Paid to you</p>
       <p className="card-small card-muted">After final-video approval</p>
     </>,
     <>
@@ -114,13 +192,9 @@ export function StageCards() {
         aria-label="Illustrative brand-reported results"
       >
         {[42, 68, 57, 93, 112, 136, 158].map((h, i) => (
-          <motion.span
+          <span
             key={i}
-            style={{ height: h }}
-            initial={false}
-            whileInView={reduce ? undefined : { scaleY: [0.1, 1] }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.8, delay: i * 0.08, ease }}
+            style={{ height: h, "--i": i } as React.CSSProperties}
           />
         ))}
       </div>
@@ -129,32 +203,143 @@ export function StageCards() {
       <p className="card-small card-note">Example brand-reported data.</p>
     </>,
   ];
+  const linked = row && enabled;
+  const stacked = phone && enabled;
+  useEffect(() => {
+    const container = flow.current;
+    const section = container?.closest<HTMLElement>(".process");
+    const head = section?.querySelector<HTMLElement>(".process-head");
+    if (!stacked || !container || !section || !head) return;
+    const root = document.documentElement;
+    let frame = 0;
+    const update = () => {
+      // Cards pin directly under the pinned heading.
+      const pin = head.offsetHeight;
+      section.style.setProperty("--stack-top", `${pin}px`);
+      const boxes = cardRefs.map((card) =>
+        card.current?.getBoundingClientRect(),
+      );
+      boxes.forEach((box, i) => {
+        const card = cardRefs[i].current;
+        const next = boxes[i + 1];
+        if (!card || !box) return;
+        // Cards differ in height, so a covered card is cut off just under
+        // the top edge of the card over it and never shows beneath it.
+        const shown = next ? next.top - box.top + 12 : box.height;
+        const covered = shown < box.height;
+        card.style.clipPath = covered
+          ? `inset(-24px -24px ${box.height - Math.max(shown, TAB)}px)`
+          : "";
+        // Only its tab remains once the next card has landed.
+        card.toggleAttribute("data-covered", shown <= TAB + 24);
+      });
+      // Leaving the section, the browser would release the last card first
+      // and slide it up over the tabs. Sticky cards release when their
+      // bottom margin meets the end of the grid, so each card gets the
+      // margin that lines its release up with the last card's. The next
+      // card takes the same amount back, which leaves the layout unchanged.
+      // The pile then stops as one block and scrolls away with the page.
+      const heights = cardRefs.map((card) => card.current?.offsetHeight ?? 0);
+      const last = heights.length - 1;
+      let carried = 0;
+      cardRefs.forEach((card, i) => {
+        if (!card.current) return;
+        const hold = (last - i) * TAB + heights[last] - heights[i];
+        card.current.style.marginTop = `${-carried}px`;
+        card.current.style.marginBottom = `${hold}px`;
+        carried = hold;
+      });
+      const box = grid.current?.getBoundingClientRect();
+      // The heading releases at the same moment by the same means, so from
+      // there the heading and the pile leave with the page, not under it.
+      if (box) {
+        const below =
+          section.getBoundingClientRect().bottom -
+          parseFloat(getComputedStyle(section).paddingBottom) -
+          box.bottom;
+        const hold = last * TAB + heights[last] + below;
+        head.style.marginBottom = `${hold}px`;
+        container.style.marginTop = `${-hold}px`;
+      }
+      // The site header would cover the pinned heading, so it stays away
+      // while the stack is pinned.
+      root.toggleAttribute(
+        "data-stack-pinned",
+        !!box && box.top < pin + 120 && box.bottom > pin + 240,
+      );
+    };
+    const schedule = () => {
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(update);
+    };
+    update();
+    window.addEventListener("scroll", schedule, { passive: true });
+    const observer = new ResizeObserver(schedule);
+    observer.observe(head);
+    return () => {
+      window.removeEventListener("scroll", schedule);
+      observer.disconnect();
+      cancelAnimationFrame(frame);
+      root.removeAttribute("data-stack-pinned");
+      section.style.removeProperty("--stack-top");
+      head.style.removeProperty("margin-bottom");
+      container.style.removeProperty("margin-top");
+      for (const card of cardRefs) {
+        card.current?.style.removeProperty("margin-top");
+        card.current?.style.removeProperty("margin-bottom");
+        card.current?.style.removeProperty("clip-path");
+        card.current?.removeAttribute("data-covered");
+      }
+    };
+    // Refs are stable.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [stacked]);
+  // Scrolls to where a card has just landed on top of the pile.
+  function openCard(index: number) {
+    const head = flow.current
+      ?.closest(".process")
+      ?.querySelector<HTMLElement>(".process-head");
+    if (!grid.current || !head) return;
+    const gap = parseFloat(getComputedStyle(grid.current).rowGap) || 0;
+    // Pinned cards report where they are stuck, so the resting position is
+    // rebuilt from the grid and the heights of the cards before this one.
+    let resting = grid.current.getBoundingClientRect().top + window.scrollY;
+    for (let i = 0; i < index; i++)
+      resting += (cardRefs[i].current?.offsetHeight ?? 0) + gap;
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)");
+    window.scrollTo({
+      top: resting - (head.offsetHeight + index * TAB),
+      behavior: reduce.matches ? "auto" : "smooth",
+    });
+  }
   return (
-    <div className="stage-grid">
-      {cards.map((card, i) => (
-        <motion.article
-          className="stage-card"
-          key={i}
-          initial={false}
-          whileInView={
-            reduce
-              ? undefined
-              : {
-                  y: [20, 0],
-                  boxShadow: [
-                    "0 0 0 0px #1f6f2200",
-                    "0 0 0 2px #1f6f22",
-                    "0 0 0 0px #1f6f2200",
-                  ],
-                }
-          }
-          viewport={{ once: true, amount: 0.3 }}
-          transition={{ duration: 1.3, delay: i * 0.12, ease }}
-          aria-label={`Stage ${i + 1}: ${["Offer", "Stories", "Approval", "Payment", "Launch"][i]}`}
-        >
-          {card}
-        </motion.article>
-      ))}
+    <div ref={flow} className="stage-flow" data-stacked={stacked || undefined}>
+      <div className="stage-progress" aria-hidden="true">
+        <motion.span style={linked ? { scaleX: progress } : undefined} />
+      </div>
+      <div ref={grid} className="stage-grid">
+        {cards.map((card, i) =>
+          linked ? (
+            <FocusCard key={i} index={i} progress={progress}>
+              {card}
+            </FocusCard>
+          ) : stacked ? (
+            <StackCard key={i} index={i} self={cardRefs[i]} onOpen={openCard}>
+              {card}
+            </StackCard>
+          ) : (
+            <Reveal
+              as="article"
+              className="stage-card"
+              key={i}
+              delay={row ? i * 0.08 : 0}
+              aria-label={`Stage ${i + 1}: ${stages[i]}`}
+            >
+              {card}
+            </Reveal>
+          ),
+        )}
+      </div>
     </div>
   );
 }

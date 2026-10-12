@@ -44,6 +44,10 @@ The preview sends `noindex` headers and metadata. Remove those when the site is 
 
 The separate Cloudflare Pages project is `semblanse-landing-preview`; the preview branch is `revision-3`.
 
+The workflow in `.github/workflows/cloudflare-preview.yml` builds, checks and deploys each push to `main` to the same preview URL. It also supports a manual run from GitHub Actions. Add the repository Actions secret `CLOUDFLARE_API_TOKEN` before the first automated deployment. Use a Cloudflare token limited to the Semblanse account with the Cloudflare Pages Edit permission. The account ID is public configuration in the workflow; the token must stay in GitHub's encrypted secrets.
+
+For a manual deployment from this checkout:
+
 ```sh
 npm run deploy:preview
 ```

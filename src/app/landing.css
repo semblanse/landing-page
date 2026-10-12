@@ -27,9 +27,21 @@ h3 {
   font-weight: 400;
   letter-spacing: -0.04em;
 }
+h1,
+h2,
+h3 {
+  text-wrap: balance;
+}
+p {
+  text-wrap: pretty;
+}
 h2 {
   font-size: 80px;
   line-height: 1.0625;
+}
+::selection {
+  background: var(--green);
+  color: var(--cream);
 }
 img {
   display: block;
@@ -60,6 +72,7 @@ button:disabled {
 }
 :root {
   --page-gutter: 64px;
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
 }
 section {
   scroll-margin-top: 24px;
@@ -73,6 +86,7 @@ section {
 }
 .eyebrow {
   font: 600 14px/20px var(--font-ui);
+  letter-spacing: 0.04em;
 }
 .skip-link {
   position: fixed;
@@ -122,10 +136,16 @@ section {
   padding: 18px 40px;
   background: var(--ink);
   color: var(--cream);
+  position: sticky;
+  top: 24px;
+  z-index: 50;
+  transition: transform 0.5s var(--ease);
+}
+.site-nav[data-hidden] {
+  transform: translateY(calc(-100% - 48px));
 }
 .hero-nav {
-  position: absolute;
-  z-index: 3;
+  position: fixed;
   inset: 24px var(--page-gutter) auto;
   margin: 0;
 }
@@ -153,7 +173,7 @@ section {
   background: currentColor;
   transform: scaleX(0);
   transform-origin: left;
-  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: transform 0.3s var(--ease);
 }
 .site-nav nav a:hover:after,
 .footer-links a:hover:after {
@@ -178,9 +198,9 @@ section {
   position: absolute;
   inset: 0;
   background: currentColor;
-  opacity: 0.08;
+  opacity: 0.12;
   transform: translateX(-101%);
-  transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: transform 0.45s var(--ease);
   pointer-events: none;
 }
 .brand-action {
@@ -209,18 +229,47 @@ section {
   background: var(--ink);
   color: var(--cream);
 }
+/* Figma 549:2782: the dithered layer on white, at 36% over ink. */
 .hero-art {
   position: absolute;
   inset: 0;
   opacity: 0.36;
+  background: #fff;
   pointer-events: none;
+  transform-origin: 50% 0;
 }
-.hero-art img {
+.hero-art .dither {
+  position: absolute;
+  inset: 0;
+}
+.dither {
+  position: relative;
+  overflow: hidden;
   width: 100%;
   height: 100%;
-  object-fit: cover;
-  object-position: left top;
+}
+.dither img {
+  width: 100%;
+  height: 100%;
   max-width: none;
+  object-fit: cover;
+}
+.dither canvas {
+  position: absolute;
+  inset: 0 auto auto 0;
+  display: block;
+  max-width: none;
+  image-rendering: pixelated;
+  opacity: 0;
+  transition: opacity 0.5s linear;
+}
+.dither[data-dither="ready"] canvas {
+  opacity: 1;
+}
+/* With scripts the canvas replaces the image; without them, or without
+   WebGL, the original artwork shows. */
+.js .dither:not([data-dither="failed"]) img {
+  visibility: hidden;
 }
 .menu-toggle,
 .mobile-menu {
@@ -242,19 +291,82 @@ section {
   line-height: 102px;
   max-width: 1000px;
 }
-.headline-mask {
+/* Masked line reveals. The padding keeps Didot's descenders inside the mask. */
+.line-mask {
   display: block;
   overflow: hidden;
-  padding-bottom: 0.08em;
-  margin-bottom: -0.08em;
+  padding-block: 0.04em 0.16em;
+  margin-block: -0.04em -0.16em;
 }
-.headline-mask > span {
+.line-mask > span {
   display: block;
+}
+.lines-inline .line-mask,
+.lines-inline .line-mask > span {
+  display: inline-block;
+  vertical-align: top;
+}
+.lines-inline .line-mask + .line-mask {
+  margin-left: 0.24em;
+}
+.js [data-lines="scroll"] .line-mask > span {
+  transform: translateY(112%);
+}
+.js [data-lines="scroll"].in .line-mask > span {
+  transform: none;
+  transition: transform 0.75s var(--ease) calc(var(--d, 0s) + var(--i) * 0.09s);
+}
+[data-lines="load"] .line-mask > span {
+  animation: line-up 0.8s var(--ease) calc(var(--d, 0s) + var(--i) * 0.1s) both;
+}
+@keyframes line-up {
+  from {
+    transform: translateY(112%);
+  }
+}
+[data-hero] {
+  animation: hero-rise 0.75s var(--ease) var(--d, 0s) both;
+}
+@keyframes hero-rise {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+}
+/* Scroll entrances. Only armed when scripts run. */
+.js [data-reveal] {
+  opacity: 0;
+  transform: translateY(20px);
+}
+.js [data-reveal="fade"] {
+  transform: none;
+}
+.js [data-reveal="scale"] {
+  transform: scale(0.96);
+}
+.js [data-reveal="wipe"],
+.js [data-reveal="wipe-left"] {
+  opacity: 1;
+  transform: none;
+  clip-path: inset(0 100% 0 0);
+}
+.js [data-reveal="wipe-left"] {
+  clip-path: inset(0 0 0 100%);
+}
+.js [data-reveal].in {
+  opacity: 1;
+  transform: none;
+  clip-path: inset(0);
+  transition:
+    opacity 0.6s var(--ease) var(--d, 0s),
+    transform 0.8s var(--ease) var(--d, 0s),
+    clip-path 1s var(--ease) var(--d, 0s);
 }
 .hero-description {
   font-size: 22px;
   line-height: 31px;
   max-width: 590px;
+  text-wrap: balance;
 }
 .hero-actions {
   display: flex;
@@ -267,14 +379,13 @@ section {
 .hero-actions .brand-action:nth-child(2) {
   padding-inline: 36px;
 }
-.hero-note {
+.hero-notes {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
   font-size: 16px;
   line-height: 22px;
-}
-.mobile-title,
-.mobile-eyebrow,
-.mobile-action-label {
-  display: none;
+  color: #f5f2e9d9;
 }
 .stories {
   background: var(--ink);
@@ -282,7 +393,7 @@ section {
   display: flex;
   flex-direction: column;
   gap: 24px;
-  min-height: 745px;
+  padding-block: 88px;
 }
 .stories h2 {
   font-size: 96px;
@@ -302,6 +413,7 @@ section {
 .profile-echo {
   position: absolute;
   width: auto;
+  will-change: transform;
 }
 .profile-echo img {
   height: 100%;
@@ -322,8 +434,7 @@ section {
 }
 .process {
   background: var(--sage);
-  padding-block: 88px 64px;
-  min-height: 983px;
+  padding-block: 88px 72px;
 }
 .process h2 {
   font-size: 88px;
@@ -333,23 +444,45 @@ section {
 .process .section-lead {
   margin-bottom: 36px;
 }
+/* The line scroll draws across the five stages (Figma 495:2465). */
+.stage-progress {
+  height: 2px;
+  margin-bottom: 26px;
+  background: #18231b26;
+}
+.stage-progress span {
+  display: block;
+  height: 100%;
+  background: var(--green);
+  transform-origin: left;
+}
 .stage-grid {
   display: grid;
   grid-template-columns: repeat(5, minmax(0, 1fr));
-  align-items: start;
   gap: 28px;
 }
 .stage-card {
   position: relative;
+  display: flex;
+  flex-direction: column;
   background: #fff;
   border: 1px solid #dde5de;
   padding: 20px 18px;
 }
+.stage-card > * {
+  flex-shrink: 0;
+}
+.stage-tab {
+  display: none;
+}
+[data-stacked] .stage-tab {
+  display: block;
+}
 .stage-card:not(:last-child):after {
   content: "→";
   position: absolute;
-  right: -27px;
-  top: 46%;
+  right: -28px;
+  top: 150px;
   width: 26px;
   text-align: center;
   font: 32px/38px var(--font-display);
@@ -407,7 +540,8 @@ section {
   letter-spacing: -0.04em;
 }
 .card-note {
-  margin-top: 20px;
+  margin-top: auto;
+  padding-top: 20px;
   color: #647067;
 }
 .story-quote {
@@ -502,6 +636,14 @@ section {
   flex: 1;
   transform-origin: bottom;
 }
+.js .stage-card.in .results-chart span {
+  animation: bar-grow 0.9s var(--ease) calc(0.3s + var(--i) * 0.07s) both;
+}
+@keyframes bar-grow {
+  from {
+    transform: scaleY(0.08);
+  }
+}
 .results-chart span:last-child {
   background: var(--green);
 }
@@ -521,9 +663,8 @@ section {
   display: grid;
   grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
   gap: 64px;
-  padding: 72px 64px 72px 0;
+  padding: 88px 64px 88px 0;
   background: var(--lilac);
-  min-height: 795px;
 }
 .input-intro {
   grid-column: 2;
@@ -609,10 +750,29 @@ section {
   width: 4px;
   background: var(--lilac);
 }
+/* The waveform moves once as its row arrives (Figma 495:4634). */
+.js .input-row.in .waveform i {
+  animation: wave 1.1s var(--ease) calc(0.35s + var(--i) * 0.035s) both;
+}
+@keyframes wave {
+  0% {
+    transform: scaleY(1);
+  }
+  35% {
+    transform: scaleY(var(--dip));
+  }
+  70% {
+    transform: scaleY(1.14);
+  }
+  100% {
+    transform: scaleY(1);
+  }
+}
 .context-art {
   padding: 20px 24px;
   display: flex;
-  align-items: center;
+  flex-direction: column;
+  justify-content: center;
   font: 32px/34px var(--font-display);
 }
 .boundary-art {
@@ -738,7 +898,17 @@ section {
 }
 .licence-field {
   outline: 1px solid transparent;
-  outline-offset: 5px;
+  outline-offset: 6px;
+}
+/* Campaign, channels and term take a brief outline in turn (Figma 495:5823). */
+.js .licence-stage.in .licence-field[data-focus] {
+  animation: field-focus 1.3s var(--ease) calc(0.9s + var(--i) * 0.5s);
+}
+@keyframes field-focus {
+  20%,
+  60% {
+    outline-color: var(--green);
+  }
 }
 .licence-field small {
   font-size: 14px;
@@ -791,9 +961,12 @@ section {
 }
 .brand-artwork {
   width: 100%;
-  height: auto;
   aspect-ratio: 720/585;
-  object-fit: cover;
+  overflow: hidden;
+}
+.art-zoom {
+  width: 100%;
+  height: 100%;
 }
 .advertiser-art h3 {
   font-size: 54px;
@@ -852,6 +1025,7 @@ section {
 }
 .workspace-eyebrow {
   display: none;
+  color: var(--sage);
 }
 .workspace > .brand-action {
   align-self: flex-start;
@@ -865,6 +1039,8 @@ section {
   aspect-ratio: 16/9;
   overflow: hidden;
   background: var(--ink);
+  transform-origin: 50% 100%;
+  will-change: transform;
 }
 .workspace-player {
   display: block;
@@ -872,25 +1048,59 @@ section {
   height: 100%;
   object-fit: contain;
   background: var(--ink);
+  cursor: pointer;
+}
+/* The demo plays in its frame. One quiet control, and a progress hairline. */
+.workspace-toggle {
+  position: absolute;
+  left: 16px;
+  bottom: 19px;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border: 0;
+  background: var(--ink);
+  color: var(--cream);
+  transition:
+    opacity 0.25s,
+    background-color 0.25s;
+}
+.workspace-toggle svg {
+  width: 18px;
+  height: 18px;
+  fill: currentColor;
+}
+.workspace-toggle:hover {
+  background: var(--green);
+}
+@media (hover: hover) {
+  .workspace-viewport[data-playing] .workspace-toggle {
+    opacity: 0;
+  }
+  .workspace-viewport[data-playing]:hover .workspace-toggle,
+  .workspace-viewport .workspace-toggle:focus-visible {
+    opacity: 1;
+  }
+}
+.workspace-progress {
+  position: absolute;
+  inset: auto 0 0;
+  height: 3px;
+  background: #18231b40;
+  pointer-events: none;
+}
+.workspace-progress span {
+  display: block;
+  height: 100%;
+  background: var(--lilac);
+  transform-origin: left;
 }
 .preview-label {
+  margin-top: 12px;
   font-size: 14px;
   line-height: 20px;
-  color: var(--ink);
-}
-.preview-meta {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 12px;
-  margin-top: 12px;
-}
-.fullscreen-demo {
-  min-height: 44px;
-  gap: 8px;
-  padding-inline: 12px;
-  border-color: var(--ink);
+  color: #f5f2e9cc;
 }
 .status-strip {
   display: flex;
@@ -956,8 +1166,17 @@ section {
   background: transparent;
   height: 50px !important;
 }
+.faq-tab-active {
+  position: absolute;
+  inset: -1px;
+  background: var(--green);
+}
+.faq-tab-list [data-slot="tabs-trigger"] > span:last-child {
+  position: relative;
+}
 .faq-tab-list [data-slot="tabs-trigger"] {
   flex: 0 1 230px;
+  transition: color 0.3s var(--ease);
   justify-content: flex-start;
   height: 50px;
   padding: 14px;
@@ -970,8 +1189,7 @@ section {
   border-radius: 0;
 }
 .faq-tab-list [data-slot="tabs-trigger"][data-active] {
-  background: var(--green);
-  border-color: var(--green);
+  background: transparent;
   color: var(--cream);
 }
 .faq-tab-list [data-slot="tabs-trigger"]:hover:not([data-active]) {
@@ -1053,11 +1271,6 @@ section {
   height: 100%;
   overflow: hidden;
 }
-.closing-art img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
 .site-footer {
   background: var(--cream);
 }
@@ -1096,19 +1309,26 @@ section {
   font-size: 14px;
   line-height: 20px;
 }
+/* Figma 549:3446: a 182px window on a 1440px frame, which crops the
+   wordmark through its x-height. */
 .footer-wordmark {
-  position: relative;
   width: 100%;
-  /* The lettering ends at source row 297. Remove only the blank cream below it. */
-  aspect-ratio: 1429 / 300;
+  aspect-ratio: 1440 / 182;
   overflow: hidden;
 }
-.footer-wordmark img {
-  position: absolute;
-  inset: 0 auto auto 0;
+.footer-wordmark > div {
+  height: 100%;
+}
+.dither-wordmark > span {
   display: block;
-  width: 100%;
-  height: auto;
+  padding-left: 0.5vw;
+  font: 23.4vw/1 var(--font-display);
+  letter-spacing: -0.04em;
+  color: var(--green);
+  white-space: nowrap;
+}
+.js .dither-wordmark:not([data-dither="failed"]) > span {
+  visibility: hidden;
 }
 .subpage-hero {
   padding: 88px 64px;
@@ -1313,9 +1533,43 @@ section {
     grid-template-columns: 1fr auto;
     gap: 0 16px;
   }
+  .site-nav {
+    top: 16px;
+  }
   .hero-nav {
     top: 16px;
     margin: 0;
+  }
+  /* Headings flow as ordinary text here, so they rise as one block. */
+  [data-lines]:not(.lines-keep) .line-mask,
+  [data-lines]:not(.lines-keep) .line-mask > span {
+    display: inline;
+    overflow: visible;
+    margin: 0;
+    padding: 0;
+  }
+  .js [data-lines="scroll"]:not(.lines-keep) {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  .js [data-lines="scroll"]:not(.lines-keep).in {
+    opacity: 1;
+    transform: none;
+    transition:
+      opacity 0.6s var(--ease) var(--d, 0s),
+      transform 0.8s var(--ease) var(--d, 0s);
+  }
+  .js [data-lines="scroll"]:not(.lines-keep) .line-mask > span {
+    transform: none;
+  }
+  [data-lines="load"]:not(.lines-keep) {
+    animation: hero-rise 0.75s var(--ease) var(--d, 0s) both;
+  }
+  [data-lines="load"]:not(.lines-keep) .line-mask > span {
+    animation: none;
+  }
+  .desktop-only {
+    display: none;
   }
   .brand {
     font-size: 23.04px;
@@ -1395,23 +1649,17 @@ section {
     line-height: 18px;
     color: var(--sage);
   }
-  .hero-art {
-    opacity: 1;
-  }
-  .hero-art:after {
+  /* Keeps the copy readable where the artwork crops in close. */
+  .hero:before {
     content: "";
     position: absolute;
+    z-index: 1;
     inset: 0;
-    background: linear-gradient(
-      to bottom,
-      rgba(24, 35, 27, 0.98),
-      rgba(24, 35, 27, 0.88) 62%,
-      rgba(24, 35, 27, 0.12)
-    );
+    background: linear-gradient(to bottom, #18231bb3, #18231b40);
+    pointer-events: none;
   }
-  .hero-art img {
-    width: 100%;
-    object-position: center;
+  .hero-content {
+    z-index: 1;
   }
   .hero-content {
     padding: 120px var(--page-gutter) 32px;
@@ -1421,22 +1669,12 @@ section {
     line-height: 76px;
     letter-spacing: -0.025em;
   }
-  .desktop-title,
-  .desktop-eyebrow,
-  .desktop-action-label {
-    display: none;
-  }
-  .mobile-title,
-  .mobile-eyebrow,
-  .mobile-action-label {
-    display: block;
-  }
   .hero-description {
     font-size: 18px;
     line-height: 25px;
     max-width: 600px;
   }
-  .hero-note {
+  .hero-notes {
     font-size: 14px;
     line-height: 20px;
   }
@@ -1445,7 +1683,7 @@ section {
     width: 320px;
   }
   .stories {
-    min-height: 573px;
+    padding-block: 56px;
     gap: 28px;
   }
   .stories h2 {
@@ -1466,7 +1704,10 @@ section {
     line-height: 27px;
   }
   .process {
-    min-height: 0;
+    padding-block: 56px;
+  }
+  .stage-progress {
+    display: none;
   }
   .process h2 {
     font-size: 48px;
@@ -1498,7 +1739,6 @@ section {
     flex-direction: column;
     gap: 28px;
     padding: 56px 48px;
-    min-height: 0;
   }
   .input-intro {
     text-align: left;
@@ -1733,12 +1973,6 @@ section {
   .hero-nav {
     margin: 0;
   }
-  .hero-art:after {
-    background: rgba(24, 35, 27, 0.64);
-  }
-  .hero .mobile-eyebrow {
-    color: var(--cream);
-  }
   .hero-content {
     padding: 120px var(--page-gutter) 32px;
     gap: 24px;
@@ -1754,13 +1988,13 @@ section {
   .hero-actions .brand-action:nth-child(2) {
     width: 100%;
   }
-  .hero-note {
-    font-size: 14px;
-    line-height: 20px;
-  }
   .stories {
-    min-height: 641px;
+    padding-block: 40px;
     gap: 24px;
+  }
+  .process,
+  .workspace {
+    padding-block: 40px;
   }
   .profile-stage {
     height: 205px;
@@ -1790,6 +2024,52 @@ section {
   }
   .stage-card h3 {
     font-size: 28px;
+  }
+  /* Scroll stack. The section heading pins at the top. Each card pins
+     under it, one tab lower than the card before, so every earlier label
+     stays in view; the script trims covered cards to their tab. */
+  .process:has([data-stacked]) .process-head {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    margin: -12px calc(var(--page-gutter) * -1) 0;
+    padding: 12px var(--page-gutter);
+    background: var(--sage);
+  }
+  .process:has([data-stacked]) .process-head h2 {
+    margin-bottom: 12px;
+  }
+  .process:has([data-stacked]) .process-head .section-lead {
+    margin-bottom: 0;
+  }
+  [data-stacked] .stage-grid {
+    gap: 32px;
+  }
+  [data-stacked] .stage-card {
+    position: sticky;
+    top: calc(var(--stack-top, 137px) + var(--i) * 40px);
+    padding-top: 12px;
+    box-shadow: 0 -10px 24px -18px #18231b66;
+  }
+  /* The tab is the pressable strip of a covered card. */
+  .stage-tab {
+    position: absolute;
+    inset: 0 0 auto;
+    height: 40px;
+    border: 0;
+    background: none;
+    visibility: hidden;
+  }
+  [data-covered] > .stage-tab {
+    visibility: visible;
+  }
+  [data-covered] > .card-label {
+    text-decoration: underline;
+    text-underline-offset: 4px;
+    text-decoration-thickness: 1px;
+  }
+  html[data-stack-pinned] .site-nav {
+    transform: translateY(calc(-100% - 48px));
   }
   .process-note {
     font-size: 12px;
@@ -1896,6 +2176,10 @@ section {
     width: 100%;
     aspect-ratio: 1;
   }
+  .workspace-toggle {
+    left: 8px;
+    bottom: 11px;
+  }
   .advertiser-art h3 {
     padding: 24px;
     font-size: 36px;
@@ -1985,9 +2269,6 @@ section {
     height: auto;
     aspect-ratio: 1;
   }
-  .closing-art img {
-    aspect-ratio: 1;
-  }
   .footer-navigation {
     padding: 32px 24px;
     gap: 32px 24px;
@@ -2057,7 +2338,14 @@ section {
   *:before,
   *:after {
     scroll-behavior: auto !important;
-    animation-duration: 0.01ms !important;
+    animation: none !important;
     transition-duration: 0.01ms !important;
+  }
+  .js [data-reveal],
+  .js [data-lines],
+  .js [data-lines] .line-mask > span {
+    opacity: 1;
+    transform: none;
+    clip-path: none;
   }
 }

@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Action } from "@/components/landing/brand";
 import { ArrowLink, EditorialRows, PageTitle, ProfileAccent } from "./shared";
 import content from "./content.json";
+import { DitherImage } from "@/components/landing/dither";
 
 type Kind = "creator-pilot" | "brand-pilot" | "contact";
 
@@ -362,12 +363,12 @@ function Confirmation({ kind, onBack }: { kind: Kind; onBack: () => void }) {
       {kind === "contact" ? (
         <ProfileAccent contact />
       ) : (
-        <img
+        <DitherImage
           className="lp-confirmation-art"
           src={
             creator
-              ? "/linked-pages/563-3281-imgIllustrationCapScene.png"
-              : "/linked-pages/565-3251-imgIllustrationCreatorRecording.png"
+              ? "/figma/source/cap-scene.webp"
+              : "/figma/source/creator-recording.webp"
           }
           alt=""
         />

@@ -8,8 +8,16 @@ FORM: Preserve Figma 549:2779, with 554:2845 and 555:2910 responsive layouts.
 */
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { Menu, X, Maximize } from "lucide-react";
-import { motion, useInView, useReducedMotion } from "motion/react";
+import { Menu, X, Pause, Play } from "lucide-react";
+import {
+  motion,
+  useInView,
+  useMotionValue,
+  useMotionValueEvent,
+  useReducedMotion,
+  useScroll,
+  useTransform,
+} from "motion/react";
 import {
   Collapsible,
   CollapsibleContent,
@@ -17,18 +25,31 @@ import {
 } from "@/components/ui/collapsible";
 import { Button } from "@/components/ui/button";
 import { Action, Brand, asset } from "./brand";
-import { Reveal, Headline, ease } from "./motion";
+import { Lines, Reveal, useMediaQuery, useScrollProgress } from "./motion";
+import { DitherImage, DitherWordmark, heroDither } from "./dither";
 import { StageCards } from "./stage-cards";
 import { FAQ } from "./faq";
 
 export function Navigation({ home = false }: { home?: boolean }) {
   const [open, setOpen] = useState(false);
   const toggle = useRef<HTMLButtonElement>(null);
+  const [hidden, setHidden] = useState(false);
+  const { scrollY } = useScroll();
+  useMotionValueEvent(scrollY, "change", (y) => {
+    const previous = scrollY.getPrevious() ?? 0;
+    if (Math.abs(y - previous) < 4) return;
+    setHidden(y > previous && y > 240 && !open);
+  });
   return (
     <Collapsible
       open={open}
       onOpenChange={setOpen}
-      render={<header className={`site-nav ${home ? "hero-nav" : ""}`} />}
+      render={
+        <header
+          className={`site-nav ${home ? "hero-nav" : ""}`}
+          data-hidden={hidden || undefined}
+        />
+      }
       onKeyDown={(event) => {
         if (event.key === "Escape" && open) {
           setOpen(false);
@@ -78,67 +99,91 @@ export function Navigation({ home = false }: { home?: boolean }) {
     </Collapsible>
   );
 }
-function ProfileEchoes({ accent = false }: { accent?: boolean }) {
-  const reduce = useReducedMotion();
-  const ref = useRef<HTMLDivElement>(null);
-  const seen = useInView(ref, { once: true, amount: 0.35 });
-  const heights = [200, 260, 340, 285, 355, 270, 320, 240];
+// Where each profile starts before the row spreads, from Figma 495:1423.
+const echoOffsets = [472.6, 348.4, 218.3, 127.2, 0, -82.5, -203.9, -287.9];
+const echoHeights = [200, 260, 340, 285, 355, 270, 320, 240];
+function ProfileEcho({
+  index,
+  left,
+  spread,
+}: {
+  index: number;
+  left: number;
+  spread?: ReturnType<typeof useScrollProgress>;
+}) {
+  const still = useMotionValue(1);
+  const progress = spread?.progress ?? still;
+  // Outer profiles start later, so the row opens from the centre.
+  const start = Math.abs(index - 4) * 0.045;
+  const x = useTransform(
+    progress,
+    [start, start + 0.7],
+    [echoOffsets[index], 0],
+  );
+  const scale = useTransform(progress, [start, start + 0.7], [0.78, 1]);
+  const opacity = useTransform(progress, [start, start + 0.3], [0, 1]);
   return (
-    <div
-      ref={ref}
-      className={accent ? "profile-accent" : "profile-stage"}
-      aria-hidden="true"
+    <motion.div
+      className="profile-echo"
+      style={{
+        height: echoHeights[index],
+        left,
+        top: (355 - echoHeights[index]) / 2,
+        ...(spread?.enabled ? { x, scale, opacity } : null),
+      }}
     >
+      <img
+        alt=""
+        src={asset(
+          `549:2817/imgProfileEcho${index + 1}` as Parameters<typeof asset>[0],
+        )}
+      />
+    </motion.div>
+  );
+}
+function ProfileEchoes() {
+  const ref = useRef<HTMLDivElement>(null);
+  const spread = useScrollProgress(ref, ["start 0.95", "center 0.55"]);
+  return (
+    <div ref={ref} className="profile-stage" aria-hidden="true">
       <div className="profile-composition">
-        {(accent ? [2, 4, 6] : heights.map((_, i) => i)).map((i) => (
-          <motion.div
-            key={i}
-            className="profile-echo"
-            style={{
-              height: heights[i],
-              left: accent ? [2, 4, 6].indexOf(i) * 78 : i * 107,
-              top: (355 - heights[i]) / 2,
-            }}
-            initial={false}
-            animate={seen && !reduce ? { x: [(3.5 - i) * 75, 0] } : { x: 0 }}
-            transition={{ duration: 1.5, delay: 0.04 * Math.abs(i - 4), ease }}
-          >
-            <img
-              alt=""
-              src={asset(
-                `549:2817/imgProfileEcho${i + 1}` as Parameters<
-                  typeof asset
-                >[0],
-              )}
-            />
-          </motion.div>
+        {echoHeights.map((_, i) => (
+          <ProfileEcho key={i} index={i} left={i * 107} spread={spread} />
         ))}
       </div>
     </div>
   );
 }
+function ProfileAccent() {
+  return (
+    <Reveal className="profile-accent" aria-hidden="true">
+      <div className="profile-composition">
+        {[2, 4, 6].map((index, i) => (
+          <ProfileEcho key={index} index={index} left={i * 78} />
+        ))}
+      </div>
+    </Reveal>
+  );
+}
 function Inputs() {
   const heights = [12, 26, 18, 44, 58, 34, 22, 48, 62, 40, 18, 30, 50, 28, 14];
-  const reduce = useReducedMotion();
   return (
     <section className="inputs-section" id="your-input">
       <div className="input-intro">
-        <h2>
-          What we need <br />
-          from you
-        </h2>
-        <p>
+        <Lines lines={["What we need", "from you"]} />
+        <Reveal as="p" delay={0.15}>
           Samples are recorded once. Stories and limits are updated for each
           campaign. No brand can use your likeness until you accept its offer.
-        </p>
+        </Reveal>
       </div>
       <div className="inputs-list">
         <Reveal className="input-row">
           <div className="identity-art">
             <div className="face-sample">
               <img
-                src={asset("549:2973/imgSemblanseFaceArtwork")}
+                src="/figma/source/hero.webp"
                 alt="Semblanse profile artwork"
+                loading="lazy"
               />
               <span>Face</span>
             </div>
@@ -146,15 +191,15 @@ function Inputs() {
               <span>Voice</span>
               <div className="waveform" aria-hidden="true">
                 {heights.map((h, i) => (
-                  <motion.i
+                  <i
                     key={i}
-                    style={{ height: h }}
-                    initial={false}
-                    whileInView={
-                      reduce ? undefined : { scaleY: [0.4, 1, 0.65, 1] }
+                    style={
+                      {
+                        height: h,
+                        "--i": i,
+                        "--dip": 0.35 + ((i * 7) % 5) * 0.16,
+                      } as React.CSSProperties
                     }
-                    viewport={{ once: true }}
-                    transition={{ duration: 1.3, delay: i * 0.04, ease }}
                   />
                 ))}
               </div>
@@ -169,10 +214,12 @@ function Inputs() {
           </div>
         </Reveal>
         <Reveal className="input-row" delay={0.12}>
-          <blockquote className="context-art">
-            “My morning routine <br />
-            always starts with...”
-          </blockquote>
+          <Lines
+            as="blockquote"
+            className="context-art lines-keep"
+            delay={0.3}
+            lines={["“My morning routine", "always starts with...”"]}
+          />
           <div className="input-copy">
             <h3>Share your stories</h3>
             <p>Tell us your stories, what you know, and how you talk.</p>
@@ -207,14 +254,14 @@ function Licence() {
     <section className="control-section section-pad" id="your-control">
       <div className="control-grid">
         <div>
-          <h2>
-            Your likeness, <br />
-            your terms.
-          </h2>
-          <p className="control-lead">
+          <Lines
+            className="lines-keep"
+            lines={["Your likeness,", "your terms."]}
+          />
+          <Reveal as="p" className="control-lead" delay={0.15}>
             Every campaign gets its own licence. It sets what a brand can use,
             where it can run, and when permission ends.
-          </p>
+          </Reveal>
           <div className="commitments">
             {[
               [
@@ -229,11 +276,11 @@ function Licence() {
                 "Campaign use ends at expiry.",
                 "The brand must stop running the ads when the licence ends. Renewal needs your yes.",
               ],
-            ].map(([title, copy]) => (
-              <div key={title}>
+            ].map(([title, copy], i) => (
+              <Reveal key={title} delay={0.2 + i * 0.1}>
                 <h3>{title}</h3>
                 <p>{copy}</p>
-              </div>
+              </Reveal>
             ))}
           </div>
         </div>
@@ -254,19 +301,15 @@ function Licence() {
                 "1 video · 30s vertical · you approve the final version",
               ],
             ].map(([label, value], i) => (
-              <motion.div
+              <div
                 className="licence-field"
                 key={label}
-                initial={false}
-                whileInView={{
-                  outlineColor: ["#1f6f2200", "#1f6f2288", "#1f6f2200"],
-                }}
-                viewport={{ once: true }}
-                transition={{ duration: 1.3, delay: 0.5 + i * 0.15 }}
+                data-focus={i < 3 || undefined}
+                style={{ "--i": i } as React.CSSProperties}
               >
                 <small>{label}</small>
                 <p>{value}</p>
-              </motion.div>
+              </div>
             ))}
             <div className="licence-field">
               <small>CREATIVE LIMITS</small>
@@ -297,28 +340,70 @@ function Licence() {
     </section>
   );
 }
+/**
+ * Artwork that opens behind a straight edge as it scrolls into view, while
+ * the image inside settles from a slight zoom and its dither grain resolves.
+ */
+function ScrollArtwork({
+  className,
+  from = "left",
+  ...image
+}: {
+  className: string;
+  from?: "left" | "right";
+} & Pick<
+  React.ComponentProps<typeof DitherImage>,
+  "src" | "alt" | "position" | "flipX"
+>) {
+  const ref = useRef<HTMLDivElement>(null);
+  const { progress, enabled } = useScrollProgress(ref, [
+    "start 0.95",
+    "start 0.3",
+  ]);
+  const clipPath = useTransform(progress, [0, 0.85], [100, 0], {
+    clamp: true,
+  });
+  const inset = useTransform(clipPath, (v) =>
+    from === "left" ? `inset(0 ${v}% 0 0)` : `inset(0 0 0 ${v}%)`,
+  );
+  const scale = useTransform(progress, [0, 1], [1.14, 1]);
+  const coarse = useTransform(progress, [0, 0.7], [4, 1], { clamp: true });
+  return (
+    <motion.div
+      ref={ref}
+      className={className}
+      style={enabled ? { clipPath: inset } : undefined}
+    >
+      <motion.div className="art-zoom" style={enabled ? { scale } : undefined}>
+        <DitherImage {...image} coarse={enabled ? coarse : undefined} />
+      </motion.div>
+    </motion.div>
+  );
+}
 function Advertisers() {
   return (
     <section className="advertiser-section" id="for-advertisers">
       <div className="advertiser-art">
-        <Reveal kind="wipe">
-          <img
-            src={asset("brand-dither")}
-            alt="Illustrated creator recording an ad on a phone"
-            className="brand-artwork"
-          />
-        </Reveal>
-        <h3>
-          You make the ads. <br />
-          We clear the rights.
-        </h3>
+        <ScrollArtwork
+          className="brand-artwork"
+          src="/figma/source/creator-recording.webp"
+          alt="Illustrated creator recording an ad on a phone"
+        />
+        <Lines
+          as="h3"
+          className="lines-keep"
+          lines={["You make the ads.", "We clear the rights."]}
+        />
       </div>
       <div className="advertiser-copy">
-        <p className="eyebrow">FOR BRANDS &amp; CREATIVE AGENCIES</p>
-        <h2>
-          Real creators <br />
-          in your AI ads.
-        </h2>
+        <Reveal as="p" className="eyebrow">
+          FOR BRANDS &amp; CREATIVE AGENCIES
+        </Reveal>
+        <Lines
+          className="lines-keep"
+          lines={["Real creators", "in your AI ads."]}
+          delay={0.05}
+        />
         <div className="bring-grid">
           {[
             {
@@ -337,67 +422,69 @@ function Advertisers() {
                 "A signed licence, and the creator’s approval on every final ad",
               ],
             },
-          ].map(({ title, items }) => (
-            <div key={title}>
+          ].map(({ title, items }, i) => (
+            <Reveal key={title} delay={0.15 + i * 0.1}>
               <h3>{title}</h3>
               {items.map((item) => (
                 <p key={item}>{item}</p>
               ))}
-            </div>
+            </Reveal>
           ))}
         </div>
-        <p>
+        <Reveal as="p" delay={0.3}>
           Build AI ads around a real creator’s experience, voice and point of
           view. For our first paid pilots, we agree the production setup,
           versions, review process and price before work starts, and what to
           test against your current ads.
-        </p>
-        <div className="advertiser-action">
+        </Reveal>
+        <Reveal className="advertiser-action" delay={0.38}>
           <Action href="/brand-pilot">Book a pilot call</Action>
           <small>Scope and pricing agreed on the call</small>
-        </div>
+        </Reveal>
       </div>
     </section>
   );
 }
 function ProductDemo() {
+  const frame = useRef<HTMLDivElement>(null);
   const video = useRef<HTMLVideoElement>(null);
-  const inView = useInView(video, { amount: 0.25 });
-  const [autoplayBlocked, setAutoplayBlocked] = useState(false);
-  const [fullscreenError, setFullscreenError] = useState(false);
+  const reduce = useReducedMotion();
+  const inView = useInView(frame, { amount: 0.4 });
+  const [playing, setPlaying] = useState(false);
+  const [progress, setProgress] = useState(0);
+  // Once the visitor pauses, scrolling back must not restart the demo.
+  const pausedByVisitor = useRef(false);
   useEffect(() => {
     const player = video.current;
     if (!player) return;
-    if (inView) {
+    if (inView && !pausedByVisitor.current && !reduce) {
       player.muted = true;
-      void player.play().catch(() => setAutoplayBlocked(true));
+      void player.play().catch(() => undefined);
     } else {
       player.pause();
     }
-  }, [inView]);
-  async function fullscreen() {
-    const player = video.current as
-      | (HTMLVideoElement & {
-          webkitEnterFullscreen?: () => void;
-        })
-      | null;
+  }, [inView, reduce]);
+  function toggle() {
+    const player = video.current;
     if (!player) return;
-    try {
-      if (player.requestFullscreen) await player.requestFullscreen();
-      else if (player.webkitEnterFullscreen) player.webkitEnterFullscreen();
-      else throw new Error("Fullscreen is unavailable");
-      setFullscreenError(false);
-    } catch {
-      setFullscreenError(true);
-    }
+    pausedByVisitor.current = !player.paused;
+    if (player.paused) void player.play().catch(() => undefined);
+    else player.pause();
   }
+  // The frame grows to full size as it scrolls into view.
+  const grow = useScrollProgress(frame, ["start 0.98", "start 0.35"]);
+  const scale = useTransform(grow.progress, [0, 1], [0.9, 1]);
   return (
-    <Reveal className="workspace-video" kind="scale">
-      <div className="workspace-viewport">
+    <div className="workspace-video">
+      <motion.div
+        ref={frame}
+        className="workspace-viewport"
+        data-playing={playing || undefined}
+        style={grow.enabled ? { scale } : undefined}
+      >
         <video
           ref={video}
           className="workspace-player"
-          controls
           muted
           loop
           playsInline
@@ -405,33 +492,36 @@ function ProductDemo() {
           poster="/media/creator-demo-poster.jpg"
           src="/media/creator-demo.mp4"
           aria-label="Semblanse creator workspace demonstration"
-          onPlay={() => setAutoplayBlocked(false)}
+          onClick={toggle}
+          onPlay={() => setPlaying(true)}
+          onPause={() => setPlaying(false)}
+          onTimeUpdate={(event) => {
+            const player = event.currentTarget;
+            if (player.duration)
+              setProgress(player.currentTime / player.duration);
+          }}
         />
-      </div>
-      <div className="preview-meta">
-        <p className="preview-label">Product preview · example data</p>
-        <Button
-          variant="outline"
-          className="fullscreen-demo"
-          onClick={fullscreen}
+        <button
+          type="button"
+          className="workspace-toggle"
+          onClick={toggle}
+          aria-label={playing ? "Pause the demo" : "Play the demo"}
         >
-          <Maximize aria-hidden="true" /> Fullscreen demo
-        </Button>
-      </div>
-      {autoplayBlocked && (
-        <p className="preview-label" role="status">
-          Press play to view the demo.
-        </p>
-      )}
-      {fullscreenError && (
-        <p className="preview-label" role="status">
-          Use the fullscreen control inside the video player.
-        </p>
-      )}
-    </Reveal>
+          {playing ? <Pause aria-hidden="true" /> : <Play aria-hidden="true" />}
+        </button>
+        <div className="workspace-progress" aria-hidden="true">
+          <span style={{ transform: `scaleX(${progress})` }} />
+        </div>
+      </motion.div>
+      <p className="preview-label">Product preview · example data</p>
+    </div>
   );
 }
 export function Footer() {
+  const wordmark = useRef<HTMLDivElement>(null);
+  // The wordmark rises into its cropped position as the page ends.
+  const rise = useScrollProgress(wordmark, ["start end", "end end"]);
+  const y = useTransform(rise.progress, [0, 1], ["70%", "0%"]);
   return (
     <footer className="site-footer">
       <div className="footer-navigation">
@@ -485,16 +575,87 @@ export function Footer() {
         ))}
       </div>
       <p className="copyright">© 2026 Semblanse. All rights reserved.</p>
-      <div className="footer-wordmark" aria-label="Semblanse">
-        <img
-          src={asset("footer-dither")}
-          alt=""
-          width={1429}
-          height={364}
-          loading="lazy"
-        />
+      <div ref={wordmark} className="footer-wordmark" aria-hidden="true">
+        <motion.div style={rise.enabled ? { y } : undefined}>
+          <DitherWordmark />
+        </motion.div>
       </div>
     </footer>
+  );
+}
+function Hero() {
+  const ref = useRef<HTMLElement>(null);
+  const { progress, enabled } = useScrollProgress(ref, [
+    "start start",
+    "end start",
+  ]);
+  // The artwork trails the page and the copy leaves a little ahead of it.
+  const artY = useTransform(progress, [0, 1], ["0%", "18%"]);
+  const artScale = useTransform(progress, [0, 1], [1, 1.08]);
+  const copyY = useTransform(progress, [0, 1], [0, -70]);
+  const copyOpacity = useTransform(progress, [0.25, 0.85], [1, 0]);
+  // Wide screens anchor the artwork top left, as in Figma. Narrow screens
+  // crop in close, so they centre on the profile instead.
+  const narrow = useMediaQuery("(max-width: 1023px)");
+  const delay = (seconds: number) =>
+    ({ "--d": `${seconds}s` }) as React.CSSProperties;
+  return (
+    <section ref={ref} className="hero" id="top">
+      <motion.div
+        className="hero-art"
+        style={enabled ? { y: artY, scale: artScale } : undefined}
+      >
+        <DitherImage
+          src="/figma/source/hero.webp"
+          alt=""
+          position={narrow ? [0.62, 0.4] : [0, 0]}
+          settings={heroDither}
+          priority
+          intro
+        />
+      </motion.div>
+      <Navigation home />
+      <motion.div
+        className="hero-content"
+        style={enabled ? { y: copyY, opacity: copyOpacity } : undefined}
+      >
+        <p className="eyebrow" data-hero style={delay(0)}>
+          LICENSED AI ADS STARRING REAL CREATORS · NOW RECRUITING
+          <span className="desktop-only"> FOR OUR FIRST PAID CAMPAIGNS</span>
+        </p>
+        <Lines
+          as="h1"
+          className="hero-title"
+          lines={["Get paid for ads", "you never had", "to film."]}
+          delay={0.08}
+          onLoad
+        />
+        <p className="hero-description" data-hero style={delay(0.5)}>
+          License your likeness to one brand, for one campaign. Their team makes
+          the ads with an AI version of you. Only the ad you approve can run,
+          and you’re paid when you approve it.
+        </p>
+        <div className="hero-actions" data-hero style={delay(0.62)}>
+          <Action href="/creator-pilot">Apply as a creator</Action>
+          <Action href="/brand-pilot" variant="secondary">
+            <span>
+              Advertisers: license creators
+              <span className="desktop-only"> for AI ads</span> →
+            </span>
+          </Action>
+        </div>
+        <div className="hero-notes" data-hero style={delay(0.74)}>
+          <p>
+            Signing up grants no rights to your likeness. Posting to your own
+            audience is optional.
+          </p>
+          <p>
+            Applying takes a few minutes. You join our waitlist, and we’ll reach
+            out when a campaign fits you.
+          </p>
+        </div>
+      </motion.div>
+    </section>
   );
 }
 export function LandingPage() {
@@ -504,85 +665,32 @@ export function LandingPage() {
         Skip to content
       </a>
       <main id="main">
-        <section className="hero" id="top">
-          <Reveal className="hero-art" kind="scale">
-            <picture>
-              <source
-                media="(max-width: 599px)"
-                srcSet="/figma/hero-mobile-portrait-dither.webp"
-              />
-              <source
-                media="(max-width: 1023px)"
-                srcSet={asset("554:2846/imgImage2")}
-              />
-              <img src={asset("hero-dither")} alt="" fetchPriority="high" />
-            </picture>
-          </Reveal>
-          <Navigation home />
-          <div className="hero-content">
-            <p className="eyebrow desktop-eyebrow">
-              LICENSED AI ADS STARRING REAL CREATORS · NOW RECRUITING FOR OUR
-              FIRST PAID CAMPAIGNS
-            </p>
-            <p className="eyebrow mobile-eyebrow">
-              LICENSED AI ADS STARRING REAL CREATORS · NOW RECRUITING
-            </p>
-            <Headline
-              className="hero-title desktop-title"
-              lines={["Get paid for ads", "you never had", "to film."]}
-              hero
-            />
-            <h1 className="hero-title mobile-title">
-              Get paid for ads you never had to film.
-            </h1>
-            <Reveal delay={0.2}>
-              <p className="hero-description">
-                License your likeness to one brand, for one campaign. Their team
-                makes the ads with an AI version of you. Only the ad you approve
-                can run, and you’re paid when you approve it.
-              </p>
-            </Reveal>
-            <Reveal className="hero-actions" delay={0.3}>
-              <Action href="/creator-pilot">Apply as a creator</Action>
-              <Action href="/brand-pilot" variant="secondary">
-                <span className="desktop-action-label">
-                  Advertisers: license creators for AI ads →
-                </span>
-                <span className="mobile-action-label">
-                  Advertisers: license creators →
-                </span>
-              </Action>
-            </Reveal>
-            <p className="hero-note">
-              Signing up grants no rights to your likeness. Posting to your own
-              audience is optional.
-            </p>
-            <p className="hero-note">
-              Applying takes a few minutes. You join our waitlist, and we’ll
-              reach out when a campaign fits you.
-            </p>
-          </div>
-        </section>
+        <Hero />
         <section className="stories section-pad">
-          <h2>Your stories. Fewer shoots.</h2>
+          <Lines
+            className="lines-inline"
+            lines={["Your stories.", "Fewer shoots."]}
+          />
           <ProfileEchoes />
-          <div className="story-hooks">
+          <Reveal className="story-hooks" kind="fade">
             <p>“My morning routine.”</p>
             <p>“What comes on the trail.”</p>
-          </div>
-          <p className="stories-description">
+          </Reveal>
+          <Reveal as="p" className="stories-description">
             Record your samples once. For each campaign, share the stories and
             limits that fit the brand. Their team makes a set number of
             versions, agreed in your licence, and you review them instead of
             shooting them.
-          </p>
+          </Reveal>
         </section>
         <section className="process section-pad" id="how-it-works">
-          <h2>How it works</h2>
-          <p className="section-lead">
-            Agree on the offer. Share your stories. Approve the ad. Get paid.
-            See what ran.
-          </p>
+          <div className="process-head">
+            <Lines lines={["How it works"]} />
+            <Reveal as="p" className="section-lead" delay={0.12}>
+              Agree on the offer. Share your stories. Approve the ad. Get paid.
+              See what ran.
+            </Reveal>
+          </div>
           <StageCards />
           <small className="process-note">Example campaign and fee.</small>
         </section>
@@ -590,15 +698,14 @@ export function LandingPage() {
         <Licence />
         <Advertisers />
         <section className="workspace section-pad" id="workspace">
-          <p className="workspace-eyebrow">PRODUCT PREVIEW · IN DEVELOPMENT</p>
-          <h2>
-            Offers, approvals and <br className="desktop-break" /> payments in
-            one place.
-          </h2>
-          <p className="section-lead">
+          <Reveal as="p" className="workspace-eyebrow eyebrow">
+            PRODUCT PREVIEW · IN DEVELOPMENT
+          </Reveal>
+          <Lines lines={["Offers, approvals and", "payments in one place."]} />
+          <Reveal as="p" className="section-lead" delay={0.15}>
             A preview of the creator workspace we’re building. It’s in
             development, and every campaign and number shown is an example.
-          </p>
+          </Reveal>
           <ProductDemo />
           <Action href="/creator-pilot" variant="cream">
             Apply as a creator
@@ -613,14 +720,12 @@ export function LandingPage() {
         </aside>
         <section className="questions" id="questions">
           <div className="questions-poster">
-            <h2>
-              Before <br className="desktop-break" /> you join.
-            </h2>
-            <p>
+            <Lines lines={["Before", "you join."]} />
+            <Reveal as="p" delay={0.15}>
               Straight answers for creators and brands. Pick your side, and ask
               us anything else.
-            </p>
-            <ProfileEchoes accent />
+            </Reveal>
+            <ProfileAccent />
           </div>
           <div className="answers">
             <FAQ />
@@ -628,35 +733,30 @@ export function LandingPage() {
         </section>
         <section className="closing" id="join">
           <div className="closing-copy">
-            <Reveal>
-              <h2>
-                Make room for <br />
-                another brand deal.
-              </h2>
-            </Reveal>
-            <p>
+            <Lines lines={["Make room for", "another brand deal."]} />
+            <Reveal as="p" delay={0.2}>
               Creators: join our first paid campaigns. <br />
               Agencies: test licensed creators against your current best ads.
-            </p>
-            <div className="closing-actions">
+            </Reveal>
+            <Reveal className="closing-actions" delay={0.3}>
               <Action href="/creator-pilot" variant="cream">
                 Apply as a creator
               </Action>
               <Action href="/brand-pilot" variant="secondary">
                 Book a pilot call
               </Action>
-            </div>
-            <small>
+            </Reveal>
+            <Reveal as="small" kind="fade" delay={0.4}>
               Campaign fit, rights and payment are agreed before you take part.
-            </small>
+            </Reveal>
           </div>
-          <Reveal className="closing-art" kind="wipe">
-            <img
-              src={asset("closing-dither")}
-              alt="Illustrated creator in a lilac cap"
-              loading="lazy"
-            />
-          </Reveal>
+          <ScrollArtwork
+            className="closing-art"
+            from="right"
+            src="/figma/source/cap-scene.webp"
+            alt="Illustrated creator in a lilac cap"
+            flipX
+          />
         </section>
       </main>
       <Footer />

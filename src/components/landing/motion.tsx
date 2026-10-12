@@ -1,15 +1,33 @@
 "use client";
-import { useEffect, useRef, type ReactNode } from "react";
+/*
+Motion follows the Figma prototype guide (504:2870, page 468:2470).
+Entrances are CSS transitions switched on by one IntersectionObserver, so
+content stays visible without JavaScript and nothing flashes on hydration.
+Scroll-linked movement uses Motion values driven by scroll progress.
+Everything eases on the prototype curve, cubic-bezier(0.22, 1, 0.36, 1).
+*/
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useSyncExternalStore,
+  type CSSProperties,
+  type ReactNode,
+  type Ref,
+  type RefObject,
+} from "react";
 import Lenis from "lenis";
 import "lenis/dist/lenis.css";
 import {
-  motion,
   MotionConfig,
-  useInView,
   useReducedMotion,
+  useScroll,
+  useSpring,
+  type MotionValue,
 } from "motion/react";
 
-export const ease = [0.16, 1, 0.3, 1] as const;
+export const ease = [0.22, 1, 0.36, 1] as const;
+
 export function ScrollProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const query = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -21,7 +39,7 @@ export function ScrollProvider({ children }: { children: ReactNode }) {
         : new Lenis({
             autoRaf: true,
             anchors: { offset: -24 },
-            duration: 1.1,
+            lerp: 0.11,
             smoothWheel: true,
             syncTouch: false,
           });
@@ -35,65 +53,138 @@ export function ScrollProvider({ children }: { children: ReactNode }) {
   }, []);
   return <MotionConfig reducedMotion="user">{children}</MotionConfig>;
 }
+
+let observer: IntersectionObserver | undefined;
+function watch(element: Element) {
+  observer ??= new IntersectionObserver(
+    (entries) => {
+      for (const entry of entries) {
+        // Also settle anything already above the fold line, such as after a
+        // reload part way down the page.
+        const passed =
+          entry.boundingClientRect.top < (entry.rootBounds?.bottom ?? 0);
+        if (entry.isIntersecting || passed) {
+          entry.target.classList.add("in");
+          observer?.unobserve(entry.target);
+        }
+      }
+    },
+    { rootMargin: "0px 0px -12% 0px" },
+  );
+  observer.observe(element);
+  return () => observer?.unobserve(element);
+}
+
+type RevealKind = "rise" | "fade" | "wipe" | "wipe-left" | "scale";
+
+/** Enters once when it scrolls into view. `delay` is in seconds. */
 export function Reveal({
   children,
   className = "",
   delay = 0,
   kind = "rise",
+  as = "div",
+  ...rest
 }: {
-  children: ReactNode;
+  children?: ReactNode;
   className?: string;
   delay?: number;
-  kind?: "rise" | "wipe" | "scale";
-}) {
-  const ref = useRef<HTMLDivElement>(null);
-  const seen = useInView(ref, { once: true, margin: "0px 0px -40px 0px" });
-  const reduce = useReducedMotion();
-  const active = seen && !reduce;
-  // Keep the SSR/default state visible, including without JavaScript.
+  kind?: RevealKind;
+  as?: "div" | "p" | "article" | "section" | "small" | "aside" | "li";
+} & Record<`aria-${string}`, string | undefined>) {
+  const ref = useRef<HTMLElement>(null);
+  useEffect(() => (ref.current ? watch(ref.current) : undefined), []);
+  const Tag = as;
   return (
-    <motion.div
-      ref={ref}
+    <Tag
+      ref={ref as Ref<never>}
       className={className}
-      initial={false}
-      animate={
-        active
-          ? kind === "wipe"
-            ? { clipPath: ["inset(0 100% 0 0)", "inset(0 0% 0 0)"] }
-            : kind === "scale"
-              ? { scale: [0.96, 1] }
-              : { y: [28, 0] }
-          : { y: 0, scale: 1 }
-      }
-      transition={{ duration: 1, delay, ease }}
+      data-reveal={kind}
+      style={delay ? ({ "--d": `${delay}s` } as CSSProperties) : undefined}
+      {...rest}
     >
       {children}
-    </motion.div>
+    </Tag>
   );
 }
-export function Headline({
+
+/** A heading whose lines rise through masks, staggered by line. */
+export function Lines({
   lines,
+  as = "h2",
   className = "",
-  hero = false,
+  delay = 0,
+  onLoad = false,
 }: {
-  lines: string[];
+  lines: ReactNode[];
+  as?: "h1" | "h2" | "h3" | "blockquote" | "p";
   className?: string;
-  hero?: boolean;
+  delay?: number;
+  /** Play on page load instead of on scroll. Used above the fold. */
+  onLoad?: boolean;
 }) {
-  const reduce = useReducedMotion();
+  const ref = useRef<HTMLElement>(null);
+  useEffect(
+    () => (ref.current && !onLoad ? watch(ref.current) : undefined),
+    [onLoad],
+  );
+  const Tag = as;
   return (
-    <h1 className={className} aria-label={lines.join(" ")}>
+    <Tag
+      ref={ref as Ref<never>}
+      className={className}
+      data-lines={onLoad ? "load" : "scroll"}
+      style={delay ? ({ "--d": `${delay}s` } as CSSProperties) : undefined}
+    >
       {lines.map((line, i) => (
-        <span className="headline-mask" key={line}>
-          <motion.span
-            initial={false}
-            animate={hero && !reduce ? { y: ["105%", "0%"] } : { y: 0 }}
-            transition={{ duration: 1.1, delay: 0.12 + i * 0.12, ease }}
-          >
-            {line}
-          </motion.span>
+        <span className="line-mask" key={i}>
+          <span style={{ "--i": i } as CSSProperties}>{line}</span>
+          {/* Keeps the words apart for screen readers and when lines reflow. */}
+          {i < lines.length - 1 ? " " : null}
         </span>
       ))}
-    </h1>
+    </Tag>
+  );
+}
+
+/**
+ * Scroll progress for an element, lightly sprung. `enabled` is false until
+ * the page has mounted and whenever the visitor prefers reduced motion, so
+ * server output and no-script pages show the settled layout.
+ */
+export function useScrollProgress(
+  target: RefObject<HTMLElement | null>,
+  offset: NonNullable<Parameters<typeof useScroll>[0]>["offset"],
+): { progress: MotionValue<number>; enabled: boolean } {
+  const reduce = useReducedMotion();
+  const mounted = useSyncExternalStore(
+    noSubscription,
+    () => true,
+    () => false,
+  );
+  const { scrollYProgress } = useScroll({ target, offset });
+  const progress = useSpring(scrollYProgress, {
+    stiffness: 180,
+    damping: 32,
+    mass: 0.4,
+  });
+  return { progress, enabled: mounted && !reduce };
+}
+
+const noSubscription = () => () => undefined;
+
+export function useMediaQuery(query: string) {
+  const subscribe = useCallback(
+    (notify: () => void) => {
+      const list = window.matchMedia(query);
+      list.addEventListener("change", notify);
+      return () => list.removeEventListener("change", notify);
+    },
+    [query],
+  );
+  return useSyncExternalStore(
+    subscribe,
+    () => window.matchMedia(query).matches,
+    () => false,
   );
 }

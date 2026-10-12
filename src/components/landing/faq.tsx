@@ -9,6 +9,7 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
+import { ease } from "./motion";
 const creators = [
   [
     "Do I have to film or post the ads?",
@@ -84,6 +85,8 @@ const brands = [
 export function FAQ() {
   const [audience, setAudience] = useState("creators");
   const [showAll, setShowAll] = useState(false);
+  // Answers crossfade on a switch only, so the first paint is never hidden.
+  const [switched, setSwitched] = useState(false);
   const reduce = useReducedMotion();
   return (
     <Tabs
@@ -91,12 +94,26 @@ export function FAQ() {
       onValueChange={(v) => {
         setAudience(String(v));
         setShowAll(false);
+        setSwitched(true);
       }}
       className="faq-tabs"
     >
       <TabsList className="faq-tab-list" aria-label="Questions by audience">
-        <TabsTrigger value="creators">Creators</TabsTrigger>
-        <TabsTrigger value="brands">Brands &amp; agencies</TabsTrigger>
+        {[
+          ["creators", "Creators"],
+          ["brands", "Brands & agencies"],
+        ].map(([value, label]) => (
+          <TabsTrigger key={value} value={value}>
+            {audience === value && (
+              <motion.span
+                className="faq-tab-active"
+                layoutId="faq-tab-active"
+                transition={{ duration: reduce ? 0 : 0.35, ease }}
+              />
+            )}
+            <span>{label}</span>
+          </TabsTrigger>
+        ))}
       </TabsList>
       {[
         { id: "creators", rows: creators },
@@ -105,9 +122,9 @@ export function FAQ() {
         <TabsContent key={id} value={id}>
           <motion.div
             key={audience}
-            initial={reduce ? false : { opacity: 0, y: 6 }}
+            initial={switched ? { opacity: 0, y: 8 } : false}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3 }}
+            transition={{ duration: 0.45, ease }}
           >
             <Accordion defaultValue={[rows[0][0]]} className="faq-accordion">
               {(showAll ? rows : rows.slice(0, 4)).map(([q, a]) => (

@@ -1,0 +1,39 @@
+name: Deploy Cloudflare preview
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: cloudflare-preview
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Check out the pushed commit
+        uses: actions/checkout@v6
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
+      - name: Check types and lint
+        run: npm run typecheck && npm run lint
+      - name: Build static site
+        run: npm run build
+      - name: Deploy preview
+        uses: cloudflare/wrangler-action@v4
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: a9d5eec9230d19166842a42f1580d558
+          wranglerVersion: "4.149.0"
+          command: pages deploy out --project-name=semblanse-landing-preview --branch=revision-3 --commit-hash=${{ github.sha }}

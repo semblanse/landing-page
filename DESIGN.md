@@ -31,28 +31,55 @@ Fonts are served from the build. The UI follows shadcn's editable source model, 
 
 ## Artwork
 
-The original Figma assets are stored in `public/figma/`. The local asset map records their source sections. No expiring Figma URLs are used at runtime.
+The original Figma image fills are stored in `public/figma/`. `scripts/build-artwork.mjs` re-encodes the three illustrations, undithered, to `public/figma/source/`. No expiring Figma URLs are used at runtime.
 
-Figma's dither effects were exported from the effect nodes, preserving the exact rendered pattern in PNGs. They do not require a WebGPU effect at runtime.
+| Artwork           | Figma image hash | Source file                     |
+| ----------------- | ---------------- | ------------------------------- |
+| Hero profile      | `91c6f912`       | `source/hero.webp`              |
+| Creator recording | `58ad2b23`       | `source/creator-recording.webp` |
+| Cap scene         | `b4a61bb1`       | `source/cap-scene.webp`         |
 
-| Export                 | Figma node                              |
-| ---------------------- | --------------------------------------- |
-| Hero dither            | `549:2783`                              |
-| Advertiser dither      | `549:3085`                              |
-| Closing dither         | `549:3402`                              |
-| Footer dither wordmark | `549:3447`, full export copy `578:3029` |
+The dither is applied in the browser by `src/components/landing/dither.tsx`. It ports Figma's first-party Dither shader effect (library id `f5c0a2ff-247f-434e-ada4-ecce79213874`, version `48a63bf8`), using each layer's own settings.
 
-Tablet uses its revised hero crop with the matching vertical gradient. Mobile uses a new 9:16 portrait adaptation of the source artwork, made with built-in imagegen and a fine ordered dither. A uniform 64% ink overlay matches the desktop artwork's dark treatment. The image fills the hero's full content height, including both notes, and ends at a hard edge above the solid ink stories section. It does not fade into that section. See [the mobile artwork prompt](docs/mobile-hero-artwork.md).
+| Layer                          | Figma node | Style       | Size | Levels | Brightness |
+| ------------------------------ | ---------- | ----------- | ---- | ------ | ---------- |
+| Hero                           | `549:2783` | Bayer 2x2   | 2    | 4      | 111        |
+| Advertiser and closing artwork | `549:3085` | Bayer 2x2   | 2    | 4      | 100        |
+| Footer wordmark                | `549:3447` | Bayer 16x16 | 2    | 4      | 131        |
 
-Only artwork is rasterized. Headings, copy, controls, licence and cards are HTML. The workspace demo starts when at least a quarter of the player enters view and pauses outside it. It plays inline, muted and looped, with native controls and a fullscreen action.
+Figma runs the effect as WebGPU compute passes. Only its ordered (Bayer) styles are used in this file, and those are a pure function of each block, so the port is a single WebGL fragment pass over a canvas whose pixels are the blocks. Blocks stay 2 CSS pixels at every screen density. Without JavaScript or WebGL the original artwork shows undithered.
 
-The input section keeps the heading within its own column, with a clear gap from the examples. The FAQ shows four common questions first, with one expandable answer open at a time and a control for the full list. Bright green marks the selected audience. The footer uses the full wordmark without a moving reveal; its frame removes only the blank cream below the lettering, placing the intact wordmark at the page bottom.
+The footer wordmark is live GFS Didot text, fitted to the page width and dithered by the same shader. Its frame keeps Figma's 1440:182 proportion (`549:3446`), which crops the lettering through its x-height. The closing artwork is mirrored, as in Figma.
+
+The hero follows the desktop treatment at every width: the dithered layer on white, at 36% over ink. Tablet and phone add a top-to-bottom ink gradient for legibility and centre the crop on the profile.
+
+Only artwork is drawn on canvas. Headings, copy, controls, licence and cards are HTML.
+
+## Product demo
+
+The workspace demo plays inside its frame. It starts, muted and looped, when 40% of the frame is in view and pauses outside it. One control pauses and resumes it; a visitor's pause is kept when they scroll back. It does not autoplay under reduced motion.
 
 ## Motion
 
-The prototype guide is `504:2870` on motion page `468:2470`. Motion supplies masked headline reveals, profile spread, card focus, waveform movement, licence wipe, preview scale, image wipes and FAQ crossfade. Most reveals run once when they enter view. Shared easing is `[0.16, 1, 0.3, 1]`.
+The prototype guide is `504:2870` on motion page `468:2470`. Its ten section timelines supply the sequences and the shared easing, `cubic-bezier(0.22, 1, 0.36, 1)`.
 
-Lenis smooths wheel and anchor scrolling. Touch scroll stays native. Content remains visible without JavaScript. Reduced motion disables movement and smooth scrolling.
+Entrances run once as a section enters view: headline lines rise through masks, copy and actions follow, the waveform moves once, licence fields take a brief outline, and the FAQ indicator slides between audiences while answers crossfade. They are CSS transitions switched on by one IntersectionObserver, armed only when scripts run.
+
+These follow scroll progress:
+
+| Section              | Scroll-linked movement                                                                                                                                                                                       |
+| -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Header               | Hides on scroll down, returns on scroll up                                                                                                                                                                   |
+| Hero                 | Artwork trails the page; copy lifts and fades                                                                                                                                                                |
+| Stories              | Profiles spread outward from the centre                                                                                                                                                                      |
+| How it works         | A progress line draws across the stages; cards take focus in order (1024+)                                                                                                                                   |
+| How it works (phone) | Cards form a scroll stack under the pinned section heading. Each card pins one tab lower, so earlier labels pile up until all five show; pressing a tab scrolls back to that card (screens 740px and taller) |
+| For brands           | Artwork opens behind a straight edge, settles from a zoom, grain resolves                                                                                                                                    |
+| Workspace            | The demo frame grows from 90% to full size                                                                                                                                                                   |
+| Closing              | As for brands, from the right                                                                                                                                                                                |
+| Footer               | The wordmark rises into its cropped position                                                                                                                                                                 |
+
+Lenis smooths wheel and anchor scrolling. Touch scroll stays native. Reduced motion shows every section at rest and disables smooth scrolling.
 
 ## Linked pages
 
@@ -60,4 +87,4 @@ All seven linked pages use the current Revision 3 desktop and mobile frames in s
 
 ## Mobile fixes
 
-The mobile and tablet header uses the desktop ink color and an accessible shadcn Collapsible menu. Responsive line breaks retain spaces. Process cards fit their content; fixed minimum heights and large inner gaps were removed. Didot uses its supplied regular weight, and Albert Sans uses real variable weights without font synthesis. The footer shows the full dither wordmark on cream, exported from a separate Figma copy so the source stays intact.
+The mobile and tablet header uses the desktop ink color and an accessible shadcn Collapsible menu. Responsive line breaks retain spaces. Process cards fit their content; fixed minimum heights and large inner gaps were removed. Didot uses its supplied regular weight, and Albert Sans uses real variable weights without font synthesis.

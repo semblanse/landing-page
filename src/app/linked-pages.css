@@ -1155,8 +1155,8 @@
   }
   .lp-confirmation-art {
     height: auto;
+    aspect-ratio: 1;
     max-height: 540px;
-    object-fit: cover;
   }
   .lp-confirmation.lp-sage {
     padding: 56px 24px;
