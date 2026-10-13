@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useRef, useState, useSyncExternalStore } from "react";
+import { useEffect, useRef, useSyncExternalStore } from "react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 import {
@@ -17,6 +17,7 @@ const sessionKey = "semblanse:analytics-session:v1";
 const attributionKey = "semblanse:attribution";
 type Choice = "unknown" | "allowed" | "denied" | "blocked";
 let memoryChoice: Choice = "unknown";
+let noticeOpen = false;
 let enabled = false;
 let visitor = "";
 let session = { id: "", expires: 0, count: 0 };
@@ -53,6 +54,16 @@ function subscribe(callback: () => void) {
     window.removeEventListener("storage", callback);
     window.removeEventListener("semblanse:analytics-choice", callback);
   };
+}
+function subscribeNotice(callback: () => void) {
+  window.addEventListener("semblanse:open-analytics", callback);
+  return () => window.removeEventListener("semblanse:open-analytics", callback);
+}
+function setNoticeOpen(value: boolean) {
+  // The footer can hydrate before this notice. Keep its request even when the
+  // notice has not subscribed yet; useSyncExternalStore reads it on mount.
+  noticeOpen = value;
+  window.dispatchEvent(new Event("semblanse:open-analytics"));
 }
 function stop() {
   enabled = false;
@@ -278,9 +289,7 @@ export function AnalyticsChoicesButton() {
       type="button"
       className="footer-analytics-choice"
       aria-controls="analytics-choice"
-      onClick={() =>
-        window.dispatchEvent(new Event("semblanse:open-analytics"))
-      }
+      onClick={() => setNoticeOpen(true)}
     >
       Analytics choices
     </button>
@@ -294,13 +303,12 @@ export function Analytics() {
     choice,
     () => "unknown" as Choice,
   );
-  const [open, setOpen] = useState(false);
+  const open = useSyncExternalStore(
+    subscribeNotice,
+    () => noticeOpen,
+    () => false,
+  );
   const notice = useRef<HTMLElement>(null);
-  useEffect(() => {
-    const show = () => setOpen(true);
-    window.addEventListener("semblanse:open-analytics", show);
-    return () => window.removeEventListener("semblanse:open-analytics", show);
-  }, []);
   useEffect(() => {
     if (open) notice.current?.focus({ preventScroll: true });
   }, [open]);
@@ -408,7 +416,11 @@ export function Analytics() {
             className="analytics-choice-allow"
             onClick={() => {
               chooseAnalytics("allowed");
-              setOpen(false);
+              setNoticeOpen(false);
+              if (open)
+                document
+                  .querySelector<HTMLButtonElement>(".footer-analytics-choice")
+                  ?.focus({ preventScroll: true });
             }}
           >
             Allow
@@ -418,7 +430,11 @@ export function Analytics() {
           type="button"
           onClick={() => {
             chooseAnalytics("denied");
-            setOpen(false);
+            setNoticeOpen(false);
+            if (open)
+              document
+                .querySelector<HTMLButtonElement>(".footer-analytics-choice")
+                ?.focus({ preventScroll: true });
           }}
         >
           {preference === "blocked" ? "Close" : "No thanks"}
