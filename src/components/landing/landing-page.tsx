@@ -84,6 +84,7 @@ const menus: NavMenu[] = [
         "/trust",
       ],
       ["Questions", "Answers for creators and brands", "/#questions"],
+      ["Careers", "Open roles, and how to apply", "/careers"],
       ["Contact", "Send us a note", "/contact"],
     ],
   },
@@ -775,6 +776,7 @@ export function Footer({ ink = false }: { ink?: boolean }) {
             title: "Company",
             links: [
               ["About", "/about"],
+              ["Careers", "/careers"],
               ["Contact", "/contact"],
               ["Trust & Safety", "/trust"],
               ["Privacy", "/privacy"],

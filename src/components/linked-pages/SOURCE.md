@@ -8,6 +8,7 @@ The source is the `Website · New pages · copy fixes` section (`633:1865`) in F
 | `/brands`        | For brands and agencies | `633:2670`    |
 | `/pilot`         | Pilot overview          | `633:1867`    |
 | `/about`         | About                   | `633:2132`    |
+| `/careers`       | Careers                 | `653:2358`    |
 | `/creator-pilot` | Apply as a creator      | `633:4427`    |
 | `/brand-pilot`   | Book a pilot call       | `633:3876`    |
 | `/contact`       | Contact                 | `633:3433`    |
@@ -15,7 +16,7 @@ The source is the `Website · New pages · copy fixes` section (`633:1865`) in F
 | `/terms`         | Terms of use            | `633:4983`    |
 | 404              | Not found               | `633:4844`    |
 
-The three forms use the "portrait background" frames. Their confirmations (`633:3081`, `633:3205`, `633:3748`) replace the form in place, and the breadcrumb gains a level. Each phone frame sits beside its desktop frame.
+The three forms use the "portrait background" frames. Their confirmations (`633:3081`, `633:3205`, `633:3748`) replace the form in place, and the breadcrumb gains a level. Each phone frame sits beside its desktop frame. Careers comes from the `Website · New pages · Careers and blog` section (`653:2357`); its buttons open an email to careers@semblanse.com.
 
 ## Layout
 

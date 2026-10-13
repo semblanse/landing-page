@@ -5,6 +5,7 @@ import { EnquiryPage } from "@/components/linked-pages/enquiry";
 import {
   AboutPage,
   BrandsPage,
+  CareersPage,
   PilotPage,
   TrustPage,
 } from "@/components/linked-pages/editorial";
@@ -18,6 +19,7 @@ const titles: Record<string, string> = {
   brands: "For brands and agencies",
   trust: "Trust & Safety",
   about: "About",
+  careers: "Careers",
   contact: "Contact",
   pilot: "Pilot overview",
   privacy: "Privacy policy",
@@ -61,6 +63,8 @@ export default async function LinkedPage({
           <PilotPage />
         ) : slug === "about" ? (
           <AboutPage />
+        ) : slug === "careers" ? (
+          <CareersPage />
         ) : slug === "brands" ? (
           <BrandsPage />
         ) : slug === "trust" ? (

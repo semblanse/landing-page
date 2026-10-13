@@ -906,7 +906,7 @@ them are fluid. Pages sit on cream, and artwork carries the colour.
   margin-top: 20px;
 }
 /* Numbered steps. A line draws down the left edge as they scroll past. */
-.sp-numbered {
+.linked-page .sp-numbered {
   position: relative;
   margin-top: 56px;
 }
@@ -978,6 +978,36 @@ them are fluid. Pages sit on cream, and artwork carries the colour.
 }
 .sp-how .sp-how-note {
   max-width: none;
+}
+/* Careers */
+.sp-claim-wide .sp-lead {
+  max-width: none;
+}
+.sp-how > .sp-lead + .sp-lead {
+  margin-top: 31px;
+}
+.linked-page .sp-roles {
+  margin-top: 56px;
+}
+.sp-roles li {
+  display: grid;
+  grid-template-columns: minmax(0, 420fr) minmax(0, 860fr);
+  gap: 32px;
+  padding-block: 28px;
+  border-top: 1px solid #18231b40;
+}
+.sp-roles h3 {
+  font-size: 28px;
+  line-height: 32px;
+}
+.sp-roles p {
+  font-size: 18px;
+  line-height: 26px;
+  opacity: 0.85;
+}
+.sp-apply-action {
+  padding-top: 32px;
+  border-top: 1px solid #18231b40;
 }
 .sp-closing {
   grid-template-columns: minmax(0, 1fr) minmax(0, 640px);
@@ -1506,8 +1536,28 @@ them are fluid. Pages sit on cream, and artwork carries the colour.
   .sp-how {
     padding-bottom: 64px;
   }
-  .sp-numbered {
+  .linked-page .sp-numbered,
+  .linked-page .sp-roles {
     margin-top: 28px;
+  }
+  .sp-roles li {
+    grid-template-columns: 1fr;
+    gap: 10px;
+    padding-block: 22px;
+  }
+  .sp-roles h3 {
+    font-size: 26px;
+    line-height: 30px;
+  }
+  .sp-roles p {
+    font-size: 16px;
+    line-height: 23px;
+  }
+  .sp-how > .sp-lead + .sp-lead {
+    margin-top: 25px;
+  }
+  .sp-apply-action {
+    padding-top: 24px;
   }
   .sp-numbered-line {
     left: -12px;

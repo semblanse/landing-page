@@ -497,3 +497,140 @@ export function BrandsPage() {
     </>
   );
 }
+
+const careersEmail = "mailto:careers@semblanse.com";
+
+export function CareersPage() {
+  return (
+    <>
+      <section className="sp-picture-hero">
+        <Lines
+          as="h1"
+          className="sp-display"
+          lines={["Help put permission into AI ads."]}
+          onLoad
+        />
+        <div>
+          <LoadArt name="headphones" className="sp-picture-hero-art" />
+          <div className="sp-picture-hero-facts">
+            <div>
+              <p className="sp-lead" data-hero style={delay(0.35)}>
+                We’re a small team building the licensing service between
+                creators and the brands that want to work with them. We’re
+                pre-launch, so the work is hands-on.
+              </p>
+              <div className="sp-actions" data-hero style={delay(0.47)}>
+                <Action href="#open-roles">See open roles</Action>
+                <TextLink href="/about">Read about Semblanse</TextLink>
+              </div>
+            </div>
+            <div className="sp-suits" data-hero style={delay(0.6)}>
+              <h2>How we work</h2>
+              <ul>
+                <li>
+                  Remote across Canada and the US. We’re currently based in
+                  Toronto.
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+      <section className="sp-claim sp-claim-wide">
+        <Reveal as="p" className="sp-statement">
+          The people in the ads should get a say in them. The work here is
+          making that practical: clear licences, real limits and a sign-off on
+          every final ad.
+        </Reveal>
+        <Reveal as="p" className="sp-lead" delay={0.15}>
+          We’re looking for people who care about getting consent right and can
+          explain it plainly, to a creator and to a media buyer alike.
+        </Reveal>
+      </section>
+      <section className="sp-how" id="open-roles">
+        <Lines className="sp-heading" lines={["Open roles"]} />
+        <Reveal as="p" className="sp-lead" delay={0.15}>
+          Two kinds of work we need help with now.
+        </Reveal>
+        <ul className="sp-roles">
+          {[
+            [
+              "GTM Generalists",
+              "Run our pilot programme: make the ads for pilot campaigns, and reach out to the creators, brands and agencies we want to work with.",
+            ],
+            [
+              "Software Developers",
+              "Build the software behind the licensing service, from the creator account to the licence record and the approval flow.",
+            ],
+          ].map(([title, copy], i) => (
+            <Reveal as="li" key={title} delay={i * 0.1}>
+              <h3>{title}</h3>
+              <p>{copy}</p>
+            </Reveal>
+          ))}
+        </ul>
+        <Reveal as="p" className="sp-how-note" kind="fade">
+          Think you could do something else here? Tell us in your email.
+        </Reveal>
+      </section>
+      <section className="sp-how">
+        <Lines className="sp-heading" lines={["How to apply"]} />
+        <Reveal as="p" className="sp-lead" delay={0.15}>
+          There’s no form. Email careers@semblanse.com and tell us three things.
+        </Reveal>
+        <Reveal as="p" className="sp-lead" delay={0.2}>
+          No AI slop emails please :)
+        </Reveal>
+        <ol className="sp-numbered">
+          {[
+            [
+              "The role",
+              "What you think you can do at Semblanse. It doesn’t have to be one of the roles above.",
+            ],
+            [
+              "Why you’re good at it",
+              "Show us what you’ve built: products, campaigns, code, anything real.",
+            ],
+            [
+              "Why Semblanse",
+              "What draws you to this company and this problem.",
+            ],
+          ].map(([title, copy], i) => (
+            <Reveal as="li" key={title} delay={i * 0.1}>
+              <span className="sp-number">{i + 1}</span>
+              <h3>{title}</h3>
+              <p>{copy}</p>
+            </Reveal>
+          ))}
+        </ol>
+        <Reveal className="sp-apply-action" kind="fade">
+          <Action href={careersEmail}>Email careers@semblanse.com</Action>
+        </Reveal>
+      </section>
+      <section className="sp-closing sp-green">
+        <div className="sp-closing-copy">
+          <Lines
+            className="sp-closing-title"
+            lines={["Tell us what", "you’d build."]}
+          />
+          <Reveal as="p" className="sp-lead" delay={0.2}>
+            Email careers@semblanse.com with the role you can do, what you’ve
+            built and why Semblanse.
+          </Reveal>
+          <Reveal className="sp-actions" delay={0.3}>
+            <Action href={careersEmail} variant="cream">
+              Email careers@semblanse.com
+            </Action>
+            <TextLink href="/about">Read about Semblanse</TextLink>
+          </Reveal>
+        </div>
+        <ScrollArtwork
+          className="sp-closing-art"
+          src={art("envelope")}
+          alt=""
+          from="right"
+        />
+      </section>
+    </>
+  );
+}
