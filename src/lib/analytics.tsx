@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState, useSyncExternalStore } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 import {
@@ -277,6 +277,7 @@ export function AnalyticsChoicesButton() {
     <button
       type="button"
       className="footer-analytics-choice"
+      aria-controls="analytics-choice"
       onClick={() =>
         window.dispatchEvent(new Event("semblanse:open-analytics"))
       }
@@ -294,11 +295,15 @@ export function Analytics() {
     () => "unknown" as Choice,
   );
   const [open, setOpen] = useState(false);
+  const notice = useRef<HTMLElement>(null);
   useEffect(() => {
     const show = () => setOpen(true);
     window.addEventListener("semblanse:open-analytics", show);
     return () => window.removeEventListener("semblanse:open-analytics", show);
   }, []);
+  useEffect(() => {
+    if (open) notice.current?.focus({ preventScroll: true });
+  }, [open]);
   useEffect(() => {
     if (preference !== "allowed" || path.startsWith("/unsubscribe")) {
       // Hydration first uses the server snapshot. Preserve an existing opt-in
@@ -381,38 +386,42 @@ export function Analytics() {
   const visible = open || preference === "unknown";
   if (!visible) return null;
   return (
-    <section className="analytics-choice" aria-label="Analytics choices">
+    <section
+      id="analytics-choice"
+      ref={notice}
+      tabIndex={-1}
+      className="analytics-choice"
+      aria-label="Analytics choices"
+    >
       <div>
-        <p className="analytics-choice-title">Help us improve Semblanse.</p>
         <p>
           {preference === "blocked"
-            ? "Your browser has asked us not to track. Optional analytics stay off."
-            : "With your permission, we measure visits, clicks and form steps using PostHog. We don’t capture form answers or session recordings."}{" "}
-          <Link href="/privacy/#what-we-collect">Read our privacy policy</Link>.
+            ? "Analytics are off, as your browser requested."
+            : "Help us improve the site? Allow optional visit and click stats."}{" "}
+          <Link href="/privacy/#what-we-collect">Privacy details</Link>
         </p>
       </div>
       <div className="analytics-choice-actions">
         {preference !== "blocked" && (
           <button
             type="button"
-            className="brand-action action-default"
+            className="analytics-choice-allow"
             onClick={() => {
               chooseAnalytics("allowed");
               setOpen(false);
             }}
           >
-            Allow analytics
+            Allow
           </button>
         )}
         <button
           type="button"
-          className="brand-action action-cream"
           onClick={() => {
             chooseAnalytics("denied");
             setOpen(false);
           }}
         >
-          {preference === "blocked" ? "Close" : "Essential only"}
+          {preference === "blocked" ? "Close" : "No thanks"}
         </button>
       </div>
     </section>

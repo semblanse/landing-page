@@ -66,7 +66,7 @@ export const legalDocuments: Record<"privacy" | "terms", Document> = {
       {
         title: "Analytics and browser storage",
         bullets: [
-          "Choose “Allow analytics” to enable optional measurement or “Essential only” to leave it off. Global Privacy Control and Do Not Track keep optional analytics off. Reopen “Analytics choices” in the footer to change your choice.",
+          "Choose “Allow” in the analytics notice to enable optional measurement or “No thanks” to leave it off. Global Privacy Control and Do Not Track keep optional analytics off. Reopen “Analytics choices” in the footer to change your choice.",
           "The browser remembers your analytics choice for up to 180 days. After opt-in, an anonymous visitor identifier lasts up to 90 days, and a session identifier and filtered attribution stay in session storage, with a new analytics session after 30 idle minutes. These are browser-storage entries, not analytics cookies.",
           "Turning analytics off clears optional identifiers and queued events in this browser. It does not automatically remove events already sent to PostHog. Contact us about information you want removed; anonymous events may be difficult to link to you.",
           "The first page and campaign tags recorded are those available after you allow analytics. If you then send a form, we may save the filtered attribution with the enquiry. Refusing analytics does not prevent applications or messages.",

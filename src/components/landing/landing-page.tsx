@@ -859,7 +859,6 @@ export function Footer({ ink = false }: { ink?: boolean }) {
                 {text}
               </Link>
             ))}
-            {group.title === "Company" && <AnalyticsChoicesButton />}
           </div>
         ))}
       </div>
@@ -873,6 +872,8 @@ export function Footer({ ink = false }: { ink?: boolean }) {
         >
           Accessibility help
         </a>
+        {" · "}
+        <AnalyticsChoicesButton />
         {operator.legalOperator && (
           <>
             <br />
