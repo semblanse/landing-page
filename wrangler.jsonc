@@ -15,7 +15,7 @@
       "binding": "DB",
       "database_name": "semblanse-enquiries-preview",
       // Replace with the id printed by `wrangler d1 create`.
-      "database_id": "00000000-0000-0000-0000-000000000000",
+      "database_id": "02ba791a-c964-409e-87c4-226e8f9bbb75",
       "migrations_dir": "migrations"
     }
   ]
