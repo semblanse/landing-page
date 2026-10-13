@@ -1435,15 +1435,22 @@ html:has(.workspace-viewport[data-expanded]) {
   line-height: 21px;
 }
 .footer-links h3 {
-  font: 500 14px/20px var(--font-ui);
+  font: 600 14px/20px var(--font-ui);
   letter-spacing: 0;
-  margin-bottom: 12px;
+  margin-bottom: 14px;
 }
+/* Links sit back from their heading and come forward on hover. */
 .footer-links a {
   display: block;
   font-size: 16px;
   line-height: 24px;
   padding-block: 6px;
+  opacity: 0.68;
+  transition: opacity 0.2s;
+}
+.footer-links a:hover,
+.footer-links a:focus-visible {
+  opacity: 1;
 }
 .copyright {
   padding: 0 64px 40px;
