@@ -34,4 +34,10 @@ The pages use the landing page's motion parts. Headings rise through line masks 
 
 ## Not connected
 
-The forms, the Instagram sign-in and the misuse report are previews. They say so and send nothing. Privacy and terms carry no draft labels, but the text has not had legal review.
+The three forms and the misuse report send to `/api/enquiry`; the README covers the backend. These parts of them are not in Figma and need a design pass:
+
+- The message under a field that needs fixing, the line above the submit button that counts them, and the line shown when sending fails.
+- The "Sending…" state of the submit button.
+- The Instagram username field on the creator form. It sits where the frames show the "Continue with Instagram" button.
+- The "One last step" block on the creator confirmation, with the message a creator sends to @semblanse to prove the account is theirs.
+  Privacy and terms carry no draft labels, but the text has not had legal review.

@@ -39,9 +39,10 @@ const documents: Record<
         title: "What we collect",
         bullets: [
           "Waitlist applications: your name, email, what you make, where you live, the profiles you link, and anything you tell us you won’t promote.",
-          "Instagram sign-in: your username and basic profile details, so we can confirm the account is yours. We don’t receive your messages or permission to post.",
+          "Instagram account checks: your username and a message we ask you to send to @semblanse from that account with your application email. Our team reads that message to confirm the account is yours. We don’t ask for your password or permission to post.",
           "Pilot requests and messages: your name, work email, company and what you tell us.",
           "Creators in a campaign: the face, body and voice samples you record, the stories and limits you share, and a record of every approval.",
+          "Website use: pages visited, links to our forms, form starts, errors and submissions, and device and referral details. We keep campaign tags and the first page and referrer in session storage for the visit and may save them with your enquiry.",
         ],
       },
       {
@@ -56,7 +57,9 @@ const documents: Record<
         title: "Who we share it with",
         bullets: [
           "Whoever is producing a campaign you’ve signed a licence for (the brand’s team or ours) and the AI tools they use, only to make that campaign’s ads. We’ll tell you which tools before you record anything.",
-          "Service providers who host, email and process payments for us, under contracts that limit how they use it.",
+          "Cloudflare hosts this site, stores form submissions in D1 and checks for bots through Turnstile.",
+          "Resend sends form confirmations and team notifications using the details needed for those emails.",
+          "PostHog processes website analytics in the US. We configure it without analytics cookies or browser storage, with session replay and automatic interaction capture off. Our form events send field names and outcomes rather than the answers you type.",
           "Authorities, if the law requires it.",
         ],
       },
@@ -97,6 +100,10 @@ const documents: Record<
       {
         title: "Using this site",
         body: "You can browse and use this site for your own information. Please don’t misuse it, try to break it, or scrape it.",
+      },
+      {
+        title: "Website services",
+        body: "This site uses Cloudflare for hosting, form storage and bot checks, Resend for form emails, and PostHog for website analytics. Our privacy policy explains what we send to these services. Please don’t bypass the bot checks or flood our forms with requests.",
       },
       {
         title: "The waitlist",

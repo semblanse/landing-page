@@ -1611,3 +1611,89 @@ them are fluid. Pages sit on cream, and artwork carries the colour.
     aspect-ratio: 390 / 260;
   }
 }
+
+/* Form feedback, bot check and Instagram confirmation. Not in Figma. */
+.sp-error {
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 20px;
+  color: var(--destructive);
+}
+.sp-field input[aria-invalid="true"],
+.sp-field textarea[aria-invalid="true"],
+.sp-choice input[aria-invalid="true"] + span,
+.sp-consent input[aria-invalid="true"] {
+  border-color: var(--destructive);
+}
+.sp-choice .sp-error {
+  margin-top: 10px;
+}
+.sp-consent-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.sp-fax {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+}
+/* Empty unless Cloudflare needs the visitor to interact. */
+.sp-turnstile:empty {
+  display: none;
+}
+.sp-submit [role="alert"]:empty {
+  display: none;
+}
+.sp-submit-button[aria-disabled="true"] {
+  opacity: 0.7;
+  cursor: progress;
+}
+.sp-verify {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 16px;
+  width: 100%;
+  max-width: 640px;
+  padding-top: 28px;
+  border-top: 1px solid color-mix(in srgb, currentColor 20%, transparent);
+}
+.sp-verify h2 {
+  font-size: 28px;
+  line-height: 34px;
+}
+.sp-verify p {
+  font-size: 17px;
+  line-height: 25px;
+  opacity: 0.85;
+}
+.sp-verify-code {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: stretch;
+  gap: 12px;
+}
+.sp-verify-code output {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  padding: 15px 20px;
+  border: 1px solid color-mix(in srgb, currentColor 40%, transparent);
+  font-size: 17px;
+  font-weight: 600;
+  line-height: 24px;
+  overflow-wrap: anywhere;
+  user-select: all;
+}
+.sp-verify-code button {
+  height: 56px;
+  padding-inline: 20px;
+  font-size: 16px;
+}
+/* Keeps the label-to-control spacing the Instagram block had as a button. */
+.sp-instagram .sp-field {
+  gap: 10px;
+}

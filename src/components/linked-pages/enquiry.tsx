@@ -1,6 +1,13 @@
 "use client";
 
-import { useRef, useState, type ReactNode } from "react";
+import {
+  createContext,
+  useContext,
+  useRef,
+  useState,
+  type FormEvent,
+  type ReactNode,
+} from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -18,8 +25,35 @@ import {
   delay,
   type Crumb,
 } from "./shared";
+import {
+  contactEmail,
+  enquiryFields,
+  instagramAccount,
+  instagramProof,
+  options,
+  validateEnquiry,
+  type EnquiryErrors,
+  type EnquiryRequest,
+  type EnquiryResponse,
+  type EnquiryValues,
+  type FormKind,
+} from "@/lib/enquiry-schema";
+import { useTurnstile } from "@/lib/turnstile";
+import { attribution, track } from "@/lib/analytics";
 
 export type EnquiryKind = "creator-pilot" | "brand-pilot" | "contact";
+
+/** Each field shows its own message from here, keyed by field name. */
+const Errors = createContext<EnquiryErrors>({});
+
+function FieldError({ name }: { name: string }) {
+  const error = useContext(Errors)[name];
+  return error ? (
+    <p id={`${name}-error`} className="sp-error">
+      {error}
+    </p>
+  ) : null;
+}
 
 function Field({
   name,
@@ -29,16 +63,26 @@ function Field({
   optional = false,
   rows,
   autoComplete,
+  hint,
+  verbatim = type !== "text",
 }: {
   name: string;
   label: string;
   placeholder?: string;
   type?: string;
   optional?: boolean;
+  hint?: string;
+  /** Turns off the keyboard's capitals and corrections. On for links and emails. */
+  verbatim?: boolean;
   /** Renders a multi-line field of this height in rows. */
   rows?: number;
   autoComplete?: string;
 }) {
+  const invalid = name in useContext(Errors);
+  const describedBy =
+    [invalid && `${name}-error`, hint && `${name}-hint`]
+      .filter(Boolean)
+      .join(" ") || undefined;
   return (
     <div className="sp-field">
       <Label htmlFor={name}>
@@ -52,6 +96,8 @@ function Field({
           rows={rows}
           placeholder={placeholder}
           required={!optional}
+          aria-invalid={invalid || undefined}
+          aria-describedby={describedBy}
         />
       ) : (
         <Input
@@ -61,7 +107,18 @@ function Field({
           placeholder={placeholder}
           required={!optional}
           autoComplete={autoComplete}
+          autoCapitalize={verbatim ? "none" : undefined}
+          autoCorrect={verbatim ? "off" : undefined}
+          spellCheck={verbatim ? false : undefined}
+          aria-invalid={invalid || undefined}
+          aria-describedby={describedBy}
         />
+      )}
+      <FieldError name={name} />
+      {hint && (
+        <p id={`${name}-hint`} className="sp-hint">
+          {hint}
+        </p>
       )}
     </div>
   );
@@ -78,10 +135,11 @@ function Choice({
   label: string;
   hint?: string;
   name: string;
-  options: string[];
+  options: readonly string[];
   defaultValue?: string;
   multiple?: boolean;
 }) {
+  const invalid = name in useContext(Errors);
   return (
     <fieldset className="sp-choice">
       <legend>{label}</legend>
@@ -95,21 +153,34 @@ function Choice({
               value={option}
               defaultChecked={option === defaultValue}
               required={!multiple && !defaultValue}
+              aria-invalid={invalid || undefined}
+              aria-describedby={invalid ? `${name}-error` : undefined}
             />
             <span>{option}</span>
           </label>
         ))}
       </div>
+      <FieldError name={name} />
     </fieldset>
   );
 }
 
 function Consent({ children }: { children: ReactNode }) {
+  const invalid = "consent" in useContext(Errors);
   return (
-    <label className="sp-consent">
-      <input type="checkbox" required />
-      <span>{children}</span>
-    </label>
+    <div className="sp-consent-field">
+      <label className="sp-consent">
+        <input
+          type="checkbox"
+          name="consent"
+          required
+          aria-invalid={invalid || undefined}
+          aria-describedby={invalid ? "consent-error" : undefined}
+        />
+        <span>{children}</span>
+      </label>
+      <FieldError name="consent" />
+    </div>
   );
 }
 
@@ -127,7 +198,7 @@ const pages = {
     notes: [
       [
         "We confirm it’s you.",
-        "Signing in with Instagram shows us the account is really yours.",
+        "A message from your Instagram account shows us the account is really yours.",
       ],
       [
         "We reach out when a campaign fits.",
@@ -192,27 +263,17 @@ const pages = {
 } as const;
 
 function Fields({ kind }: { kind: EnquiryKind }) {
-  const [instagram, setInstagram] = useState(false);
   if (kind === "creator-pilot")
     return (
       <>
         <div className="sp-instagram">
-          <p className="sp-label">First, confirm your Instagram account</p>
-          <Button
-            type="button"
-            className="sp-instagram-button"
-            aria-pressed={instagram}
-            onClick={() => setInstagram(true)}
-          >
-            <span className="sp-camera" aria-hidden="true" />
-            {instagram
-              ? "Preview only: no account was connected"
-              : "Continue with Instagram"}
-          </Button>
-          <p className="sp-hint">
-            We only use this to confirm the account is yours. We can’t post for
-            you or see your messages.
-          </p>
+          <Field
+            name="instagram"
+            label="First, confirm your Instagram account"
+            placeholder="@yourname"
+            verbatim
+            hint="After you apply, you’ll message us from this account to confirm it’s yours. We can’t post for you or see your other messages."
+          />
         </div>
         <hr />
         <Field name="name" label="Full name" autoComplete="name" />
@@ -229,15 +290,7 @@ function Fields({ kind }: { kind: EnquiryKind }) {
           name="category"
           multiple
           defaultValue="Fitness"
-          options={[
-            "Fitness",
-            "Food",
-            "Beauty",
-            "Lifestyle",
-            "Outdoors",
-            "Parenting",
-            "Something else",
-          ]}
+          options={options.category}
         />
         <Field
           name="profile"
@@ -250,7 +303,7 @@ function Fields({ kind }: { kind: EnquiryKind }) {
           label="Where do you live?"
           name="country"
           defaultValue="Canada"
-          options={["Canada", "United States", "Somewhere else"]}
+          options={options.country}
         />
         <Field
           name="limits"
@@ -286,14 +339,14 @@ function Fields({ kind }: { kind: EnquiryKind }) {
           label="Are you a brand or an agency?"
           name="type"
           defaultValue="Agency"
-          options={["Brand", "Agency"]}
+          options={options.type}
         />
         <Choice
           label="Who would make the ads?"
           hint="Either way, the creator approves every final ad."
           name="production"
           defaultValue="My team"
-          options={["My team", "Semblanse’s team (pilot only)", "Not sure yet"]}
+          options={options.production}
         />
         <Field
           name="sell"
@@ -305,12 +358,7 @@ function Fields({ kind }: { kind: EnquiryKind }) {
           hint="Agencies: across the clients you’d test with."
           name="spend"
           defaultValue="$10K–$50K"
-          options={[
-            "Under $10K",
-            "$10K–$50K",
-            "Over $50K",
-            "Prefer not to say",
-          ]}
+          options={options.spend}
         />
         <Field
           name="test"
@@ -332,17 +380,7 @@ function Fields({ kind }: { kind: EnquiryKind }) {
         placeholder="you@example.com"
         autoComplete="email"
       />
-      <Choice
-        label="I’m a…"
-        name="role"
-        options={[
-          "Creator",
-          "Brand or agency",
-          "Investor",
-          "Press",
-          "Something else",
-        ]}
-      />
+      <Choice label="I’m a…" name="role" options={options.role} />
       <Field
         name="message"
         label="Message"
@@ -354,11 +392,67 @@ function Fields({ kind }: { kind: EnquiryKind }) {
   );
 }
 
-const previewNote = "Preview only. No details left this browser.";
+/** The creator's last step: prove the Instagram account is theirs. */
+function VerifyInstagram({
+  email,
+  username,
+}: {
+  email: string;
+  username: string;
+}) {
+  const [copied, setCopied] = useState(false);
+  const message = instagramProof(email);
+  return (
+    <div className="sp-verify" data-hero style={delay(0.6)}>
+      <h2>One last step: confirm @{username} is yours.</h2>
+      <p>
+        From that account, send this to @{instagramAccount} in an Instagram
+        message. It’s in your confirmation email too, if you’d rather do it
+        later.
+      </p>
+      <div className="sp-verify-code">
+        <output aria-label="Your message">{message}</output>
+        <Button
+          type="button"
+          variant="outline"
+          onClick={() => {
+            navigator.clipboard?.writeText(message).then(
+              () => {
+                setCopied(true);
+                track("verify_message_copied");
+              },
+              () => {},
+            );
+          }}
+        >
+          <span aria-live="polite">{copied ? "Copied" : "Copy message"}</span>
+        </Button>
+      </div>
+      {/* Opens in a new tab so the message stays on screen. */}
+      <a
+        className="sp-link"
+        href={`https://ig.me/m/${instagramAccount}`}
+        target="_blank"
+        rel="noreferrer"
+        onClick={() => track("verify_message_opened")}
+      >
+        Message @{instagramAccount} on Instagram{" "}
+        <span aria-hidden="true">→</span>
+      </a>
+    </div>
+  );
+}
 
-function Confirmation({ kind }: { kind: EnquiryKind }) {
+type Sent = { email?: string; username?: string };
+
+function Confirmation({ kind, sent }: { kind: EnquiryKind; sent: Sent }) {
   const home = <Action href="/">Back to the homepage</Action>;
-  const copy = (lines: string[], body: string, actions: ReactNode) => (
+  const copy = (
+    lines: string[],
+    body: string,
+    actions: ReactNode,
+    after?: ReactNode,
+  ) => (
     <>
       <Lines as="h1" className="sp-display" lines={lines} onLoad />
       <p className="sp-lead" data-hero style={delay(0.35)}>
@@ -367,9 +461,7 @@ function Confirmation({ kind }: { kind: EnquiryKind }) {
       <div className="sp-actions" data-hero style={delay(0.47)}>
         {actions}
       </div>
-      <p className="sp-preview-note" data-hero style={delay(0.6)}>
-        {previewNote}
-      </p>
+      {after}
     </>
   );
   if (kind === "creator-pilot")
@@ -382,6 +474,9 @@ function Confirmation({ kind }: { kind: EnquiryKind }) {
             {home}
             <TextLink href="/#how-it-works">See how a campaign works</TextLink>
           </>,
+          sent.email && sent.username && (
+            <VerifyInstagram email={sent.email} username={sent.username} />
+          ),
         )}
       </SplitHero>
     );
@@ -413,10 +508,146 @@ function Confirmation({ kind }: { kind: EnquiryKind }) {
   );
 }
 
+const failures = {
+  challenge: "We couldn’t confirm this came from a person. Please try again.",
+  unavailable: `That didn’t send, and your answers are still here. Try again, or email ${contactEmail}.`,
+};
+
+/**
+ * Checks, sends and reports on one form. Spread `form` on the <form>, wrap
+ * its fields in `Errors`, and render `challenge` and `alert` beside the
+ * submit button.
+ */
+function useEnquiry(kind: FormKind, onSent: (values: EnquiryValues) => void) {
+  const [sending, setSending] = useState(false);
+  const [errors, setErrors] = useState<EnquiryErrors>({});
+  const [failure, setFailure] = useState<keyof typeof failures>();
+  const started = useRef(false);
+  const { container, getToken } = useTurnstile();
+
+  function showErrors(form: HTMLFormElement, found: EnquiryErrors) {
+    setErrors(found);
+    track("form_error", { form: kind, fields: Object.keys(found) });
+    requestAnimationFrame(() =>
+      form.querySelector<HTMLElement>('[aria-invalid="true"]')?.focus(),
+    );
+  }
+
+  async function onSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (sending) return;
+    const form = event.currentTarget;
+    const data = new FormData(form);
+    const input: Record<string, unknown> = {};
+    for (const field of enquiryFields(kind)) {
+      const all = data.getAll(field);
+      input[field] = all.length > 1 ? all : all[0];
+    }
+    const { values, errors: found } = validateEnquiry(kind, input);
+    setFailure(undefined);
+    if (Object.keys(found).length) return showErrors(form, found);
+
+    setErrors({});
+    setSending(true);
+    let result: EnquiryResponse;
+    try {
+      const request: EnquiryRequest = {
+        kind,
+        values: input,
+        token: await getToken(),
+        fax: String(data.get("fax") ?? ""),
+        attribution: attribution(),
+      };
+      const response = await fetch("/api/enquiry", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify(request),
+      });
+      result = await response.json();
+    } catch {
+      result = { ok: false, reason: "unavailable" };
+    }
+    setSending(false);
+
+    if (!result.ok) {
+      if (result.reason === "invalid" && Object.keys(result.errors).length)
+        return showErrors(form, result.errors);
+      const reason =
+        result.reason === "challenge" ? "challenge" : "unavailable";
+      track("form_failed", { form: kind, reason });
+      return setFailure(reason);
+    }
+    track("form_submitted", { form: kind });
+    onSent(values);
+  }
+
+  const count = Object.keys(errors).length;
+  return {
+    errors,
+    sending,
+    form: {
+      // The form shows its own message under each field.
+      noValidate: true,
+      onSubmit,
+      onFocus: () => {
+        if (started.current) return;
+        started.current = true;
+        track("form_started", { form: kind });
+      },
+      onChange: (event: FormEvent<HTMLFormElement>) => {
+        const name = (event.target as Element).getAttribute("name") ?? "";
+        if (name in errors)
+          setErrors((current) => {
+            const rest = { ...current };
+            delete rest[name];
+            return rest;
+          });
+      },
+    },
+    challenge: (
+      <>
+        {/* A trap for scripts that fill every field. People never see it. */}
+        <div className="sp-fax" aria-hidden="true">
+          <label>
+            Fax
+            <input name="fax" tabIndex={-1} autoComplete="off" />
+          </label>
+        </div>
+        <div ref={container} className="sp-turnstile" />
+      </>
+    ),
+    alert: (
+      <div role="alert">
+        {count > 0 ? (
+          <p className="sp-error">
+            {count === 1
+              ? "Check the highlighted answer above."
+              : `Check the ${count} highlighted answers above.`}
+          </p>
+        ) : (
+          failure && <p className="sp-error">{failures[failure]}</p>
+        )}
+      </div>
+    ),
+  };
+}
+
 export function EnquiryPage({ kind }: { kind: EnquiryKind }) {
-  const [sent, setSent] = useState(false);
+  const [sent, setSent] = useState<Sent>();
   const wrap = useRef<HTMLDivElement>(null);
   const page = pages[kind];
+  const enquiry = useEnquiry(kind, (values) => {
+    setSent({
+      email: values.email as string,
+      username: values.instagram as string,
+    });
+    requestAnimationFrame(() => {
+      window.scrollTo({ top: 0, behavior: "instant" });
+      wrap.current
+        ?.querySelector<HTMLElement>(".sp-confirmation")
+        ?.focus({ preventScroll: true });
+    });
+  });
   // The last level is the page itself until the form is sent.
   const here = page.crumbs.map(([label, href], i): Crumb =>
     !sent && i === page.crumbs.length - 1 ? [label] : [label, href],
@@ -426,20 +657,11 @@ export function EnquiryPage({ kind }: { kind: EnquiryKind }) {
     ...here,
     ...(sent ? [[page.sent] as Crumb] : []),
   ];
-  function submit() {
-    setSent(true);
-    requestAnimationFrame(() => {
-      window.scrollTo({ top: 0, behavior: "instant" });
-      wrap.current
-        ?.querySelector<HTMLElement>(".sp-confirmation")
-        ?.focus({ preventScroll: true });
-    });
-  }
   if (sent)
     return (
       <div ref={wrap}>
         <Breadcrumbs trail={trail} />
-        <Confirmation kind={kind} />
+        <Confirmation kind={kind} sent={sent} />
       </div>
     );
   return (
@@ -493,24 +715,21 @@ export function EnquiryPage({ kind }: { kind: EnquiryKind }) {
         </div>
         <div className="sp-form-column" data-hero style={delay(0.2)}>
           <h2 className="sp-form-title">{page.formTitle}</h2>
-          <form
-            className="sp-form"
-            onSubmit={(event) => {
-              event.preventDefault();
-              submit();
-            }}
-          >
-            <Fields kind={kind} />
+          <form className="sp-form" {...enquiry.form}>
+            <Errors value={enquiry.errors}>
+              <Fields kind={kind} />
+            </Errors>
             <div className="sp-submit">
-              <Button type="submit" className="sp-submit-button">
-                {page.submit}
+              {enquiry.challenge}
+              {enquiry.alert}
+              <Button
+                type="submit"
+                className="sp-submit-button"
+                aria-disabled={enquiry.sending}
+              >
+                {enquiry.sending ? "Sending…" : page.submit}
               </Button>
               {page.small && <p className="sp-hint">{page.small}</p>}
-              {/* Not in Figma. The form is not connected, and says so. */}
-              <p className="sp-hint">
-                Preview form. Your details stay in this browser and are not
-                sent.
-              </p>
             </div>
           </form>
         </div>
@@ -522,6 +741,7 @@ export function EnquiryPage({ kind }: { kind: EnquiryKind }) {
 /** The misuse report at the foot of Trust & Safety: a panel beside its form. */
 export function ReportForm() {
   const [sent, setSent] = useState(false);
+  const enquiry = useEnquiry("report", () => setSent(true));
   return (
     <section className="sp-split sp-report" id="report">
       <div className="sp-panel sp-green">
@@ -563,62 +783,61 @@ export function ReportForm() {
         {sent ? (
           <div className="sp-report-sent" role="status">
             <h2 className="sp-form-title">Report noted.</h2>
-            <p>{previewNote}</p>
+            <p>
+              A person reads every report. We’ll reply to the email you gave us.
+            </p>
           </div>
         ) : (
           <>
             <h2 className="sp-form-title">Send a report.</h2>
-            <form
-              className="sp-form"
-              onSubmit={(event) => {
-                event.preventDefault();
-                setSent(true);
-              }}
-            >
-              <Field name="report-name" label="Your name" autoComplete="name" />
-              <Field
-                name="report-email"
-                label="Email"
-                type="email"
-                placeholder="you@example.com"
-                autoComplete="email"
-              />
-              <Choice
-                label="What are you reporting?"
-                name="report-kind"
-                defaultValue="An ad I didn’t approve"
-                options={[
-                  "An ad I didn’t approve",
-                  "Impersonation",
-                  "Use after a licence ended",
-                  "Something else",
-                ]}
-              />
-              <Field
-                name="report-link"
-                label="Link to the ad, or where you saw it"
-                placeholder="https://"
-              />
-              <Field
-                name="report-detail"
-                label="What happened?"
-                placeholder="When you saw it, who appears in it, and what you’d like to happen"
-                rows={4}
-              />
-              <label className="sp-consent">
-                <input type="checkbox" name="report-subject" />
-                <span>I’m the person shown in the ad.</span>
-              </label>
+            <form className="sp-form" {...enquiry.form}>
+              <Errors value={enquiry.errors}>
+                <Field
+                  name="report-name"
+                  label="Your name"
+                  autoComplete="name"
+                />
+                <Field
+                  name="report-email"
+                  label="Email"
+                  type="email"
+                  placeholder="you@example.com"
+                  autoComplete="email"
+                />
+                <Choice
+                  label="What are you reporting?"
+                  name="report-kind"
+                  defaultValue="An ad I didn’t approve"
+                  options={options.report}
+                />
+                <Field
+                  name="report-link"
+                  label="Link to the ad, or where you saw it"
+                  placeholder="https://"
+                />
+                <Field
+                  name="report-detail"
+                  label="What happened?"
+                  placeholder="When you saw it, who appears in it, and what you’d like to happen"
+                  rows={4}
+                />
+                <label className="sp-consent">
+                  <input type="checkbox" name="report-subject" />
+                  <span>I’m the person shown in the ad.</span>
+                </label>
+              </Errors>
               <div className="sp-submit">
-                <Button type="submit" className="sp-submit-button">
-                  Send report
+                {enquiry.challenge}
+                {enquiry.alert}
+                <Button
+                  type="submit"
+                  className="sp-submit-button"
+                  aria-disabled={enquiry.sending}
+                >
+                  {enquiry.sending ? "Sending…" : "Send report"}
                 </Button>
                 <p className="sp-hint">
                   We use these details only to look into your report.
-                </p>
-                <p className="sp-hint">
-                  Preview form. Your details stay in this browser and are not
-                  sent.
                 </p>
               </div>
             </form>

@@ -1,0 +1,4 @@
+# Cloudflare's always-pass Turnstile test secret, for local runs only.
+TURNSTILE_SECRET_KEY=1x0000000000000000000000000000000AA
+# Leave unset locally to skip sending email.
+# RESEND_API_KEY=
