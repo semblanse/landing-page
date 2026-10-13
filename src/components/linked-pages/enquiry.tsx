@@ -367,7 +367,10 @@ function Fields({ kind }: { kind: EnquiryKind }) {
           rows={4}
           optional
         />
-        <Consent>I agree to the {privacy}.</Consent>
+        <Consent>
+          I’ve read the {privacy} and agree to the use of these details to
+          handle my pilot enquiry.
+        </Consent>
       </>
     );
   return (
@@ -387,7 +390,10 @@ function Fields({ kind }: { kind: EnquiryKind }) {
         placeholder="How can we help?"
         rows={5}
       />
-      <Consent>I agree to the {privacy}.</Consent>
+      <Consent>
+        I’ve read the {privacy} and agree to the use of these details to reply
+        to my message.
+      </Consent>
     </>
   );
 }
@@ -434,7 +440,9 @@ function VerifyInstagram({
         href={`https://ig.me/m/${instagramAccount}`}
         target="_blank"
         rel="noreferrer"
-        onClick={() => track("verify_message_opened", { form: "creator-pilot" })}
+        onClick={() =>
+          track("verify_message_opened", { form: "creator-pilot" })
+        }
       >
         Message @{instagramAccount} on Instagram{" "}
         <span aria-hidden="true">→</span>

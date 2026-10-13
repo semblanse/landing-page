@@ -88,9 +88,9 @@ export function AboutPage() {
         <div className="sp-row-copy">
           <Lines className="sp-heading" lines={["We’re pre-launch."]} />
           <Reveal as="p" delay={0.15}>
-            We’re interviewing creators and agencies and running our first paid
-            pilots by hand, in Canada and the US. What we learn decides what we
-            build next.
+            We’re interviewing creators and agencies and recruiting for our
+            first paid pilots. Our team will run them by hand. What we learn
+            decides what we build next.
           </Reveal>
           <Reveal delay={0.25}>
             <TextLink href="/contact">Investor or press? Get in touch</TextLink>
@@ -274,9 +274,9 @@ export function TrustPage() {
           onLoad
         />
         <p className="sp-lead" data-hero style={delay(0.35)}>
-          You’re trusting us with your face and voice. Here is how we confirm
-          who you are, record what you agreed to, limit what a brand can do, and
-          act when something goes wrong.
+          We’re building Semblanse around your permission. Here is the planned
+          campaign workflow: account checks, recorded consent, limits on use and
+          approval before launch. Pilot applications use the DM check below.
         </p>
         <div className="sp-actions" data-hero style={delay(0.47)}>
           <Action href="/creator-pilot">Apply as a creator</Action>
@@ -297,8 +297,8 @@ export function TrustPage() {
           {[
             [
               "Identity",
-              "You sign in with Instagram so we know the account is yours. Before your first campaign, you record short face, body and voice samples and confirm they show you.",
-              "Your sign-in and your confirmation of the samples",
+              "For the pilot application, send the Instagram DM shown after applying so we can check control of that account. Instagram sign-in is planned for the future product. Before a campaign, we will separately check your samples and authority to license them.",
+              "The pilot account check and later campaign-specific confirmations",
             ],
             [
               "Consent",
@@ -328,8 +328,8 @@ export function TrustPage() {
         </ol>
         <Reveal as="p" className="sp-ledger-note" kind="fade" delay={0.3}>
           <span className="sp-chip">Pre-launch</span>
-          For now, a person at Semblanse carries out each check. We’re building
-          an online account where you’ll see and do this yourself.
+          Our team will carry out the pilot checks. We’re building an online
+          account where you’ll see and do this yourself.
         </Reveal>
       </section>
       <section className="sp-never sp-ink" id="never">
@@ -382,16 +382,18 @@ export function TrustPage() {
             How do advertisers use creator samples?
           </Reveal>
           <Reveal as="p" className="sp-statement" delay={0.1}>
-            You record your samples once. They’re used only to make the ads for
-            a campaign you’ve signed a licence for, by whoever is producing it:
-            the brand’s team or ours. Nobody else gets them.
+            Before you share samples, we’ll name the production team and tools
+            that may process them for your campaign. Brands will receive
+            approved outputs and licence records; any generation access must
+            stay within the agreed scope. Raw samples and reusable models are
+            not an automatic part of the licence.
           </Reveal>
         </div>
         <Reveal as="aside" className="sp-undecided" delay={0.2}>
-          <h2>Still being decided</h2>
+          <h2>Before you share samples</h2>
           <p>
-            We won’t ask you to record anything until these are settled and
-            you’ve seen them in writing.
+            We’ll explain these in writing and obtain the permission needed
+            before asking you to record anything.
           </p>
           <ul>
             {[

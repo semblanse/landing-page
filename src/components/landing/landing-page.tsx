@@ -30,6 +30,7 @@ import { DitherImage, heroDither } from "./dither";
 import { StageCards } from "./stage-cards";
 import { FAQ } from "./faq";
 import { AnalyticsChoicesButton, track } from "@/lib/analytics";
+import operator from "@/lib/release-decisions.json";
 
 type NavMenu = {
   label: string;
@@ -456,7 +457,7 @@ function Licence() {
             {[
               [
                 "Used only for the campaign.",
-                "Your samples go only to the licensed brand, for that campaign.",
+                "Only the disclosed production team and tools may process your samples for the agreed campaign.",
               ],
               [
                 "No training rights.",
@@ -519,12 +520,12 @@ function Licence() {
       </div>
       <Reveal className="record-banner">
         <h3>
-          Every use is <br />
+          Your agreement, <br />
           on record.
         </h3>
         <p>
-          Each licence is signed and tracked, and its terms make breaking it
-          costly for the brand.
+          Each licence will record the agreed rights and approvals. The campaign
+          agreement will set the duties and remedies for misuse.
         </p>
       </Reveal>
     </section>
@@ -816,6 +817,23 @@ export function Footer({ ink = false }: { ink?: boolean }) {
           </div>
         ))}
       </div>
+      <p className="footer-contact">
+        <a href={`mailto:${operator.privacyContact}?subject=Privacy%20request`}>
+          Privacy requests
+        </a>
+        {" · "}
+        <a
+          href={`mailto:${operator.privacyContact}?subject=Accessibility%20help`}
+        >
+          Accessibility help
+        </a>
+        {operator.legalOperator && (
+          <>
+            <br />
+            {operator.legalOperator} · {operator.postalAddress}
+          </>
+        )}
+      </p>
       <p className="copyright">© 2026 Semblanse. All rights reserved.</p>
       <div ref={wordmark} className="footer-wordmark" aria-hidden="true">
         <motion.div style={rise.enabled ? { y } : undefined}>
@@ -862,8 +880,8 @@ function Hero() {
         style={enabled ? { y: copyY, opacity: copyOpacity } : undefined}
       >
         <p className="eyebrow" data-hero style={delay(0)}>
-          LICENSED AI ADS STARRING REAL CREATORS · NOW RECRUITING
-          <span className="desktop-only"> FOR OUR FIRST PAID CAMPAIGNS</span>
+          LICENSED AI ADS STARRING REAL CREATORS · PRE-LAUNCH
+          <span className="desktop-only"> · RECRUITING FOR PAID PILOTS</span>
         </p>
         <Lines
           as="h1"
@@ -874,8 +892,8 @@ function Hero() {
         />
         <p className="hero-description" data-hero style={delay(0.5)}>
           License your likeness to one brand, for one campaign. Their team makes
-          the ads with an AI version of you. Only the ad you approve can run,
-          and you’re paid when you approve it.
+          the ads with an AI version of you. Brands may run only ads you
+          approve, and you’re paid when you approve it.
         </p>
         <div className="hero-actions" data-hero style={delay(0.62)}>
           <Action href="/creator-pilot">Apply as a creator</Action>
@@ -892,8 +910,8 @@ function Hero() {
             audience is optional.
           </p>
           <p>
-            Applying takes a few minutes. You join our waitlist, and we’ll reach
-            out when a campaign fits you.
+            We’re building this workflow. Apply to join our waitlist; we’ll
+            reach out when a campaign fits you.
           </p>
         </div>
       </motion.div>

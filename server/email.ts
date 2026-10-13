@@ -5,6 +5,7 @@ import {
   type EnquiryValues,
   type FormKind,
 } from "../src/lib/enquiry-schema";
+import operator from "../src/lib/release-decisions.json";
 
 export type Message = {
   to: string;
@@ -217,6 +218,9 @@ export function confirmation(
     `${why} Questions? Reply to this email or write to ${contactEmail}.`,
     `Unsubscribe: ${unsubscribe}`,
     "Semblanse",
+    ...(operator.legalOperator
+      ? [operator.legalOperator, operator.postalAddress]
+      : []),
   ].join("\n\n");
 
   const verify = proof
@@ -269,6 +273,7 @@ ${verify}${linkRow}
 <tr><td style="height:18px;font-size:0;line-height:0">&nbsp;</td></tr>
 <tr><td class="gutter" style="padding:32px 40px 36px;background:${ink};font-family:${sans};color:${cream}">
 <p style="margin:0 0 14px;font-size:18px;line-height:24px">Creator likeness.<br>Licensed by campaign.</p>
+${operator.legalOperator ? `<p style="margin:0 0 14px;font-size:13px;line-height:20px">${escapeHtml(operator.legalOperator)}<br>${escapeHtml(operator.postalAddress)}</p>` : ""}
 <p style="margin:0 0 18px;font-size:13px;line-height:20px;color:#bbbdb4">${escapeHtml(why)} Questions? Reply to this email or write to <a href="mailto:${contactEmail}" style="color:#bbbdb4">${contactEmail}</a>.</p>
 <p style="margin:0;font-size:13px;line-height:20px;font-weight:500">${footerLink("Unsubscribe", unsubscribe)}${footerLink("Privacy Policy", `${site}/privacy/`)}${footerLink(host, `${site}/`)}</p>
 </td></tr>

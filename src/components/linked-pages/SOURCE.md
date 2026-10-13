@@ -41,4 +41,4 @@ The three forms and the misuse report send to `/api/enquiry`; the README covers 
 - The Instagram username field on the creator form. It sits where the frames show the "Continue with Instagram" button.
 - The `/unsubscribe` page, reached from the link in our emails. It follows the form confirmations.
 - The "One last step" block on the creator confirmation, with the message a creator sends to @semblanse to prove the account is theirs.
-  Privacy and terms carry no draft labels, but the text has not had legal review.
+  Privacy and terms now carry a review-draft label until operator details and legal review are approved in `src/lib/release-decisions.json`. The layout still follows the source frames; website-policy copy and planned-product framing changed during production readiness work. See `docs/copy-changes.md` and `docs/release-review.md`.

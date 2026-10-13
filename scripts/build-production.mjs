@@ -3,6 +3,24 @@ import { readFileSync, writeFileSync } from "node:fs";
 import { createRequire } from "node:module";
 
 const require = createRequire(import.meta.url);
+const decisions = JSON.parse(
+  readFileSync("src/lib/release-decisions.json", "utf8"),
+);
+const unresolved = [
+  "legalOperator",
+  "postalAddress",
+  "governingLaw",
+  "disputeVenue",
+  "legalCopyApproved",
+  "retentionReviewed",
+  "productionEmailVerified",
+  "analyticsBillingLimitReviewed",
+  "automaticAnalyticsDisabled",
+].filter((key) => !decisions[key]);
+if (unresolved.length)
+  throw new Error(
+    `Production review is incomplete: ${unresolved.join(", ")}. Review docs/release-review.md; preview builds remain available.`,
+  );
 const siteKey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY;
 if (
   !siteKey ||

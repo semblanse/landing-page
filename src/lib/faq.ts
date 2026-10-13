@@ -6,7 +6,7 @@ export const creators = [
   ],
   [
     "What will I need to share?",
-    "Face, body and voice samples once, plus the stories and limits for each campaign. Your samples go only to the brand that licenses you, for that campaign.",
+    "In the planned service, you’ll record face, body and voice samples and share stories and limits for each campaign. Before collecting samples, we’ll explain which production team and tools may process them, for what purpose and for how long. Applying now grants no rights to your likeness.",
   ],
   [
     "How much will I earn?",
@@ -30,7 +30,7 @@ export const creators = [
   ],
   [
     "Who can apply?",
-    "Any creator. You’ll sign in with Instagram so we can confirm the account is yours.",
+    "Creators aged 18 or over can apply. For the pilot, send the Instagram DM shown after your application so we can check that you control the account. The future product is planned to use Instagram sign-in; that is separate from this pilot check.",
   ],
   [
     "What if I decline the final ad?",
@@ -60,7 +60,7 @@ export const brands = [
   ],
   [
     "What do we get to work with?",
-    "The creator’s verified samples, their stories and phrasing, and a clear list of what’s allowed and what’s off limits.",
+    "The planned service provides the creator’s approved campaign context, stories, phrasing and limits, plus the generation access agreed for that campaign. Raw samples and reusable models are not automatically transferred to a brand.",
   ],
   [
     "When do we pay?",

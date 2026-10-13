@@ -12,7 +12,7 @@ Branches stack so each change has a branch and commit, and the last branch inclu
 | `codex/readiness-security` | API input bounds, challenge validation, abuse limits, retry deduplication, response headers | Build, lint, both TypeScript targets, six unit/SQLite checks, and nine local API integration checks passed |
 | `codex/readiness-delivery` | Preserve upstream email/unsubscribe work; transactional outbox, delivery outcomes, safe manual retry | Eleven unit/SQLite/provider checks pass; local runtime and build checks in progress. Deployment preflight remains for the release branch. |
 | `codex/readiness-analytics` | Consent-aware bounded events, funnels/dashboards, free-tier safeguards | Build, lint, Functions type check and 16 tests pass. Local provider capture and browser choices checked; eight funnels and four traffic/form charts created. Disable the injected Cloudflare beacon and check the deployed preview before release. |
-| Planned legal-copy branch | Website policies, tracking choices, stage framing, copy log | Pending |
+| `codex/readiness-legal-copy` | Website policies, tracking choices, stage framing, copy log | Implemented; static build, Functions types and tests pass. Production build deliberately refuses unresolved owner decisions; review previews work. |
 | Planned investor branch | Figma-first investor/team page from deck and Master Doc | Pending |
 | Planned accessibility-release branch | Responsive/accessibility/performance fixes and review previews | Pending |
 
