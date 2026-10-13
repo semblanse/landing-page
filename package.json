@@ -3,6 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "test": "tsx --test tests/*.test.ts",
+    "email:retry": "tsx scripts/retry-email.mjs",
     "dev": "next dev",
     "build": "next build",
     "build:production": "node scripts/build-production.mjs",
@@ -43,6 +45,7 @@
     "shadcn": "^4.21.4",
     "sharp": "^0.35.5",
     "tailwindcss": "^4",
+    "tsx": "^4.23.15",
     "typescript": "^5",
     "wrangler": "^4.149.0"
   }

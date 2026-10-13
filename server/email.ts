@@ -6,7 +6,7 @@ import {
   type FormKind,
 } from "../src/lib/enquiry-schema";
 
-type Message = {
+export type Message = {
   to: string;
   subject: string;
   text: string;
@@ -18,17 +18,23 @@ type Message = {
 export type Mailer = { apiKey?: string; from: string };
 
 /** Sends through Resend. Resolves false, without throwing, on any failure. */
-export async function send(mailer: Mailer, message: Message) {
+export async function send(
+  mailer: Mailer,
+  message: Message,
+  idempotencyKey?: string,
+) {
   if (!mailer.apiKey) {
-    console.warn("RESEND_API_KEY is not set; skipped email:", message.subject);
+    console.warn("RESEND_API_KEY is not set; email remains queued.");
     return false;
   }
   try {
     const response = await fetch("https://api.resend.com/emails", {
       method: "POST",
+      signal: AbortSignal.timeout(10_000),
       headers: {
         authorization: `Bearer ${mailer.apiKey}`,
         "content-type": "application/json",
+        ...(idempotencyKey ? { "Idempotency-Key": idempotencyKey } : {}),
       },
       body: JSON.stringify({
         from: mailer.from,

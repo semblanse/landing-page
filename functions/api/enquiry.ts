@@ -4,7 +4,7 @@ import {
   type EnquiryRequest,
   type EnquiryResponse,
 } from "../../src/lib/enquiry-schema";
-import { confirmation, notification, send } from "../../server/email";
+import { deliveryStatements, deliverEnquiry } from "../../server/delivery";
 import {
   fingerprint,
   readJson,
@@ -37,21 +37,6 @@ function attributionJson(input: unknown) {
     if (typeof value === "string" && value)
       kept[key.slice(0, 40)] = value.slice(0, 300);
   return Object.keys(kept).length ? JSON.stringify(kept) : null;
-}
-
-async function unsubscribed(db: D1Database, email: string) {
-  try {
-    const row = await db
-      .prepare(
-        "SELECT 1 FROM enquiries WHERE email = ? AND unsubscribed_at IS NOT NULL LIMIT 1",
-      )
-      .bind(email)
-      .first();
-    return row !== null;
-  } catch (error) {
-    console.error("Could not check for an unsubscribe:", error);
-    return false;
-  }
 }
 
 export const onRequestPost: PagesFunction<Env> = async ({
@@ -114,6 +99,12 @@ export const onRequestPost: PagesFunction<Env> = async ({
   }
 
   const creator = body.kind === "creator-pilot";
+  const site = new URL(request.url).origin;
+  const mailer = {
+    apiKey: env.RESEND_API_KEY,
+    from: env.EMAIL_FROM,
+    notify: env.EMAIL_NOTIFY,
+  };
   const id = await fingerprint(
     env.TURNSTILE_SECRET_KEY,
     JSON.stringify([body.kind, values, body.requestId ?? crypto.randomUUID()]),
@@ -131,8 +122,10 @@ export const onRequestPost: PagesFunction<Env> = async ({
       await env.DB.prepare("SELECT id FROM enquiries WHERE id = ?")
         .bind(id)
         .first()
-    )
+    ) {
+      waitUntil(deliverEnquiry(env.DB, mailer, id));
       return reply({ ok: true });
+    }
     if (
       !(await reserveRateSlot(
         env.DB,
@@ -152,22 +145,24 @@ export const onRequestPost: PagesFunction<Env> = async ({
       ))
     )
       return reply({ ok: false, reason: "rate_limited" }, 429);
-    const inserted = await env.DB.prepare(
+    const insertion = env.DB.prepare(
       `INSERT INTO enquiries
          (id, kind, name, email, details, consent_at, attribution, instagram)
        VALUES (?, ?, ?, ?, ?, ?, ?, ?) ON CONFLICT(id) DO NOTHING`,
-    )
-      .bind(
-        id,
-        body.kind,
-        name,
-        email,
-        JSON.stringify(details),
-        consent ? new Date().toISOString() : null,
-        attributionJson(body.attribution),
-        creator ? instagram : null,
-      )
-      .run();
+    ).bind(
+      id,
+      body.kind,
+      name,
+      email,
+      JSON.stringify(details),
+      consent ? new Date().toISOString() : null,
+      attributionJson(body.attribution),
+      creator ? instagram : null,
+    );
+    const [inserted] = await env.DB.batch([
+      insertion,
+      ...deliveryStatements(env.DB, id, site),
+    ]);
     if (!inserted.meta.changes) return reply({ ok: true });
     waitUntil(
       env.DB.prepare("DELETE FROM request_limits WHERE expires_at < ?")
@@ -181,26 +176,7 @@ export const onRequestPost: PagesFunction<Env> = async ({
   }
 
   // The enquiry is stored, so the person sees success even if email fails.
-  const mailer = { apiKey: env.RESEND_API_KEY, from: env.EMAIL_FROM };
-  const site = new URL(request.url).origin;
-  waitUntil(
-    Promise.all([
-      send(mailer, {
-        to: env.EMAIL_NOTIFY,
-        ...notification(body.kind, String(name), String(email), values, id),
-      }),
-      // An address that unsubscribed gets no confirmation. Its enquiry is
-      // still stored and the team is still told.
-      unsubscribed(env.DB, String(email)).then(
-        (stopped) =>
-          stopped ||
-          send(mailer, {
-            to: String(email),
-            ...confirmation(body.kind, String(name), values, site, id),
-          }),
-      ),
-    ]),
-  );
+  waitUntil(deliverEnquiry(env.DB, mailer, id));
 
   return reply({ ok: true });
 };

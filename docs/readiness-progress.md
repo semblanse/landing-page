@@ -10,7 +10,7 @@ Branches stack so each change has a branch and commit, and the last branch inclu
 | --- | --- | --- |
 | `codex/readiness-baseline` | Preserve the existing uncommitted landing-page source and assets | Committed as `9fea0da`; generated metadata previews excluded |
 | `codex/readiness-security` | API input bounds, challenge validation, abuse limits, retry deduplication, response headers | Build, lint, both TypeScript targets, six unit/SQLite checks, and nine local API integration checks passed |
-| Planned delivery branch | Persist email delivery outcomes, retry path, deployment preflight | Pending |
+| `codex/readiness-delivery` | Preserve upstream email/unsubscribe work; transactional outbox, delivery outcomes, safe manual retry | Eleven unit/SQLite/provider checks pass; local runtime and build checks in progress. Deployment preflight remains for the release branch. |
 | Planned analytics branch | Consent-aware bounded events, funnels/dashboards, free-tier safeguards | Pending |
 | Planned legal-copy branch | Website policies, tracking choices, stage framing, copy log | Pending |
 | Planned investor branch | Figma-first investor/team page from deck and Master Doc | Pending |
