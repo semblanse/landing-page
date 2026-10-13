@@ -1,29 +1,45 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import "@fontsource/gfs-didot/latin-400.css";
 import "@fontsource-variable/albert-sans";
 import "./globals.css";
 import { ScrollProvider } from "@/components/landing/motion";
 import { Analytics } from "@/lib/analytics";
-const production = process.env.SITE_ENV === "production";
+import {
+  jsonLd,
+  production,
+  shareImage,
+  siteDescription,
+  siteName,
+  siteTitle,
+  siteUrl,
+} from "@/lib/site";
 export const metadata: Metadata = {
-  metadataBase: new URL(
-    production
-      ? "https://semblanse.com"
-      : "https://revision-3.semblanse-landing-preview.pages.dev",
-  ),
-  title: "Semblanse · Your likeness. Your say.",
-  description:
-    "Get paid for ads you never had to film. License your likeness for one campaign, share your stories, and approve every finished ad.",
+  metadataBase: new URL(siteUrl),
+  title: siteTitle,
+  description: siteDescription,
+  applicationName: siteName,
+  alternates: { canonical: "/" },
   robots: { index: production, follow: production },
-  icons: { icon: "/favicon.png" },
+  icons: {
+    icon: [
+      { url: "/favicon.ico", sizes: "48x48" },
+      { url: "/icon.svg", type: "image/svg+xml" },
+    ],
+    apple: "/apple-touch-icon.png",
+  },
   openGraph: {
-    title: "Semblanse · Your likeness. Your say.",
+    title: siteTitle,
     description:
       "Licensed AI ads starring real creators. Now recruiting for our first paid campaigns.",
-    images: ["/og-image.png"],
+    url: "/",
+    siteName,
+    locale: "en_CA",
+    images: [shareImage("home")],
     type: "website",
   },
+  twitter: { card: "summary_large_image" },
 };
+export const viewport: Viewport = { themeColor: "#18231b" };
 export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
@@ -36,6 +52,33 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{
             __html: "document.documentElement.classList.add('js')",
           }}
+        />
+        {/* Tells search and answer engines who publishes the site. */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={jsonLd({
+            "@graph": [
+              {
+                "@type": "Organization",
+                "@id": `${siteUrl}/#organization`,
+                name: siteName,
+                url: `${siteUrl}/`,
+                logo: `${siteUrl}/icon-512.png`,
+                description:
+                  "Semblanse is a licensing service that lets brands use a real creator’s face, voice and stories in AI-made ads, one campaign at a time, with the creator’s approval of every final ad.",
+                email: "hello@semblanse.com",
+                sameAs: ["https://www.instagram.com/semblanse"],
+              },
+              {
+                "@type": "WebSite",
+                "@id": `${siteUrl}/#website`,
+                name: siteName,
+                url: `${siteUrl}/`,
+                publisher: { "@id": `${siteUrl}/#organization` },
+                inLanguage: "en",
+              },
+            ],
+          })}
         />
         <Analytics />
         <ScrollProvider>{children}</ScrollProvider>

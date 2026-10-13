@@ -1,8 +1,14 @@
+import type { Metadata } from "next";
 import { Navigation, Footer } from "@/components/landing/landing-page";
 import { Action } from "@/components/landing/brand";
 import { Lines } from "@/components/landing/motion";
 import { LoadArt, TextLink, delay } from "@/components/linked-pages/shared";
 import "./linked-pages.css";
+
+export const metadata: Metadata = {
+  title: "Page not found · Semblanse",
+  robots: { index: false },
+};
 
 export default function NotFound() {
   return (

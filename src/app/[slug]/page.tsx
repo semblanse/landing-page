@@ -11,23 +11,11 @@ import {
 } from "@/components/linked-pages/editorial";
 import { LegalPage } from "@/components/linked-pages/legal";
 import { Breadcrumbs } from "@/components/linked-pages/shared";
+import { jsonLd, pages, shareImage, siteName, siteUrl } from "@/lib/site";
 import "../linked-pages.css";
 
-const titles: Record<string, string> = {
-  "creator-pilot": "Apply as a creator",
-  "brand-pilot": "Book a pilot call",
-  brands: "For brands and agencies",
-  trust: "Trust & Safety",
-  about: "About",
-  careers: "Careers",
-  contact: "Contact",
-  pilot: "Pilot overview",
-  privacy: "Privacy policy",
-  terms: "Terms of use",
-};
-
 export function generateStaticParams() {
-  return Object.keys(titles).map((slug) => ({ slug }));
+  return Object.keys(pages).map((slug) => ({ slug }));
 }
 
 export async function generateMetadata({
@@ -36,7 +24,23 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
-  return { title: `${titles[slug] ?? "Page"} · Semblanse` };
+  const page = pages[slug];
+  if (!page) return {};
+  const title = `${page.title} · ${siteName}`;
+  return {
+    title,
+    description: page.description,
+    alternates: { canonical: `/${slug}/` },
+    openGraph: {
+      title,
+      description: page.description,
+      url: `/${slug}/`,
+      siteName,
+      locale: "en_CA",
+      images: [shareImage(page.image)],
+      type: "website",
+    },
+  };
 }
 
 export default async function LinkedPage({
@@ -45,7 +49,8 @@ export default async function LinkedPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  if (!(slug in titles)) notFound();
+  if (!(slug in pages)) notFound();
+  const { title } = pages[slug];
   const enquiry =
     slug === "creator-pilot" || slug === "brand-pilot" || slug === "contact";
   return (
@@ -53,10 +58,30 @@ export default async function LinkedPage({
       <a className="skip-link" href="#main">
         Skip to content
       </a>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={jsonLd({
+          "@type": "BreadcrumbList",
+          itemListElement: [
+            {
+              "@type": "ListItem",
+              position: 1,
+              name: "Home",
+              item: `${siteUrl}/`,
+            },
+            {
+              "@type": "ListItem",
+              position: 2,
+              name: title,
+              item: `${siteUrl}/${slug}/`,
+            },
+          ],
+        })}
+      />
       <Navigation />
       <main id="main" className="linked-page">
         {/* An enquiry page draws its own trail, which grows once it is sent. */}
-        {!enquiry && <Breadcrumbs trail={[["Home", "/"], [titles[slug]]]} />}
+        {!enquiry && <Breadcrumbs trail={[["Home", "/"], [title]]} />}
         {enquiry ? (
           <EnquiryPage kind={slug} />
         ) : slug === "pilot" ? (
