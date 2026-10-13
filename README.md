@@ -1,6 +1,6 @@
 # Semblanse landing page
 
-Next.js implementation of landing revision 3. [Open the Cloudflare preview](https://revision-3.semblanse-landing-preview.pages.dev).
+Next.js implementation of landing revision 3. [Open the readiness review](https://readiness-review.semblanse-landing-preview.pages.dev). See `docs/readiness-verification.md` for checks and `docs/release-review.md` for owner decisions before launch.
 
 ## Run
 
@@ -100,7 +100,7 @@ The emails do not yet carry a postal address, which commercial email laws such a
 
 PostHog (US), project `661655`, receives explicit events through `/api/analytics` after the visitor allows analytics. The footer reopens their choice. GPC and Do Not Track keep optional analytics off. The SDK and open relay have been removed. There are no person profiles, session recordings, autocapture or feature-flag requests. Anonymous browser identifiers and filtered campaign tags use storage only after consent. Form events contain field names and outcomes, never answers. The API reserves events against a rolling usage cap before capture. See `docs/analytics.md` for retention, limits and measurement definitions.
 
-Cloudflare Web Analytics was enabled on the preview Pages project at audit time. Disable its automatic beacon before releasing this opt-in analytics setup, or it will collect independently of this site's choice. Confirm the served HTML after deployment.
+Cloudflare Web Analytics automatic injection is disabled on the preview and live projects. The readiness preview's served HTML has no automatic beacon. Recheck this after changes to Cloudflare settings; that beacon would collect independently of the site's choice.
 
 ## Deploy
 
@@ -118,12 +118,13 @@ Wrangler uses the signed-in Cloudflare account. No credentials belong in this re
 
 ## Production preparation
 
-The existing live Pages project is `semblanse`, serving `semblanse.com`. `wrangler.production.jsonc` targets that project and the separate `semblanse-enquiries-production` database. Its migration is applied. The existing Turnstile widget allows `semblanse.com`; its secret is set on both environments of the live project. Preview deployments still use `wrangler.jsonc` and the preview database.
+The existing live Pages project is `semblanse`, serving `semblanse.com`. `wrangler.production.jsonc` targets that project and the separate `semblanse-enquiries-production` database. Apply all new migrations before deploying this revision to production; this readiness work applied them only to preview. The existing Turnstile widget allows `semblanse.com`; its secret is set on both environments of the live project. Preview deployments use `wrangler.jsonc` and the preview database.
 
 Before launch:
 
 - Have a reviewer approve privacy and terms, including consent, data retention, safeguards and governing law. Those decisions remain open.
-- Store `RESEND_API_KEY` on each Pages project that needs email. The sending domain is verified, but the projects have no Resend key yet. Check that `hello@semblanse.com` reaches the team through the existing mail provider before changing email routing.
+- Store `RESEND_API_KEY` on the live Pages project and verify a controlled form receipt and team notice. Preview has a key; the live project's production environment did not at the readiness check. Check that `hello@semblanse.com` reaches the team through the existing mail provider before changing email routing.
+- Assign an operator to review and retry failed email jobs. `npm run email:retry` defaults to a dry run; the script requires explicit production selection for live sending. Storage alone does not prove inbox delivery.
 - Assign someone to check @semblanse message requests and match each sender's handle and application email before marking a row verified. Use the database for the environment that received the form.
 - The active Cloudflare rule limits `/api/enquiry` and `/api/enquiry/` on the `semblanse.com` zone to five requests per IP in ten seconds, then blocks for ten seconds. It does not cover `pages.dev` preview hosts. Check each form on the preview before replacing the live site.
 
@@ -133,7 +134,7 @@ Set the real Turnstile public key in the shell environment, then build productio
 npm run build:production
 ```
 
-This uses `https://semblanse.com` for metadata and removes `noindex` from the built HTML and `out/_headers`. It rejects a missing Turnstile key or a test key. PostHog uses the server binding in Wrangler configuration. A regular `npm run build` keeps preview indexing blocked. Neither command deploys. To deploy the reviewed production build at launch:
+This checks the public values and review flags in `src/lib/release-decisions.json`, uses `https://semblanse.com` for metadata and removes `noindex` from the built HTML and `out/_headers`. It rejects a missing Turnstile key or a test key. PostHog uses the server binding in Wrangler configuration. A regular `npm run build` keeps preview indexing blocked. Neither command deploys. To deploy the reviewed production build at launch:
 
 ```sh
 npx wrangler pages deploy out --config wrangler.production.jsonc --project-name semblanse --branch main

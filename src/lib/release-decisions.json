@@ -8,5 +8,5 @@
   "retentionReviewed": false,
   "productionEmailVerified": false,
   "analyticsBillingLimitReviewed": false,
-  "automaticAnalyticsDisabled": false
+  "automaticAnalyticsDisabled": true
 }
