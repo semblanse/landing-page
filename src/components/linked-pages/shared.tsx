@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { CSSProperties, ReactNode } from "react";
+import { DitherImage } from "@/components/landing/dither";
 
 /** A text link with a rule beneath it and a trailing arrow. */
 export function TextLink({
@@ -16,137 +17,93 @@ export function TextLink({
   );
 }
 
-// The profile silhouette. Every echo is this one outline at a different size.
-const PROFILE =
-  "M59.2815 355H0L0.17749 0H124.243L177.49 70.9999V142L204.468 177.5L186.364 195.25V221.875L177.49 239.625V266.25H118.563L59.2815 355Z";
+/** The delay, in seconds, for an entrance that reads `--d`. */
+export const delay = (seconds: number) =>
+  ({ "--d": `${seconds}s` }) as CSSProperties;
 
-// The row of eight from Figma (593:3606), on a 1020 by 408 stage.
-const ROW = [
-  { x: 30, y: 89, w: 132, h: 230, tone: "a", soft: true },
-  { x: 123, y: 55, w: 172, h: 299, tone: "b" },
-  { x: 246, y: 9, w: 225, h: 391, tone: "c" },
-  { x: 369, y: 40, w: 189, h: 328, tone: "a", soft: true },
-  { x: 492, y: 0, w: 235, h: 408, tone: "d" },
-  { x: 615, y: 49, w: 179, h: 311, tone: "c" },
-  { x: 738, y: 20, w: 212, h: 368, tone: "a", soft: true },
-  { x: 861, y: 66, w: 159, h: 276, tone: "b" },
-] as const;
+/** Brand artwork in `public/artwork`, by name. */
+export const art = (name: string) => `/artwork/${name}.webp`;
+
+/** A label, and a link for every level above the current page. */
+export type Crumb = [label: string, href?: string];
 
 /**
- * The row of profile echoes. `tones` recolours it for the page it sits on:
- * a is the repeated accent, b the cream pair, c the second pair, d the centre.
- * `missing` draws the centre profile as a dashed outline, for the 404 page.
+ * The strip under the header that says where the page sits. A phone shows the
+ * last two levels of a long trail.
  */
-export function ProfileRow({
-  tones = {},
-  missing = false,
-  className = "",
-}: {
-  tones?: Partial<Record<"a" | "b" | "c" | "d", string>>;
-  missing?: boolean;
-  className?: string;
-}) {
-  const colour = {
-    a: "var(--green)",
-    b: "var(--cream)",
-    c: "var(--lilac)",
-    d: "#fff",
-    ...tones,
-  };
+export function Breadcrumbs({ trail }: { trail: Crumb[] }) {
+  const long = trail.length > 3;
   return (
-    <div className={`sp-profile-row ${className}`} aria-hidden="true">
-      <div>
-        {ROW.map((echo, i) => (
-          <svg
-            key={i}
-            viewBox="0 0 204.468 355"
-            preserveAspectRatio="none"
-            style={
-              {
-                left: `${(echo.x / 1020) * 100}%`,
-                top: `${(echo.y / 408) * 100}%`,
-                width: `${(echo.w / 1020) * 100}%`,
-                height: `${(echo.h / 408) * 100}%`,
-                opacity: "soft" in echo ? 0.82 : undefined,
-              } as CSSProperties
-            }
+    <nav className="sp-crumbs" aria-label="Breadcrumb" data-hero>
+      <ol data-long={long || undefined}>
+        {trail.map(([label, href], i) => (
+          <li
+            key={label}
+            data-early={long && i < trail.length - 2 ? "" : undefined}
           >
-            {missing && i === 4 ? (
-              <path
-                d={PROFILE}
-                fill="none"
-                stroke="#18231bb3"
-                strokeWidth="3"
-                strokeDasharray="12 10"
-                vectorEffect="non-scaling-stroke"
-              />
+            {href ? (
+              <Link href={href}>{label}</Link>
             ) : (
-              <path d={PROFILE} fill={colour[echo.tone]} />
+              <span aria-current="page">{label}</span>
             )}
-          </svg>
+          </li>
         ))}
-      </div>
-    </div>
+      </ol>
+    </nav>
   );
 }
 
-/** The three overlapping profiles beside the pilot overview heading. */
-export function ProfileTrio() {
+/**
+ * Artwork that is on screen when the page opens. It wipes open once while the
+ * dither resolves from coarse blocks, as the landing hero does.
+ */
+export function LoadArt({
+  name,
+  className = "",
+  position,
+  from = "left",
+}: {
+  name: string;
+  className?: string;
+  position?: [number, number];
+  from?: "left" | "right";
+}) {
   return (
-    <div className="sp-profile-trio" aria-hidden="true">
-      {[
-        { fill: "var(--lilac)", h: 233, y: 10 },
-        { fill: "#fff", h: 243, y: 0 },
-        { fill: "var(--green)", h: 219, y: 24, soft: true },
-      ].map((echo, i) => (
-        <svg
-          key={i}
-          viewBox="0 0 204.468 355"
-          preserveAspectRatio="none"
-          style={{
-            height: `${(echo.h / 243) * 100}%`,
-            marginTop: `${(echo.y / 243) * 68}%`,
-            opacity: echo.soft ? 0.82 : undefined,
-          }}
-        >
-          <path d={PROFILE} fill={echo.fill} />
-        </svg>
-      ))}
+    <div className={`sp-load-art ${className}`} data-from={from}>
+      <DitherImage src={art(name)} alt="" position={position} priority intro />
     </div>
   );
 }
 
 /**
- * The full-colour page used for confirmations and the 404: a large heading,
- * a line of copy, actions, and the profile row along the bottom edge.
+ * A page opening on cream: copy on one side, artwork cut by the page edge on
+ * the other. Used by Trust & Safety, the legal pages and the confirmations.
  */
-export function PosterPage({
-  tone,
-  title,
+export function SplitHero({
+  artwork,
+  side = "right",
+  position,
+  className = "",
   children,
-  actions,
-  note,
-  after,
-  profiles,
 }: {
-  tone: "ink" | "green" | "lilac" | "sage";
-  title: string;
+  artwork: string;
+  side?: "left" | "right";
+  position?: [number, number];
+  className?: string;
   children: ReactNode;
-  actions: ReactNode;
-  note?: ReactNode;
-  after?: ReactNode;
-  profiles: ReactNode;
 }) {
   return (
-    <section className={`sp-poster sp-${tone}`} tabIndex={-1}>
-      <div className="sp-poster-copy">
-        <h1 className="sp-display">{title}</h1>
-        <p className="sp-lead">{children}</p>
-        <div className="sp-actions">{actions}</div>
-        {after}
-        {note && <p className="sp-preview-note">{note}</p>}
-      </div>
-      {profiles}
+    <section
+      className={`sp-split-hero sp-art-${side} ${className}`}
+      tabIndex={-1}
+    >
+      <LoadArt
+        name={artwork}
+        className="sp-split-hero-art"
+        position={position}
+        from={side}
+      />
+      <div className="sp-split-hero-copy">{children}</div>
     </section>
   );
 }

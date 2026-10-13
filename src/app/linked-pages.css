@@ -1,50 +1,55 @@
 /*
-Secondary pages, from the Figma section "Website · Linked pages · Revision 3"
-(582:3029). Desktop frames are 1440 wide and phone frames 390; sizes between
-them are fluid.
+Secondary pages, from the Figma section "Website · New pages · copy fixes"
+(633:1865). Desktop frames are 1440 wide and phone frames 390; sizes between
+them are fluid. Pages sit on cream, and artwork carries the colour.
 */
 .linked-page {
   --sp-gutter: 64px;
+  --sp-rule: color-mix(in srgb, currentColor 25%, transparent);
   background: var(--cream);
   color: var(--ink);
 }
-.linked-page h1,
-.linked-page h2,
-.linked-page h3 {
-  letter-spacing: 0;
-}
 .linked-page h3 {
   text-wrap: wrap;
+}
+.linked-page h4 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 400;
+  letter-spacing: -0.04em;
+}
+.linked-page ul,
+.linked-page ol {
+  margin: 0;
+  padding: 0;
+  list-style: none;
 }
 .linked-page .brand-action {
   min-height: 44px;
   padding-inline: 48px;
 }
 
-/* Colour panels */
+/* Colour panels. `--tint` is the colour laid over a panel's artwork. */
 .sp-ink {
+  --tint: var(--ink);
   background: var(--ink);
   color: var(--cream);
 }
 .sp-green {
+  --tint: var(--green);
   background: var(--green);
   color: var(--cream);
 }
 .sp-lilac {
+  --tint: var(--lilac);
   background: var(--lilac);
-  color: var(--ink);
-}
-.sp-sage {
-  background: var(--sage);
   color: var(--ink);
 }
 
 /* Type */
 .sp-display {
-  font-size: clamp(46px, 6.1vw, 88px);
+  font-size: clamp(44px, 6.1vw, 88px);
   line-height: 1.06;
-  white-space: pre-line;
-  text-wrap: balance;
 }
 .sp-lead {
   max-width: 640px;
@@ -53,9 +58,34 @@ them are fluid.
   opacity: 0.85;
 }
 .sp-heading {
-  font-size: clamp(36px, 3.9vw, 56px);
+  font-size: clamp(34px, 3.9vw, 56px);
   line-height: 1.07;
-  white-space: pre-line;
+}
+/* A sentence set large in Didot, in place of a heading and paragraph. */
+.sp-statement {
+  font: clamp(28px, 2.8vw, 40px) / 1.25 var(--font-display);
+  letter-spacing: -0.04em;
+  text-wrap: pretty;
+}
+.sp-audience {
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 22px;
+  color: var(--green);
+}
+.sp-ink .sp-audience {
+  color: var(--sage);
+}
+.sp-chip {
+  flex-shrink: 0;
+  padding: 5px 10px;
+  background: var(--ink);
+  color: var(--cream);
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 14px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
 }
 .sp-actions {
   display: flex;
@@ -84,28 +114,148 @@ them are fluid.
   transform: translateX(4px);
 }
 
-/* Enquiry pages: a colour panel beside the form */
+/* Breadcrumbs: a strip under the header. */
+.sp-crumbs {
+  padding: 12px var(--sp-gutter);
+  border-bottom: 1px solid #18231b26;
+  font-size: 14px;
+  line-height: 20px;
+}
+.sp-crumbs ol {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 8px;
+}
+.sp-crumbs li {
+  display: flex;
+  gap: 8px;
+}
+.sp-crumbs li + li:before {
+  content: "/";
+  opacity: 0.35;
+}
+.sp-crumbs a {
+  opacity: 0.65;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  transition: opacity 0.2s;
+}
+.sp-crumbs a:hover {
+  opacity: 1;
+}
+.sp-crumbs [aria-current] {
+  font-weight: 500;
+}
+
+/* Artwork on screen at load opens behind a straight edge. */
+.sp-load-art {
+  overflow: hidden;
+  animation: art-open 1.1s var(--ease) 0.1s both;
+}
+.sp-load-art[data-from="right"] {
+  animation-name: art-open-right;
+}
+@keyframes art-open {
+  from {
+    clip-path: inset(0 100% 0 0);
+  }
+  to {
+    clip-path: inset(0);
+  }
+}
+@keyframes art-open-right {
+  from {
+    clip-path: inset(0 0 0 100%);
+  }
+  to {
+    clip-path: inset(0);
+  }
+}
+/* Scroll-linked artwork clips and zooms inside its own box. */
+.sp-row-art,
+.sp-statements-art,
+.sp-never-art,
+.sp-closing-art,
+.sp-report-art {
+  overflow: hidden;
+}
+
+/* Split hero: copy beside artwork cut by the page edge. */
+.sp-split-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 620fr) minmax(0, 820fr);
+  outline: none;
+}
+.sp-split-hero.sp-art-right {
+  grid-template-columns: minmax(0, 800fr) minmax(0, 640fr);
+}
+.sp-art-right .sp-split-hero-art {
+  order: 1;
+}
+.sp-split-hero-art {
+  min-height: 560px;
+}
+.sp-split-hero-copy {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 28px;
+  padding: 120px var(--sp-gutter) 104px 80px;
+}
+.sp-art-right .sp-split-hero-copy {
+  padding-inline: var(--sp-gutter) 80px;
+}
+.sp-preview-note {
+  font-size: 14px;
+  line-height: 20px;
+  opacity: 0.75;
+}
+
+/* Enquiry pages: a panel beside the form */
 .sp-split {
   display: grid;
   grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
 }
 .sp-panel {
+  position: relative;
   display: flex;
   flex-direction: column;
+  overflow: hidden;
+}
+/* The portrait artwork fills the panel. Its tint is strongest behind the copy
+   and thins towards the foot, where the artwork shows through. */
+.sp-panel-art {
+  position: absolute;
+  inset: 0;
+}
+.sp-panel-art:after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to bottom,
+    color-mix(in srgb, var(--tint) 86%, transparent),
+    color-mix(in srgb, var(--tint) 78%, transparent) 58%,
+    color-mix(in srgb, var(--tint) 14%, transparent)
+  );
 }
 .sp-panel-copy {
+  position: relative;
   display: flex;
   flex-direction: column;
   gap: 32px;
   padding: 96px var(--sp-gutter) 64px;
 }
+.sp-panel-art-bg .sp-panel-copy {
+  padding-bottom: 240px;
+}
 .sp-panel-title {
   font-size: clamp(44px, 5vw, 72px);
   line-height: 1.056;
-  white-space: pre-line;
 }
 .sp-green .sp-panel-title {
-  font-size: clamp(42px, 4.45vw, 64px);
+  font-size: clamp(40px, 4.45vw, 64px);
   line-height: 1.0625;
 }
 .sp-panel-lead {
@@ -119,9 +269,9 @@ them are fluid.
   gap: 18px;
   padding-top: 16px;
 }
-.sp-notes h2 {
-  font-size: 28px;
-  line-height: 32px;
+.sp-notes h2,
+.sp-notes .sp-notes-title {
+  font: 28px/32px var(--font-display);
 }
 .sp-notes > div {
   display: flex;
@@ -129,10 +279,11 @@ them are fluid.
   align-items: flex-start;
   gap: 6px;
   padding-top: 16px;
-  border-top: 1px solid color-mix(in srgb, currentColor 25%, transparent);
+  border-top: 1px solid var(--sp-rule);
 }
 .sp-notes h3 {
   font: 500 17px/24px var(--font-ui);
+  letter-spacing: 0;
 }
 .sp-notes p {
   font-size: 15px;
@@ -142,30 +293,21 @@ them are fluid.
 .sp-notes .sp-link {
   margin-top: 6px;
 }
-.sp-panel-art {
+/* The report panel ends on its artwork instead of sitting over it. */
+.sp-report-art {
   margin-top: auto;
-  height: auto;
-  aspect-ratio: 600 / 560;
+  aspect-ratio: 3 / 2;
 }
-.sp-green .sp-panel-art {
-  aspect-ratio: 600 / 488;
-}
-.sp-lilac .sp-panel-art {
-  aspect-ratio: 600 / 480;
-}
-.sp-panel-art-hero {
-  position: relative;
-  background: var(--ink);
-}
-.sp-panel-art-hero .dither {
-  position: absolute;
-  inset: 0;
-  background: #fff;
-  opacity: 0.36;
+.sp-report-sent p {
+  margin-top: 16px;
+  font-size: 18px;
+  line-height: 26px;
+  opacity: 0.8;
 }
 
 /* Forms */
 .sp-form-column {
+  position: relative;
   display: flex;
   flex-direction: column;
   gap: 32px;
@@ -363,48 +505,6 @@ them are fluid.
   background: #1a5e1d;
 }
 
-/* Poster pages: confirmations and the 404 */
-.sp-poster {
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  outline: none;
-}
-.sp-poster-copy {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 28px;
-  padding: 128px var(--sp-gutter) 80px;
-}
-.sp-preview-note {
-  font-size: 14px;
-  line-height: 20px;
-  opacity: 0.75;
-}
-.sp-or-try {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: 12px 20px;
-  padding-top: 8px;
-}
-.sp-or-try > span {
-  opacity: 0.75;
-}
-.sp-profile-row {
-  width: min(1020px, 100% - var(--sp-gutter) * 2);
-  margin-inline: auto;
-}
-.sp-profile-row > div {
-  position: relative;
-  aspect-ratio: 1020 / 408;
-}
-.sp-profile-row svg {
-  position: absolute;
-  overflow: visible;
-}
-
 /* About and pilot overview */
 .sp-hero {
   display: flex;
@@ -429,74 +529,62 @@ them are fluid.
   align-items: flex-start;
   gap: 28px;
 }
-.sp-hero-pilot .sp-lead {
-  max-width: 640px;
-}
 .sp-hero-pilot .sp-actions {
   padding-top: 0;
 }
-.sp-profile-trio {
-  display: flex;
+.sp-hero-pilot-art {
   flex-shrink: 0;
-  align-items: flex-start;
-  width: clamp(240px, 24.8vw, 357px);
-  aspect-ratio: 357 / 243;
+  width: clamp(260px, 29vw, 420px);
+  aspect-ratio: 3 / 2;
 }
-.sp-profile-trio svg {
-  flex: 1;
-  min-width: 0;
-  margin-right: -6%;
-}
-.sp-band {
-  padding: 112px var(--sp-gutter) 24px;
-}
-.sp-columns {
+/* Statements beside tall artwork, on the one dark band of the page. */
+.sp-statements,
+.sp-never,
+.sp-closing {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 40px;
-  margin-top: 40px;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 520px);
 }
-.sp-beliefs {
-  overflow: hidden;
+.sp-statements-copy {
+  padding: 112px 80px 96px var(--sp-gutter);
 }
-.sp-beliefs .sp-columns > div {
-  padding-top: 24px;
-  border-top: 1px solid #f5f2e940;
+.sp-statements ul {
+  margin-top: 32px;
 }
-.sp-beliefs h3 {
-  font-size: 34px;
-  line-height: 38px;
+.sp-statements li {
+  padding-block: 28px;
+  border-top: 1px solid #f5f2e94d;
 }
-.sp-beliefs .sp-columns p {
-  margin-top: 12px;
-  font-size: 16px;
-  line-height: 23px;
+.sp-statements h3 {
+  font-size: clamp(30px, 3.05vw, 44px);
+  line-height: 1.09;
+}
+.sp-statements li p {
+  margin-top: 10px;
+  font-size: 18px;
+  line-height: 26px;
   opacity: 0.72;
 }
-.sp-beliefs .sp-profile-row {
-  width: min(1153px, 100% - var(--sp-gutter) * 2);
+/* A heading on the left, with its points as rows on the right. */
+.sp-aside-rows {
+  display: grid;
+  grid-template-columns: minmax(0, 400px) minmax(0, 1fr);
+  gap: 96px;
+  padding: 120px var(--sp-gutter) 0;
 }
-.sp-refusals {
-  padding-top: 120px;
-}
-.sp-refusals .sp-columns > div {
-  padding-top: 20px;
+.sp-aside-rows li {
+  display: grid;
+  grid-template-columns: minmax(0, 380fr) minmax(0, 496fr);
+  gap: 40px;
+  padding-block: 28px;
   border-top: 1px solid #18231b33;
 }
-.sp-refusals span {
-  display: block;
-  font: 36px/36px var(--font-display);
-  color: var(--green);
-}
-.sp-refusals h3 {
-  margin-top: 10px;
+.sp-aside-rows h3 {
   font-size: 28px;
   line-height: 32px;
 }
-.sp-refusals p {
-  margin-top: 10px;
-  font-size: 16px;
-  line-height: 23px;
+.sp-aside-rows li p {
+  font-size: 18px;
+  line-height: 26px;
   opacity: 0.75;
 }
 .sp-row {
@@ -525,12 +613,12 @@ them are fluid.
   align-items: flex-start;
   gap: 24px;
 }
-.sp-row-copy p {
+.sp-row-copy p:not(.sp-audience) {
   font-size: 22px;
   line-height: 31px;
   opacity: 0.85;
 }
-.sp-row-about .sp-row-copy p {
+.sp-row-about .sp-row-copy p:not(.sp-audience) {
   font-size: 20px;
   line-height: 29px;
 }
@@ -540,12 +628,13 @@ them are fluid.
   gap: 120px;
   padding: 120px var(--sp-gutter);
 }
+.sp-steps {
+  padding: 120px var(--sp-gutter);
+}
 .sp-steps ol {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  margin: 48px 0 0;
-  padding: 0;
-  list-style: none;
+  margin-top: 48px;
 }
 .sp-steps li {
   position: relative;
@@ -580,6 +669,41 @@ them are fluid.
   line-height: 22px;
   opacity: 0.8;
 }
+/* The two production routes, on a dark band for contrast. */
+.sp-ways {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 20px;
+  padding: 112px var(--sp-gutter);
+}
+.sp-ways .sp-lead {
+  max-width: 800px;
+}
+.sp-ways-options {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 40px;
+  width: 100%;
+  margin-block: 28px 12px;
+}
+.sp-ways-options > div {
+  padding-top: 24px;
+  border-top: 4px solid var(--sage);
+}
+.sp-ways-options > div + div {
+  border-color: var(--lilac);
+}
+.sp-ways-options h3 {
+  font-size: clamp(28px, 2.4vw, 34px);
+  line-height: 1.12;
+}
+.sp-ways-options p {
+  margin-top: 12px;
+  font-size: 16px;
+  line-height: 23px;
+  opacity: 0.8;
+}
 .sp-open {
   padding-top: 56px;
   border-top: 1px solid #18231b33;
@@ -599,11 +723,10 @@ them are fluid.
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
-  margin: 28px 0 0;
-  padding: 0;
-  list-style: none;
+  margin-top: 28px;
 }
-.sp-open li {
+.sp-open li,
+.sp-undecided li {
   padding: 12px 18px;
   border: 1px solid #18231b4d;
   font-size: 16px;
@@ -611,9 +734,279 @@ them are fluid.
   line-height: 22px;
 }
 
+/* Trust & Safety */
+.sp-ledger {
+  padding: 120px var(--sp-gutter);
+}
+.sp-ledger-labels,
+.sp-ledger li {
+  display: grid;
+  grid-template-columns: minmax(0, 300fr) minmax(0, 592fr) minmax(0, 340fr);
+  gap: 40px;
+}
+.sp-ledger-labels {
+  margin-top: 56px;
+  padding-bottom: 14px;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 20px;
+  color: #647067;
+}
+.sp-ledger li {
+  padding-block: 28px;
+  border-top: 1px solid #18231b40;
+}
+.sp-ledger h3 {
+  font-size: clamp(30px, 3.05vw, 44px);
+  line-height: 1.09;
+}
+.sp-ledger li p {
+  font-size: 18px;
+  line-height: 26px;
+  opacity: 0.85;
+}
+.sp-ledger li .sp-ledger-record {
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 23px;
+  opacity: 1;
+}
+/* The column label says this on a wide screen. */
+.sp-ledger-record span {
+  display: none;
+}
+.sp-ledger-note {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding-top: 24px;
+  border-top: 1px solid #18231b40;
+  font-size: 15px;
+  line-height: 21px;
+}
+.sp-never {
+  grid-template-columns: minmax(0, 1fr) minmax(0, 560px);
+}
+.sp-never-copy {
+  padding: 112px 80px 112px var(--sp-gutter);
+}
+.sp-never-lead {
+  font-size: 22px;
+  line-height: 31px;
+  opacity: 0.72;
+}
+.sp-never ul {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  margin-top: 32px;
+}
+.sp-never h3 {
+  font-size: clamp(30px, 3.35vw, 48px);
+  line-height: 1.125;
+}
+.sp-never li p {
+  margin-top: 8px;
+  font-size: 16px;
+  line-height: 23px;
+  opacity: 0.7;
+}
+.sp-samples {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 400px);
+  gap: 96px;
+  padding: 120px var(--sp-gutter);
+}
+.sp-samples .sp-statement {
+  margin-top: 24px;
+}
+.sp-undecided h2 {
+  font-size: 28px;
+  line-height: 32px;
+}
+.sp-undecided p {
+  margin-top: 16px;
+  font-size: 16px;
+  line-height: 23px;
+  opacity: 0.8;
+}
+.sp-undecided ul {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 24px;
+}
+
+/* For brands and agencies */
+.sp-picture-hero {
+  padding-top: 96px;
+}
+.sp-picture-hero .sp-display {
+  padding-inline: var(--sp-gutter);
+  font-size: clamp(44px, 5.55vw, 80px);
+}
+.sp-picture-hero > div {
+  display: grid;
+  grid-template-columns: minmax(0, 60%) minmax(0, 1fr);
+  gap: 64px;
+  margin-top: 56px;
+}
+.sp-picture-hero-art {
+  aspect-ratio: 3 / 2;
+}
+.sp-picture-hero-facts {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 40px;
+  padding-right: var(--sp-gutter);
+}
+.sp-picture-hero-facts .sp-lead {
+  font-size: 20px;
+  line-height: 29px;
+}
+.sp-picture-hero-facts .sp-actions {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 18px;
+  padding-top: 28px;
+}
+.sp-suits h2 {
+  padding-bottom: 12px;
+  font: 500 15px/20px var(--font-ui);
+  letter-spacing: 0;
+  color: #647067;
+}
+.sp-suits li {
+  padding-block: 12px;
+  border-top: 1px solid #18231b40;
+  font-size: 17px;
+  line-height: 25px;
+}
+.sp-claim {
+  padding: 136px var(--sp-gutter) 120px;
+}
+.sp-claim .sp-statement {
+  max-width: 1180px;
+  font-size: clamp(28px, 3.35vw, 48px);
+  line-height: 1.2;
+}
+.sp-claim .sp-lead {
+  max-width: 680px;
+  margin-top: 40px;
+  font-size: 20px;
+  line-height: 29px;
+}
+.sp-how {
+  padding: 0 var(--sp-gutter) 120px;
+  scroll-margin-top: 48px;
+}
+.sp-how > .sp-lead {
+  max-width: 760px;
+  margin-top: 20px;
+}
+/* Numbered steps. A line draws down the left edge as they scroll past. */
+.sp-numbered {
+  position: relative;
+  margin-top: 56px;
+}
+.sp-numbered-line {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: -24px;
+  width: 2px;
+  background: var(--green);
+  transform-origin: top;
+}
+.sp-numbered li {
+  display: grid;
+  grid-template-columns: 40px minmax(0, 356fr) minmax(0, 868fr);
+  gap: 24px;
+  padding-block: 28px;
+  border-top: 1px solid #18231b40;
+}
+.sp-number {
+  font: 28px/32px var(--font-display);
+  color: var(--green);
+}
+.sp-numbered h3 {
+  font-size: 28px;
+  line-height: 32px;
+}
+.sp-numbered li > p,
+.sp-fork > p {
+  font-size: 18px;
+  line-height: 26px;
+  opacity: 0.85;
+}
+/* The one step with a choice: two filled blocks, side by side. */
+.sp-fork > div {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  margin-top: 20px;
+}
+.sp-fork > div > div {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 24px 24px 28px;
+}
+.sp-fork small {
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 20px;
+  opacity: 0.75;
+}
+.sp-fork h4 {
+  font-size: 28px;
+  line-height: 32px;
+}
+.sp-fork > div p {
+  font-size: 16px;
+  line-height: 23px;
+  opacity: 0.8;
+}
+.sp-how-note {
+  max-width: 760px;
+  padding-top: 24px;
+  border-top: 1px solid #18231b40;
+  font-size: 16px;
+  line-height: 23px;
+  opacity: 0.8;
+}
+.sp-how .sp-how-note {
+  max-width: none;
+}
+.sp-closing {
+  grid-template-columns: minmax(0, 1fr) minmax(0, 640px);
+}
+.sp-closing-copy {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 28px;
+  padding: 120px var(--sp-gutter);
+}
+.sp-closing-title {
+  font-size: clamp(38px, 4.45vw, 64px);
+  line-height: 1.0625;
+}
+.sp-closing .sp-lead {
+  max-width: 600px;
+  font-size: 20px;
+  line-height: 29px;
+}
+
 /* Privacy and terms */
-.sp-legal-hero {
-  padding: 112px var(--sp-gutter) 96px;
+.sp-split-hero.sp-legal-hero {
+  grid-template-columns: minmax(0, 920fr) minmax(0, 520fr);
+}
+.sp-legal-hero .sp-split-hero-copy {
+  justify-content: flex-start;
+  padding-block: 112px 96px;
 }
 .sp-tags {
   display: flex;
@@ -632,28 +1025,23 @@ them are fluid.
   background: var(--sage);
   color: var(--ink);
 }
-.sp-legal-hero .sp-display {
-  margin-top: 28px;
-}
-.sp-legal-hero .sp-lead {
-  max-width: 760px;
-  margin-top: 28px;
-}
+.sp-legal-hero .sp-lead,
 .sp-short {
   max-width: 760px;
-  margin-top: 36px;
+}
+.sp-short {
+  padding-top: 8px;
 }
 .sp-short h2 {
   font: 500 16px/22px var(--font-ui);
+  letter-spacing: 0;
 }
 .sp-short ul,
 .sp-document-body ul {
   display: flex;
   flex-direction: column;
   gap: 12px;
-  margin: 12px 0 0;
-  padding: 0;
-  list-style: none;
+  margin-top: 12px;
 }
 .sp-short li,
 .sp-document-body li {
@@ -677,6 +1065,7 @@ them are fluid.
   grid-template-columns: 280px minmax(0, 760px);
   gap: 96px;
   padding: 96px var(--sp-gutter) 120px;
+  border-top: 1px solid #18231b33;
 }
 .sp-document nav {
   position: sticky;
@@ -688,6 +1077,7 @@ them are fluid.
 .sp-document nav h2 {
   margin-bottom: 12px;
   font: 600 15px/20px var(--font-ui);
+  letter-spacing: 0;
 }
 .sp-document nav a {
   padding-block: 10px;
@@ -710,10 +1100,6 @@ them are fluid.
   scroll-margin-top: 24px;
 }
 .sp-document-body h2 {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 8px 12px;
   font-size: 32px;
   line-height: 36px;
 }
@@ -739,9 +1125,34 @@ them are fluid.
   background: var(--green);
 }
 
+/* 404 */
+.sp-missing {
+  padding-bottom: 96px;
+}
+.sp-or-try {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 12px 20px;
+  padding-top: 8px;
+}
+.sp-or-try > span {
+  opacity: 0.75;
+}
+.sp-missing-art {
+  aspect-ratio: 1440 / 640;
+}
+
 @media (max-width: 1023px) {
   .linked-page {
     --sp-gutter: 48px;
+  }
+  .sp-split-hero-copy,
+  .sp-art-right .sp-split-hero-copy {
+    padding: 80px var(--sp-gutter) 72px;
+  }
+  .sp-split-hero-art {
+    min-height: 440px;
   }
   .sp-split {
     grid-template-columns: 1fr;
@@ -749,34 +1160,37 @@ them are fluid.
   .sp-panel-copy {
     padding-block: 64px 48px;
   }
-  .sp-panel-art,
-  .sp-green .sp-panel-art,
-  .sp-lilac .sp-panel-art {
+  .sp-panel-art-bg .sp-panel-copy {
+    padding-bottom: 260px;
+  }
+  .sp-report-art {
     aspect-ratio: 16 / 9;
   }
   .sp-form-column {
     padding: 64px var(--sp-gutter) 88px;
   }
-  .sp-poster-copy,
   .sp-hero {
     padding-block: 88px 64px;
   }
   .sp-hero-pilot {
     padding-block: 80px 56px;
   }
-  .sp-band {
-    padding-top: 80px;
+  .sp-statements,
+  .sp-never,
+  .sp-closing {
+    grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
   }
-  .sp-columns {
-    gap: 28px;
+  .sp-statements-copy,
+  .sp-never-copy {
+    padding: 80px 48px 72px var(--sp-gutter);
   }
-  .sp-beliefs h3 {
-    font-size: 28px;
-    line-height: 32px;
+  .sp-closing-copy {
+    padding-block: 88px;
   }
-  .sp-refusals h3 {
-    font-size: 24px;
-    line-height: 28px;
+  .sp-aside-rows {
+    grid-template-columns: 1fr;
+    gap: 32px;
+    padding-top: 88px;
   }
   .sp-row,
   .sp-row-about {
@@ -785,9 +1199,14 @@ them are fluid.
   .sp-row-about {
     padding-block: 88px;
   }
+  .sp-body,
+  .sp-steps,
+  .sp-ledger,
+  .sp-samples {
+    padding-block: 88px;
+  }
   .sp-body {
     gap: 88px;
-    padding-block: 88px;
   }
   .sp-steps ol {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -796,7 +1215,38 @@ them are fluid.
   .sp-steps li:nth-child(2):after {
     display: none;
   }
-  .sp-legal-hero {
+  .sp-ways {
+    padding-block: 80px;
+  }
+  .sp-ledger-labels,
+  .sp-ledger li {
+    grid-template-columns: minmax(0, 200fr) minmax(0, 400fr) minmax(0, 240fr);
+    gap: 28px;
+  }
+  .sp-samples {
+    grid-template-columns: 1fr;
+    gap: 56px;
+  }
+  .sp-picture-hero {
+    padding-top: 72px;
+  }
+  .sp-picture-hero > div {
+    gap: 40px;
+    margin-top: 40px;
+  }
+  .sp-claim {
+    padding-block: 96px 88px;
+  }
+  .sp-how {
+    padding-bottom: 88px;
+  }
+  .sp-numbered li {
+    grid-template-columns: 32px minmax(0, 220fr) minmax(0, 420fr);
+  }
+  .sp-fork > div {
+    grid-template-columns: 1fr;
+  }
+  .sp-legal-hero .sp-split-hero-copy {
     padding-block: 80px 72px;
   }
   .sp-document {
@@ -814,25 +1264,59 @@ them are fluid.
     width: 100%;
   }
   .sp-lead {
-    font-size: 18px;
+    font-size: 17px;
     line-height: 25px;
+  }
+  .sp-actions {
+    flex-direction: column;
+    align-items: flex-start;
+    width: 100%;
+    gap: 18px;
+  }
+  .sp-crumbs {
+    padding-block: 10px;
+    font-size: 13px;
+  }
+  /* A long trail keeps its last two levels. */
+  .sp-crumbs [data-early] {
+    display: none;
+  }
+  .sp-crumbs [data-long] > [data-early] + :not([data-early]):before {
+    content: "… /";
+  }
+  .sp-split-hero,
+  .sp-split-hero.sp-art-right,
+  .sp-split-hero.sp-legal-hero {
+    grid-template-columns: 1fr;
+  }
+  .sp-art-right .sp-split-hero-art {
+    order: 0;
+  }
+  .sp-split-hero-art {
+    min-height: 0;
+    aspect-ratio: 390 / 280;
+  }
+  .sp-split-hero-copy,
+  .sp-art-right .sp-split-hero-copy,
+  .sp-legal-hero .sp-split-hero-copy {
+    gap: 22px;
+    padding: 48px var(--sp-gutter) 56px;
   }
   .sp-panel-copy {
     gap: 24px;
     padding-block: 44px 40px;
   }
   .sp-panel-lead {
-    font-size: 18px;
+    font-size: 17px;
     line-height: 25px;
   }
-  .sp-notes h2 {
+  .sp-notes h2,
+  .sp-notes .sp-notes-title {
     font-size: 26px;
     line-height: 30px;
   }
-  .sp-panel-art,
-  .sp-green .sp-panel-art,
-  .sp-lilac .sp-panel-art {
-    aspect-ratio: 390 / 338;
+  .sp-report-art {
+    aspect-ratio: 390 / 260;
   }
   .sp-form-column {
     gap: 24px;
@@ -842,45 +1326,56 @@ them are fluid.
     font-size: 32px;
     line-height: 36px;
   }
-  .sp-poster-copy,
   .sp-hero {
-    gap: 24px;
+    gap: 22px;
     padding-block: 56px 48px;
-  }
-  .sp-actions {
-    flex-direction: column;
-    align-items: flex-start;
-    width: 100%;
-    gap: 20px;
-  }
-  /* The row runs past both edges on a phone, as in the Figma phone frames. */
-  .sp-profile-row,
-  .sp-beliefs .sp-profile-row {
-    width: 150%;
-    margin-left: -25%;
   }
   .sp-hero-pilot {
     flex-direction: column;
     align-items: flex-start;
-    gap: 48px;
+    gap: 40px;
     padding-block: 56px 48px;
   }
-  .sp-profile-trio {
-    width: 262px;
+  .sp-hero-pilot-art {
+    width: 100%;
   }
-  .sp-band {
+  .sp-statements,
+  .sp-never,
+  .sp-closing {
+    grid-template-columns: 1fr;
+  }
+  .sp-statements-art,
+  .sp-never-art,
+  .sp-closing-art {
+    aspect-ratio: 390 / 280;
+  }
+  .sp-statements-copy,
+  .sp-never-copy {
+    padding: 56px var(--sp-gutter) 40px;
+  }
+  .sp-statements li {
+    padding-block: 20px;
+  }
+  .sp-statements li p,
+  .sp-aside-rows li p,
+  .sp-ledger li p,
+  .sp-numbered li > p,
+  .sp-fork > p {
+    font-size: 16px;
+    line-height: 23px;
+  }
+  .sp-aside-rows {
+    gap: 28px;
     padding-top: 64px;
   }
-  .sp-columns {
+  .sp-aside-rows li {
     grid-template-columns: 1fr;
-    gap: 28px;
-    margin-top: 28px;
+    gap: 10px;
+    padding-block: 20px;
   }
-  .sp-beliefs .sp-band {
-    padding-bottom: 40px;
-  }
-  .sp-refusals {
-    padding-bottom: 0;
+  .sp-aside-rows h3 {
+    font-size: 26px;
+    line-height: 30px;
   }
   .sp-row,
   .sp-row-about {
@@ -890,15 +1385,21 @@ them are fluid.
   .sp-row-about {
     padding-block: 72px;
   }
-  .sp-row-copy p,
-  .sp-row-about .sp-row-copy p,
+  .sp-row-copy p:not(.sp-audience),
+  .sp-row-about .sp-row-copy p:not(.sp-audience),
   .sp-open p {
-    font-size: 18px;
+    font-size: 17px;
     line-height: 25px;
   }
   .sp-body {
     gap: 72px;
     padding-block: 64px 88px;
+  }
+  .sp-steps,
+  .sp-ledger,
+  .sp-samples,
+  .sp-ways {
+    padding-block: 64px;
   }
   .sp-steps ol {
     grid-template-columns: 1fr;
@@ -928,6 +1429,10 @@ them are fluid.
   .sp-steps p {
     margin-top: 8px;
   }
+  .sp-ways-options {
+    grid-template-columns: 1fr;
+    gap: 28px;
+  }
   .sp-open {
     padding-top: 48px;
   }
@@ -939,12 +1444,98 @@ them are fluid.
   .sp-open ul {
     flex-direction: column;
   }
-  .sp-legal-hero {
-    padding-block: 48px 56px;
+  .sp-ledger-labels {
+    display: none;
   }
-  .sp-legal-hero .sp-display,
-  .sp-legal-hero .sp-lead {
+  .sp-ledger ol {
+    margin-top: 28px;
+  }
+  .sp-ledger li {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding-block: 22px;
+  }
+  .sp-ledger li .sp-ledger-record {
+    font-size: 15px;
+    line-height: 21px;
+  }
+  .sp-ledger-record span {
+    display: inline;
+  }
+  .sp-ledger-note {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  .sp-never ul {
+    gap: 24px;
     margin-top: 24px;
+  }
+  .sp-never-lead {
+    font-size: 17px;
+    line-height: 25px;
+  }
+  .sp-samples {
+    gap: 40px;
+  }
+  .sp-picture-hero {
+    padding-top: 48px;
+  }
+  .sp-picture-hero > div {
+    grid-template-columns: 1fr;
+    gap: 32px;
+    margin-top: 32px;
+  }
+  .sp-picture-hero-facts {
+    gap: 36px;
+    padding: 0 var(--sp-gutter) 56px;
+  }
+  .sp-picture-hero-facts .sp-lead,
+  .sp-claim .sp-lead,
+  .sp-closing .sp-lead {
+    font-size: 17px;
+    line-height: 25px;
+  }
+  .sp-claim {
+    padding-block: 64px 56px;
+  }
+  .sp-claim .sp-lead {
+    margin-top: 24px;
+  }
+  .sp-how {
+    padding-bottom: 64px;
+  }
+  .sp-numbered {
+    margin-top: 28px;
+  }
+  .sp-numbered-line {
+    left: -12px;
+  }
+  .sp-numbered li {
+    grid-template-columns: 24px minmax(0, 1fr);
+    gap: 10px 14px;
+    padding-block: 22px;
+  }
+  .sp-numbered li > p,
+  .sp-fork {
+    grid-column: 1 / -1;
+  }
+  .sp-number,
+  .sp-numbered h3 {
+    font-size: 26px;
+    line-height: 30px;
+  }
+  .sp-fork h4 {
+    font-size: 24px;
+    line-height: 28px;
+  }
+  .sp-fork > div > div {
+    padding: 20px 20px 22px;
+  }
+  .sp-closing-copy {
+    gap: 22px;
+    padding-block: 64px 56px;
   }
   .sp-short li,
   .sp-document-body li,
@@ -962,5 +1553,11 @@ them are fluid.
   }
   .sp-document-body {
     gap: 40px;
+  }
+  .sp-missing {
+    padding-bottom: 56px;
+  }
+  .sp-missing-art {
+    aspect-ratio: 390 / 260;
   }
 }

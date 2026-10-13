@@ -160,11 +160,146 @@ section {
 }
 .site-nav nav {
   display: flex;
-  gap: 40px;
+  align-items: center;
+  gap: 36px;
   margin-left: auto;
   font-weight: 500;
   font-size: 16px;
   line-height: 22px;
+}
+/* Header menus (Figma 644:2487). Each opens a panel that hangs from the bar. */
+.nav-menu {
+  position: relative;
+}
+.nav-menu > button {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 0;
+  border: 0;
+  border-bottom: 1px solid transparent;
+  background: none;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+  transition: border-color 0.3s var(--ease);
+}
+.nav-menu[data-open] > button {
+  border-color: currentColor;
+}
+.nav-menu > button svg {
+  width: 14px;
+  height: 14px;
+  transition: transform 0.4s var(--ease);
+}
+.nav-menu[data-open] > button svg {
+  transform: rotate(180deg);
+}
+/* The wrapper spans the gap between the button and the foot of the bar, so
+   the pointer can cross it without the menu closing. */
+.nav-dropdown {
+  position: absolute;
+  top: 100%;
+  left: -24px;
+  width: 360px;
+  padding-top: 27px;
+  visibility: hidden;
+  opacity: 0;
+  transform: translateY(-8px);
+  transition:
+    opacity 0.2s var(--ease),
+    transform 0.3s var(--ease),
+    visibility 0s 0.3s;
+}
+.nav-menu:last-child .nav-dropdown {
+  left: auto;
+  right: -24px;
+}
+.nav-menu[data-open] .nav-dropdown {
+  visibility: visible;
+  opacity: 1;
+  transform: none;
+  transition:
+    opacity 0.3s var(--ease),
+    transform 0.5s var(--ease);
+}
+.nav-dropdown > div {
+  display: flex;
+  flex-direction: column;
+  padding: 8px;
+  border-top: 1px solid #f5f2e926;
+  background: var(--ink);
+  color: var(--cream);
+}
+.nav-menu[data-open] .nav-dropdown > div > * {
+  animation: hero-rise 0.5s var(--ease) calc(var(--i) * 0.04s) both;
+}
+.site-nav nav .nav-dropdown a {
+  width: auto;
+}
+.site-nav nav .nav-dropdown a:after {
+  content: none;
+}
+.nav-dropdown a:not(.nav-dropdown-action) {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 12px 16px;
+  transition: background-color 0.2s;
+}
+.nav-dropdown > div > a:not(.nav-dropdown-action):hover,
+.nav-dropdown > div > a:not(.nav-dropdown-action):focus-visible {
+  background: #f5f2e914;
+}
+.nav-dropdown strong {
+  font-weight: 500;
+}
+.nav-dropdown a > span {
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 20px;
+  opacity: 0.65;
+}
+.nav-dropdown .nav-dropdown-action {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 8px;
+  padding: 14px 16px;
+  background: var(--green);
+  font-weight: 600;
+  transition: background-color 0.25s;
+}
+.nav-dropdown .nav-dropdown-action:hover {
+  background: #1a5e1d;
+}
+.nav-dropdown .nav-dropdown-action > span {
+  font-size: 16px;
+  line-height: 22px;
+  opacity: 1;
+  transition: transform 0.3s var(--ease);
+}
+.nav-dropdown .nav-dropdown-action:hover > span {
+  transform: translateX(4px);
+}
+.nav-dropdown-legal {
+  display: flex;
+  gap: 20px;
+  margin-top: 8px;
+  padding: 14px 16px 6px;
+  border-top: 1px solid #f5f2e926;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 20px;
+}
+.nav-dropdown-legal a {
+  opacity: 0.65;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  transition: opacity 0.2s;
+}
+.nav-dropdown-legal a:hover {
+  opacity: 1;
 }
 .site-nav nav a,
 .footer-links a {
@@ -1275,6 +1410,11 @@ html:has(.workspace-viewport[data-expanded]) {
 .site-footer {
   background: var(--cream);
 }
+/* Secondary pages end on ink, which bookends the header. */
+.site-footer-ink {
+  background: var(--ink);
+  color: var(--cream);
+}
 .footer-navigation {
   display: grid;
   grid-template-columns: minmax(0, 400fr) repeat(3, minmax(0, 220fr));
@@ -1662,31 +1802,77 @@ html:has(.workspace-viewport[data-expanded]) {
   .site-nav .mobile-menu nav {
     display: flex;
     flex-direction: column;
+    align-items: stretch;
     gap: 0;
     margin: 12px 0 32px;
   }
-  .site-nav .mobile-menu nav a {
+  /* The phone menu groups the same links, one group open at a time. */
+  .mobile-group {
+    border-bottom: 1px solid #f5f2e926;
+  }
+  .mobile-group > button {
     display: flex;
     align-items: center;
     justify-content: space-between;
     width: 100%;
-    padding-block: 18px;
-    border-bottom: 1px solid #f5f2e940;
+    padding: 18px 0;
+    border: 0;
+    background: none;
+    color: inherit;
     font: 28px/32px var(--font-display);
+    letter-spacing: -0.04em;
+    text-align: left;
+    cursor: pointer;
+  }
+  .mobile-group > button svg {
+    width: 20px;
+    height: 20px;
+    transition: transform 0.4s var(--ease);
+  }
+  .mobile-group[data-open] > button svg {
+    transform: rotate(180deg);
+  }
+  .mobile-group > div {
+    display: grid;
+    grid-template-rows: 0fr;
+    opacity: 0;
+    transition:
+      grid-template-rows 0.45s var(--ease),
+      opacity 0.3s var(--ease);
+  }
+  .mobile-group[data-open] > div {
+    grid-template-rows: 1fr;
+    opacity: 1;
+  }
+  .mobile-group > div > div {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    overflow: hidden;
+  }
+  .site-nav .mobile-menu .mobile-group a {
+    width: 100%;
+    padding-block: 10px;
+    font: 400 17px/24px var(--font-ui);
+    opacity: 0.9;
+  }
+  .site-nav .mobile-menu .mobile-group a:last-child {
+    margin-bottom: 16px;
   }
   .site-nav .mobile-menu nav a:after {
-    content: "→";
-    position: static;
-    width: auto;
-    height: auto;
-    background: none;
-    transform: none;
-    font: 20px/1 var(--font-ui);
-    opacity: 0.7;
-    transition: transform 0.3s var(--ease);
+    content: none;
   }
-  .site-nav .mobile-menu nav a:hover:after {
-    transform: translateX(4px);
+  .mobile-legal {
+    display: flex;
+    gap: 20px;
+    padding-top: 18px;
+    font-size: 14px;
+    line-height: 20px;
+  }
+  .mobile-legal a {
+    opacity: 0.65;
+    text-decoration: underline;
+    text-underline-offset: 3px;
   }
   .mobile-menu-actions {
     display: flex;

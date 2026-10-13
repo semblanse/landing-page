@@ -91,6 +91,7 @@ export function Reveal({
   delay?: number;
   kind?: RevealKind;
   as?: "div" | "p" | "article" | "section" | "small" | "aside" | "li";
+  id?: string;
 } & Record<`aria-${string}`, string | undefined>) {
   const ref = useRef<HTMLElement>(null);
   useEffect(() => (ref.current ? watch(ref.current) : undefined), []);

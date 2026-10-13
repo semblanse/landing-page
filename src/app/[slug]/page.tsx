@@ -2,18 +2,26 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { Navigation, Footer } from "@/components/landing/landing-page";
 import { EnquiryPage } from "@/components/linked-pages/enquiry";
-import { AboutPage, PilotPage } from "@/components/linked-pages/editorial";
+import {
+  AboutPage,
+  BrandsPage,
+  PilotPage,
+  TrustPage,
+} from "@/components/linked-pages/editorial";
 import { LegalPage } from "@/components/linked-pages/legal";
+import { Breadcrumbs } from "@/components/linked-pages/shared";
 import "../linked-pages.css";
 
 const titles: Record<string, string> = {
   "creator-pilot": "Apply as a creator",
   "brand-pilot": "Book a pilot call",
+  brands: "For brands and agencies",
+  trust: "Trust & Safety",
   about: "About",
   contact: "Contact",
   pilot: "Pilot overview",
-  privacy: "Privacy policy · Draft",
-  terms: "Terms of use · Draft",
+  privacy: "Privacy policy",
+  terms: "Terms of use",
 };
 
 export function generateStaticParams() {
@@ -36,6 +44,8 @@ export default async function LinkedPage({
 }) {
   const { slug } = await params;
   if (!(slug in titles)) notFound();
+  const enquiry =
+    slug === "creator-pilot" || slug === "brand-pilot" || slug === "contact";
   return (
     <>
       <a className="skip-link" href="#main">
@@ -43,19 +53,23 @@ export default async function LinkedPage({
       </a>
       <Navigation />
       <main id="main" className="linked-page">
-        {slug === "creator-pilot" ||
-        slug === "brand-pilot" ||
-        slug === "contact" ? (
+        {/* An enquiry page draws its own trail, which grows once it is sent. */}
+        {!enquiry && <Breadcrumbs trail={[["Home", "/"], [titles[slug]]]} />}
+        {enquiry ? (
           <EnquiryPage kind={slug} />
         ) : slug === "pilot" ? (
           <PilotPage />
         ) : slug === "about" ? (
           <AboutPage />
+        ) : slug === "brands" ? (
+          <BrandsPage />
+        ) : slug === "trust" ? (
+          <TrustPage />
         ) : (
           <LegalPage kind={slug as "privacy" | "terms"} />
         )}
       </main>
-      <Footer />
+      <Footer ink />
     </>
   );
 }

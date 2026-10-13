@@ -8,7 +8,7 @@ FORM: Preserve Figma 549:2779, with 554:2845 and 555:2910 responsive layouts.
 */
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { Menu, X, Maximize } from "lucide-react";
+import { ChevronDown, Menu, X, Maximize } from "lucide-react";
 import {
   motion,
   useInView,
@@ -30,15 +30,82 @@ import { DitherImage, heroDither } from "./dither";
 import { StageCards } from "./stage-cards";
 import { FAQ } from "./faq";
 
+type NavMenu = {
+  label: string;
+  links: [title: string, about: string, href: string][];
+  action?: [label: string, href: string];
+};
+
+// Every page and landing section a visitor can reach, grouped by who it is
+// for (Figma 644:2487).
+const menus: NavMenu[] = [
+  {
+    label: "For creators",
+    links: [
+      [
+        "How it works",
+        "Offer, stories, approval and payment",
+        "/#how-it-works",
+      ],
+      [
+        "Your control",
+        "What a licence allows, and what it never does",
+        "/#your-control",
+      ],
+      ["Creator workspace", "A preview of what we’re building", "/#workspace"],
+      ["Trust & Safety", "How we protect your face and voice", "/trust"],
+    ],
+    action: ["Apply as a creator", "/creator-pilot"],
+  },
+  {
+    label: "For brands",
+    links: [
+      [
+        "For brands and agencies",
+        "What Semblanse is, and who the pilot suits",
+        "/brands",
+      ],
+      [
+        "How a pilot works",
+        "Seven steps, and who makes the ads",
+        "/brands#how-a-pilot-works",
+      ],
+      ["Pilot overview", "Our first campaigns, run by hand", "/pilot"],
+    ],
+    action: ["Book a pilot call", "/brand-pilot"],
+  },
+  {
+    label: "Company",
+    links: [
+      ["About", "What we believe, and where we are", "/about"],
+      [
+        "Trust & Safety",
+        "The checks before an ad runs, and how to report misuse",
+        "/trust",
+      ],
+      ["Questions", "Answers for creators and brands", "/#questions"],
+      ["Contact", "Send us a note", "/contact"],
+    ],
+  },
+];
+const legal = [
+  ["Privacy", "/privacy"],
+  ["Terms", "/terms"],
+];
+
 export function Navigation({ home = false }: { home?: boolean }) {
   const [open, setOpen] = useState(false);
+  // The dropdown showing on a wide screen, and the group open in the phone menu.
+  const [menu, setMenu] = useState<string | null>(null);
+  const [group, setGroup] = useState<string | null>(menus[0].label);
   const toggle = useRef<HTMLButtonElement>(null);
+  const nav = useRef<HTMLElement>(null);
   const [hidden, setHidden] = useState(false);
   const { scrollY } = useScroll();
   useMotionValueEvent(scrollY, "change", (y) => {
     const previous = scrollY.getPrevious() ?? 0;
     if (Math.abs(y - previous) < 4) return;
-    setHidden(y > previous && y > 240 && !open);
+    setHidden(y > previous && y > 240 && !open && !menu);
   });
   // The open phone menu fills the screen, so the page behind stays put.
   useEffect(() => {
@@ -47,6 +114,15 @@ export function Navigation({ home = false }: { home?: boolean }) {
     root.classList.add("menu-open");
     return () => root.classList.remove("menu-open");
   }, [open]);
+  // A dropdown closes when the visitor presses anywhere outside it.
+  useEffect(() => {
+    if (!menu) return;
+    const close = (event: PointerEvent) => {
+      if (!nav.current?.contains(event.target as Node)) setMenu(null);
+    };
+    document.addEventListener("pointerdown", close);
+    return () => document.removeEventListener("pointerdown", close);
+  }, [menu]);
   return (
     <Collapsible
       open={open}
@@ -59,17 +135,87 @@ export function Navigation({ home = false }: { home?: boolean }) {
         />
       }
       onKeyDown={(event) => {
-        if (event.key === "Escape" && open) {
+        if (event.key !== "Escape") return;
+        if (menu) {
+          nav.current
+            ?.querySelector<HTMLElement>(`[aria-expanded="true"]`)
+            ?.focus();
+          setMenu(null);
+        } else if (open) {
           setOpen(false);
           toggle.current?.focus();
         }
       }}
     >
       <Brand light />
-      <nav aria-label="Main navigation">
-        <Link href="/#how-it-works">How it works</Link>
-        <Link href="/#your-control">Your control</Link>
-        <Link href="/#for-advertisers">For advertisers</Link>
+      <nav
+        ref={nav}
+        aria-label="Main navigation"
+        onPointerLeave={(event) => {
+          if (event.pointerType === "mouse") setMenu(null);
+        }}
+        onBlur={(event) => {
+          if (!event.currentTarget.contains(event.relatedTarget)) setMenu(null);
+        }}
+      >
+        {menus.map(({ label, links, action }, n) => {
+          const shown = menu === label;
+          return (
+            <div
+              className="nav-menu"
+              key={label}
+              data-open={shown || undefined}
+              onPointerEnter={(event) => {
+                if (event.pointerType === "mouse") setMenu(label);
+              }}
+            >
+              <button
+                type="button"
+                aria-expanded={shown}
+                aria-controls={`nav-menu-${n}`}
+                onClick={() => setMenu(shown ? null : label)}
+              >
+                {label}
+                <ChevronDown aria-hidden="true" />
+              </button>
+              <div className="nav-dropdown" id={`nav-menu-${n}`}>
+                <div onClick={() => setMenu(null)}>
+                  {links.map(([title, about, href], i) => (
+                    <Link
+                      href={href}
+                      key={title}
+                      style={{ "--i": i } as React.CSSProperties}
+                    >
+                      <strong>{title}</strong>
+                      <span>{about}</span>
+                    </Link>
+                  ))}
+                  {action && (
+                    <Link
+                      href={action[1]}
+                      className="nav-dropdown-action"
+                      style={{ "--i": links.length } as React.CSSProperties}
+                    >
+                      {action[0]} <span aria-hidden="true">→</span>
+                    </Link>
+                  )}
+                  {!action && (
+                    <p
+                      className="nav-dropdown-legal"
+                      style={{ "--i": links.length } as React.CSSProperties}
+                    >
+                      {legal.map(([text, href]) => (
+                        <Link href={href} key={text}>
+                          {text}
+                        </Link>
+                      ))}
+                    </p>
+                  )}
+                </div>
+              </div>
+            </div>
+          );
+        })}
       </nav>
       <Action
         href="/creator-pilot"
@@ -87,13 +233,45 @@ export function Navigation({ home = false }: { home?: boolean }) {
       </CollapsibleTrigger>
       <CollapsibleContent className="mobile-menu">
         <div className="mobile-menu-inner" data-lenis-prevent>
-          <nav aria-label="Mobile navigation" onClick={() => setOpen(false)}>
-            <Link href="/#how-it-works">How it works</Link>
-            <Link href="/#your-control">Your control</Link>
-            <Link href="/#for-advertisers">For advertisers</Link>
-            <Link href="/pilot">Pilot overview</Link>
-            <Link href="/about">About</Link>
-            <Link href="/contact">Contact</Link>
+          <nav aria-label="Mobile navigation">
+            {menus.map(({ label, links }, n) => {
+              const shown = group === label;
+              return (
+                <div
+                  className="mobile-group"
+                  key={label}
+                  data-open={shown || undefined}
+                >
+                  <button
+                    type="button"
+                    aria-expanded={shown}
+                    aria-controls={`mobile-group-${n}`}
+                    onClick={() => setGroup(shown ? null : label)}
+                  >
+                    {label}
+                    <ChevronDown aria-hidden="true" />
+                  </button>
+                  {/* Closed groups stay in the page for the height
+                      transition, so they are made inert. */}
+                  <div id={`mobile-group-${n}`} inert={!shown}>
+                    <div onClick={() => setOpen(false)}>
+                      {links.map(([title, , href]) => (
+                        <Link href={href} key={title}>
+                          {title}
+                        </Link>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+            <p className="mobile-legal" onClick={() => setOpen(false)}>
+              {legal.map(([text, href]) => (
+                <Link href={href} key={text}>
+                  {text}
+                </Link>
+              ))}
+            </p>
           </nav>
           <div className="mobile-menu-actions" onClick={() => setOpen(false)}>
             <Action href="/creator-pilot">Apply as a creator</Action>
@@ -354,7 +532,8 @@ function Licence() {
  * Artwork that opens behind a straight edge as it scrolls into view, while
  * the image inside settles from a slight zoom and its dither grain resolves.
  */
-function ScrollArtwork({
+/** Artwork that opens behind a straight edge and settles as it scrolls in. */
+export function ScrollArtwork({
   className,
   from = "left",
   ...image
@@ -554,16 +733,16 @@ function ProductDemo() {
     </div>
   );
 }
-export function Footer() {
+export function Footer({ ink = false }: { ink?: boolean }) {
   const wordmark = useRef<HTMLDivElement>(null);
   // The wordmark rises into its cropped position as the page ends.
   const rise = useScrollProgress(wordmark, ["start end", "end end"]);
   const y = useTransform(rise.progress, [0, 1], ["70%", "0%"]);
   return (
-    <footer className="site-footer">
+    <footer className={`site-footer ${ink ? "site-footer-ink" : ""}`}>
       <div className="footer-navigation">
         <div className="footer-purpose">
-          <Brand markOnly />
+          <Brand markOnly light={ink} />
           <p>
             Creator likeness. <br />
             Licensed by campaign.
@@ -587,6 +766,7 @@ export function Footer() {
             title: "Get involved",
             links: [
               ["Apply as a creator", "/creator-pilot"],
+              ["For brands and agencies", "/brands"],
               ["Book a pilot call", "/brand-pilot"],
               ["Pilot overview", "/pilot"],
             ],
@@ -596,6 +776,7 @@ export function Footer() {
             links: [
               ["About", "/about"],
               ["Contact", "/contact"],
+              ["Trust & Safety", "/trust"],
               ["Privacy", "/privacy"],
               ["Terms", "/terms"],
             ],
