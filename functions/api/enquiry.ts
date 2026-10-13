@@ -5,6 +5,12 @@ import {
   type EnquiryResponse,
 } from "../../src/lib/enquiry-schema";
 import { confirmation, notification, send } from "../../server/email";
+import {
+  fingerprint,
+  readJson,
+  reserveRateSlot,
+  verifyChallenge,
+} from "../../server/request-security";
 
 type Env = {
   DB: D1Database;
@@ -14,25 +20,14 @@ type Env = {
   EMAIL_NOTIFY: string;
 };
 
-const maxBodyBytes = 32 * 1024;
-
 function reply(body: EnquiryResponse, status = 200) {
   return Response.json(body, {
     status,
-    headers: { "cache-control": "no-store" },
-  });
-}
-
-async function passedTurnstile(secret: string, token: string, ip: string) {
-  const response = await fetch(
-    "https://challenges.cloudflare.com/turnstile/v0/siteverify",
-    {
-      method: "POST",
-      body: new URLSearchParams({ secret, response: token, remoteip: ip }),
+    headers: {
+      "cache-control": "no-store",
+      ...(status === 429 ? { "retry-after": "600" } : {}),
     },
-  );
-  const result = await response.json<{ success: boolean }>();
-  return result.success;
+  });
 }
 
 function attributionJson(input: unknown) {
@@ -51,23 +46,27 @@ export const onRequestPost: PagesFunction<Env> = async ({
 }) => {
   // Browsers send Origin on every POST; another site's page can't post here.
   const origin = request.headers.get("origin");
-  if (origin && origin !== new URL(request.url).origin)
+  if (origin !== new URL(request.url).origin)
     return reply({ ok: false, reason: "challenge" }, 403);
 
-  const raw = await request.text();
-  if (raw.length > maxBodyBytes)
-    return reply({ ok: false, reason: "invalid", errors: {} }, 413);
   let body: EnquiryRequest;
   try {
-    body = JSON.parse(raw);
-  } catch {
-    return reply({ ok: false, reason: "invalid", errors: {} }, 400);
+    body = (await readJson(request)) as EnquiryRequest;
+  } catch (error) {
+    return reply(
+      { ok: false, reason: "invalid", errors: {} },
+      error instanceof Response ? error.status : 400,
+    );
   }
   if (
     !body ||
     !formKinds.includes(body.kind) ||
     !body.values ||
-    typeof body.values !== "object"
+    typeof body.values !== "object" ||
+    Array.isArray(body.values) ||
+    (body.requestId !== undefined &&
+      (typeof body.requestId !== "string" ||
+        !/^[a-f0-9-]{36}$/i.test(body.requestId)))
   )
     return reply({ ok: false, reason: "invalid", errors: {} }, 400);
 
@@ -86,7 +85,12 @@ export const onRequestPost: PagesFunction<Env> = async ({
   try {
     if (
       typeof body.token !== "string" ||
-      !(await passedTurnstile(env.TURNSTILE_SECRET_KEY, body.token, ip))
+      !(await verifyChallenge(
+        env.TURNSTILE_SECRET_KEY,
+        body.token,
+        ip,
+        new URL(request.url).hostname,
+      ))
     )
       return reply({ ok: false, reason: "challenge" }, 403);
   } catch (error) {
@@ -95,7 +99,10 @@ export const onRequestPost: PagesFunction<Env> = async ({
   }
 
   const creator = body.kind === "creator-pilot";
-  const id = crypto.randomUUID();
+  const id = await fingerprint(
+    env.TURNSTILE_SECRET_KEY,
+    JSON.stringify([body.kind, values, body.requestId ?? crypto.randomUUID()]),
+  );
   const report = body.kind === "report";
   const {
     [report ? "report-name" : "name"]: name,
@@ -105,10 +112,35 @@ export const onRequestPost: PagesFunction<Env> = async ({
     ...details
   } = values;
   try {
-    await env.DB.prepare(
+    if (
+      await env.DB.prepare("SELECT id FROM enquiries WHERE id = ?")
+        .bind(id)
+        .first()
+    )
+      return reply({ ok: true });
+    if (
+      !(await reserveRateSlot(
+        env.DB,
+        env.TURNSTILE_SECRET_KEY,
+        "ip",
+        ip || "unknown",
+        600,
+        12,
+      )) ||
+      !(await reserveRateSlot(
+        env.DB,
+        env.TURNSTILE_SECRET_KEY,
+        "recipient",
+        String(email),
+        3600,
+        6,
+      ))
+    )
+      return reply({ ok: false, reason: "rate_limited" }, 429);
+    const inserted = await env.DB.prepare(
       `INSERT INTO enquiries
          (id, kind, name, email, details, consent_at, attribution, instagram)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?) ON CONFLICT(id) DO NOTHING`,
     )
       .bind(
         id,
@@ -121,6 +153,13 @@ export const onRequestPost: PagesFunction<Env> = async ({
         creator ? instagram : null,
       )
       .run();
+    if (!inserted.meta.changes) return reply({ ok: true });
+    waitUntil(
+      env.DB.prepare("DELETE FROM request_limits WHERE expires_at < ?")
+        .bind(Math.floor(Date.now() / 1000))
+        .run()
+        .then(() => undefined),
+    );
   } catch (error) {
     console.error("Could not store an enquiry:", error);
     return reply({ ok: false, reason: "unavailable" }, 503);

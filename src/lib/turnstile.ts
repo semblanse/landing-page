@@ -28,12 +28,24 @@ let script: Promise<Turnstile> | undefined;
 function load() {
   script ??= new Promise<Turnstile>((resolve, reject) => {
     const element = document.createElement("script");
+    const timeout = setTimeout(
+      () => element.onerror?.(new Event("error")),
+      15_000,
+    );
     element.src =
       "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit";
     element.async = true;
-    element.onload = () =>
-      window.turnstile ? resolve(window.turnstile) : reject(new Error());
+    element.onload = () => {
+      clearTimeout(timeout);
+      if (window.turnstile) resolve(window.turnstile);
+      else {
+        script = undefined;
+        reject(new Error("Turnstile did not initialise"));
+      }
+    };
     element.onerror = () => {
+      clearTimeout(timeout);
+      element.remove();
       script = undefined;
       reject(new Error("Turnstile did not load"));
     };
@@ -53,39 +65,66 @@ export function useTurnstile() {
   const pending = useRef<{
     resolve: (token: string) => void;
     reject: (error: Error) => void;
+    timer: ReturnType<typeof setTimeout>;
   }>(undefined);
+
+  const finish = useCallback((error?: Error, token?: string) => {
+    const current = pending.current;
+    pending.current = undefined;
+    if (!current) return;
+    clearTimeout(current.timer);
+    if (error) current.reject(error);
+    else current.resolve(token!);
+  }, []);
 
   useEffect(() => {
     load().catch(() => {});
     return () => {
+      finish(new Error("Form closed"));
       if (widget.current) window.turnstile?.remove(widget.current);
       widget.current = undefined;
     };
-  }, []);
+  }, [finish]);
 
   const getToken = useCallback(
     () =>
       new Promise<string>((resolve, reject) => {
-        pending.current = { resolve, reject };
-        load().then((turnstile) => {
-          if (!container.current) return reject(new Error("No container"));
-          if (widget.current) turnstile.reset(widget.current);
-          else
-            widget.current = turnstile.render(container.current, {
-              sitekey: siteKey,
-              execution: "execute",
-              appearance: "interaction-only",
-              callback: (token: string) => pending.current?.resolve(token),
-              "error-callback": () => {
-                pending.current?.reject(new Error("Turnstile failed"));
-                return true;
-              },
-            });
-          if (!widget.current) return reject(new Error("Turnstile failed"));
-          turnstile.execute(widget.current);
-        }, reject);
+        finish(new Error("Challenge restarted"));
+        pending.current = {
+          resolve,
+          reject,
+          timer: setTimeout(
+            () => finish(new Error("Challenge timed out")),
+            30_000,
+          ),
+        };
+        load()
+          .then((turnstile) => {
+            if (!pending.current) return;
+            if (!container.current) return finish(new Error("No container"));
+            if (widget.current) turnstile.reset(widget.current);
+            else
+              widget.current = turnstile.render(container.current, {
+                sitekey: siteKey,
+                action: "enquiry",
+                execution: "execute",
+                appearance: "interaction-only",
+                callback: (token: string) => finish(undefined, token),
+                "expired-callback": () =>
+                  finish(new Error("Challenge expired")),
+                "timeout-callback": () =>
+                  finish(new Error("Challenge timed out")),
+                "error-callback": () => {
+                  finish(new Error("Turnstile failed"));
+                  return true;
+                },
+              });
+            if (!widget.current) return finish(new Error("Turnstile failed"));
+            turnstile.execute(widget.current);
+          })
+          .catch((error: Error) => finish(error));
       }),
-    [],
+    [finish],
   );
 
   return { container, getToken };

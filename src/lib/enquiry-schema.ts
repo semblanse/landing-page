@@ -218,6 +218,8 @@ export function enquiryFields(kind: FormKind): string[] {
 }
 
 export type EnquiryRequest = {
+  /** Reused after a network failure so retrying cannot create duplicate mail. */
+  requestId?: string;
   kind: FormKind;
   values: Record<string, unknown>;
   /** Turnstile response token. */
@@ -230,7 +232,7 @@ export type EnquiryRequest = {
 export type EnquiryResponse =
   | { ok: true }
   | { ok: false; reason: "invalid"; errors: EnquiryErrors }
-  | { ok: false; reason: "challenge" | "unavailable" };
+  | { ok: false; reason: "challenge" | "unavailable" | "rate_limited" };
 
 export const instagramAccount = "semblanse";
 export const contactEmail = "hello@semblanse.com";

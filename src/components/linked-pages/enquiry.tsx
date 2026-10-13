@@ -509,6 +509,7 @@ function Confirmation({ kind, sent }: { kind: EnquiryKind; sent: Sent }) {
 }
 
 const failures = {
+  rate_limited: `Please wait before trying again, or email ${contactEmail} if you need help now.`,
   challenge: "We couldn’t confirm this came from a person. Please try again.",
   unavailable: `That didn’t send, and your answers are still here. Try again, or email ${contactEmail}.`,
 };
@@ -523,6 +524,7 @@ function useEnquiry(kind: FormKind, onSent: (values: EnquiryValues) => void) {
   const [errors, setErrors] = useState<EnquiryErrors>({});
   const [failure, setFailure] = useState<keyof typeof failures>();
   const started = useRef(false);
+  const requestId = useRef<string>(undefined);
   const { container, getToken } = useTurnstile();
 
   function showErrors(form: HTMLFormElement, found: EnquiryErrors) {
@@ -552,6 +554,7 @@ function useEnquiry(kind: FormKind, onSent: (values: EnquiryValues) => void) {
     let result: EnquiryResponse;
     try {
       const request: EnquiryRequest = {
+        requestId: (requestId.current ??= crypto.randomUUID()),
         kind,
         values: input,
         token: await getToken(),
@@ -562,6 +565,7 @@ function useEnquiry(kind: FormKind, onSent: (values: EnquiryValues) => void) {
         method: "POST",
         headers: { "content-type": "application/json" },
         body: JSON.stringify(request),
+        signal: AbortSignal.timeout(20_000),
       });
       result = await response.json();
     } catch {
@@ -573,7 +577,11 @@ function useEnquiry(kind: FormKind, onSent: (values: EnquiryValues) => void) {
       if (result.reason === "invalid" && Object.keys(result.errors).length)
         return showErrors(form, result.errors);
       const reason =
-        result.reason === "challenge" ? "challenge" : "unavailable";
+        result.reason === "challenge"
+          ? "challenge"
+          : result.reason === "rate_limited"
+            ? "rate_limited"
+            : "unavailable";
       track("form_failed", { form: kind, reason });
       return setFailure(reason);
     }
