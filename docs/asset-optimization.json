@@ -1,0 +1,116 @@
+[
+  {
+    "path": "/figma/ddccf5f4-ce1f-43bc-9555-711b06caeec5.png",
+    "optimized": "/assets/optimized/ddccf5f4-ce1f-43bc-9555-711b06caeec5.webp",
+    "before": 802996,
+    "after": 376782,
+    "pixelHash": "d716273a3e728d803d77eaf1813938908ea57c056c479f64544d4e6406a2fdf7"
+  },
+  {
+    "path": "/figma/f3baa5a8-d066-4cf2-97df-3cd5990b9fb9.png",
+    "optimized": "/assets/optimized/ddccf5f4-ce1f-43bc-9555-711b06caeec5.webp",
+    "before": 802996,
+    "after": 0,
+    "deduplicated": true
+  },
+  {
+    "path": "/figma/cca326a2-43c9-4c42-9c09-655e73352fb8.png",
+    "optimized": "/assets/optimized/cca326a2-43c9-4c42-9c09-655e73352fb8.webp",
+    "before": 854,
+    "after": 344,
+    "pixelHash": "393640f2eaab3687437fa90690e174520ad9035f34a880666f78ed248184ede4"
+  },
+  {
+    "path": "/figma/bd4d196d-291b-4d11-9be8-ce59fe6d04bf.png",
+    "optimized": "/assets/optimized/bd4d196d-291b-4d11-9be8-ce59fe6d04bf.webp",
+    "before": 1437109,
+    "after": 1023048,
+    "pixelHash": "e7787edd2b0a8bda2c61f96bc9b5398a4bdf374d48bc3a6f0400bf1e8270e116"
+  },
+  {
+    "path": "/figma/75d79626-4b94-47fa-9ddd-4199c27d985e.png",
+    "before": 451371,
+    "after": 451371,
+    "skipped": "decoded pixels differ"
+  },
+  {
+    "path": "/figma/75cbe6b9-5e79-4afe-b9c9-6971639b7e0a.png",
+    "before": 493906,
+    "after": 493906,
+    "skipped": "decoded pixels differ"
+  },
+  {
+    "path": "/figma/30982478-ea34-46b8-a187-f79b0b013397.png",
+    "before": 520920,
+    "after": 520920,
+    "skipped": "decoded pixels differ"
+  },
+  {
+    "path": "/figma/1d065958-9a6d-4055-97f8-7c2d2645c05b.png",
+    "before": 562761,
+    "after": 562761,
+    "skipped": "decoded pixels differ"
+  },
+  {
+    "path": "/figma/23355d0c-dffa-48b1-95b2-6b90a1bd4140.png",
+    "before": 1901343,
+    "after": 1901343,
+    "skipped": "decoded pixels differ"
+  },
+  {
+    "path": "/figma/994fd497-b64d-4edf-99f1-df1ef6172200.png",
+    "optimized": "/assets/optimized/994fd497-b64d-4edf-99f1-df1ef6172200.webp",
+    "before": 1284870,
+    "after": 878590,
+    "pixelHash": "451fc3074e7353283b6986a2b91cd2f28dc3cc13e2a25c78d7e389a9f5afe505"
+  },
+  {
+    "path": "/figma/1edb748e-051e-48a4-a515-0d8c1e3e6c6a.png",
+    "optimized": "/assets/optimized/ddccf5f4-ce1f-43bc-9555-711b06caeec5.webp",
+    "before": 802996,
+    "after": 0,
+    "deduplicated": true
+  },
+  {
+    "path": "/figma/4e1daf82-1f2d-4948-919a-4e2e13166b63.png",
+    "optimized": "/figma/5eb31ff1-5c6e-4ac0-86e3-1ad76520ffe2.png",
+    "before": 22594,
+    "after": 0,
+    "deduplicated": true
+  },
+  {
+    "path": "/figma/09f343e0-4b05-45cf-aea3-c142179c8bfa.png",
+    "optimized": "/figma/75d79626-4b94-47fa-9ddd-4199c27d985e.png",
+    "before": 451371,
+    "after": 0,
+    "deduplicated": true
+  },
+  {
+    "path": "/figma/197b062f-f0b4-4be1-8114-24aafa0b25ff.png",
+    "optimized": "/figma/75cbe6b9-5e79-4afe-b9c9-6971639b7e0a.png",
+    "before": 493906,
+    "after": 0,
+    "deduplicated": true
+  },
+  {
+    "path": "/figma/2d8db4f9-4676-46a5-9ec9-8198e261b8e3.png",
+    "optimized": "/figma/30982478-ea34-46b8-a187-f79b0b013397.png",
+    "before": 520920,
+    "after": 0,
+    "deduplicated": true
+  },
+  {
+    "path": "/figma/114f7bf6-4be6-4d49-83f2-a294c3ddcbb1.png",
+    "optimized": "/figma/1d065958-9a6d-4055-97f8-7c2d2645c05b.png",
+    "before": 562761,
+    "after": 0,
+    "deduplicated": true
+  },
+  {
+    "path": "/figma/7daffc28-e395-46b6-a8af-762258d45bb5.png",
+    "optimized": "/figma/23355d0c-dffa-48b1-95b2-6b90a1bd4140.png",
+    "before": 1901343,
+    "after": 0,
+    "deduplicated": true
+  }
+]

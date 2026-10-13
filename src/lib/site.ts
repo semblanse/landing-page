@@ -3,12 +3,13 @@ export const production = process.env.SITE_ENV === "production";
 
 export const siteUrl = production
   ? "https://semblanse.com"
-  : "https://revision-3.semblanse-landing-preview.pages.dev";
+  : (process.env.PREVIEW_SITE_URL ??
+    "https://revision-3.semblanse-landing-preview.pages.dev");
 
 export const siteName = "Semblanse";
 export const siteTitle = "Semblanse · Your likeness. Your say.";
 export const siteDescription =
-  "Get paid for ads you never had to film. License your likeness for one campaign, share your stories, and approve every finished ad.";
+  "Get paid for ads you never had to film. We’re building campaign-specific likeness licensing with creator approval. Apply for our first paid pilots.";
 
 /** Share images, designed in Figma (667:2133) at 1200×630. */
 const shareImages = {
@@ -69,19 +70,19 @@ export const pages: Record<string, Page> = {
   brands: {
     title: "For brands and agencies",
     description:
-      "Semblanse is the licensing service between your team and real creators: one licence per campaign, the creator’s stories and limits, and their approval of every final AI ad.",
+      "Semblanse is building the licensing service between your team and real creators: one licence per campaign, the creator’s stories and limits, and approval of every final AI ad.",
     image: "brands",
   },
   trust: {
     title: "Trust & Safety",
     description:
-      "How Semblanse confirms who creators are, records consent, limits what a brand can do and acts on misuse. No ad runs without the creator’s yes.",
+      "Semblanse’s planned campaign checks, consent records, limits on use and creator approval, plus the current pilot application account check and misuse-report route.",
     image: "trust",
   },
   about: {
     title: "About",
     description:
-      "Semblanse lets brands license a real creator’s face, voice and stories for AI-made ads, one campaign at a time. The creator approves every final ad.",
+      "We’re building Semblanse so brands can license a real creator’s face, voice and stories for AI-made ads, one campaign at a time, with approval of every final ad.",
     image: "about",
   },
   careers: {
@@ -99,7 +100,7 @@ export const pages: Record<string, Page> = {
   pilot: {
     title: "Pilot overview",
     description:
-      "Semblanse’s first campaigns are run by hand. Our team handles every licence, approval and payment for a few creators and brands.",
+      "Our team will run Semblanse’s first paid pilots by hand, handling each licence, approval and payment while we build the platform.",
     image: "brands",
   },
   privacy: {

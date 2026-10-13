@@ -1,6 +1,7 @@
 import { spawnSync } from "node:child_process";
 import { readFileSync, writeFileSync } from "node:fs";
 import { createRequire } from "node:module";
+import { writeSecurityHeaders } from "./security-headers.mjs";
 
 const require = createRequire(import.meta.url);
 const decisions = JSON.parse(
@@ -49,6 +50,7 @@ writeFileSync(
   "out/_headers",
   headers.replace(/^\s*X-Robots-Tag:.*\r?\n/gm, ""),
 );
+writeSecurityHeaders();
 console.log(
   "Production build uses semblanse.com and permits indexing. No deployment was made.",
 );

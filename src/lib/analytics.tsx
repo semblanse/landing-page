@@ -325,7 +325,7 @@ export function Analytics() {
             track("section_viewed", { section: entry.target.id });
           }
       },
-      { threshold: 0.35 },
+      { threshold: 0 },
     );
     document
       .querySelectorAll("main section[id]")
@@ -345,7 +345,9 @@ export function Analytics() {
           section,
         });
       else if (
-        /^\/(creator-pilot|brand-pilot|contact|investors)\/?(?:\?|$)/.test(href)
+        /^\/(creator-pilot|brand-pilot|contact|investors)\/?(?:[?#]|$)/.test(
+          href,
+        )
       )
         track("cta_clicked", { destination: safePath(href), section });
     };

@@ -10,7 +10,7 @@ export const creators = [
   ],
   [
     "How much will I earn?",
-    "Fees are set per campaign. The $1,200 on this page is an example for one 30-day video. You see the exact fee before you agree, and you can turn down any offer.",
+    "Fees are set per campaign. The C$1,200 on this page is an illustrative amount in Canadian dollars for one 30-day video. You see the exact fee before you agree, and you can turn down any offer.",
   ],
   [
     "Can a brand use my likeness however it wants?",

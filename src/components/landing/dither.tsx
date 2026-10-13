@@ -96,10 +96,17 @@ function createRenderer(canvas: HTMLCanvasElement, settings: DitherSettings) {
     return shader;
   };
   const program = gl.createProgram()!;
-  gl.attachShader(program, compile(gl.VERTEX_SHADER, vertex));
-  gl.attachShader(program, compile(gl.FRAGMENT_SHADER, fragment));
+  const vertexShader = compile(gl.VERTEX_SHADER, vertex);
+  const fragmentShader = compile(gl.FRAGMENT_SHADER, fragment);
+  gl.attachShader(program, vertexShader);
+  gl.attachShader(program, fragmentShader);
   gl.linkProgram(program);
-  if (!gl.getProgramParameter(program, gl.LINK_STATUS)) return null;
+  if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
+    gl.deleteShader(vertexShader);
+    gl.deleteShader(fragmentShader);
+    gl.deleteProgram(program);
+    return null;
+  }
   gl.useProgram(program);
 
   const quad = gl.createBuffer();
@@ -124,7 +131,8 @@ function createRenderer(canvas: HTMLCanvasElement, settings: DitherSettings) {
   const tileSize = Number((settings.algorithm ?? "Bayer 2x2").split("x")[1]);
   const ranks = new Uint8Array(bayerMatrix(tileSize).flat());
   gl.activeTexture(gl.TEXTURE1);
-  nearest(gl.createTexture(), gl.CLAMP_TO_EDGE);
+  const tileTexture = gl.createTexture();
+  nearest(tileTexture, gl.CLAMP_TO_EDGE);
   gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
   gl.texImage2D(
     gl.TEXTURE_2D,
@@ -139,7 +147,8 @@ function createRenderer(canvas: HTMLCanvasElement, settings: DitherSettings) {
   );
 
   gl.activeTexture(gl.TEXTURE0);
-  nearest(gl.createTexture(), gl.CLAMP_TO_EDGE);
+  const layerTexture = gl.createTexture();
+  nearest(layerTexture, gl.CLAMP_TO_EDGE);
   gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
 
   const uniform = (name: string) => gl.getUniformLocation(program, name);
@@ -181,6 +190,14 @@ function createRenderer(canvas: HTMLCanvasElement, settings: DitherSettings) {
       gl.clearColor(0, 0, 0, 0);
       gl.clear(gl.COLOR_BUFFER_BIT);
       gl.drawArrays(gl.TRIANGLES, 0, 6);
+    },
+    dispose() {
+      gl.deleteTexture(tileTexture);
+      gl.deleteTexture(layerTexture);
+      gl.deleteBuffer(quad);
+      gl.deleteShader(vertexShader);
+      gl.deleteShader(fragmentShader);
+      gl.deleteProgram(program);
     },
   };
 }
@@ -256,12 +273,14 @@ function useDither(
       introFrame = requestAnimationFrame(step);
     } else {
       introScale = 1;
+      draw();
     }
     return () => {
       observer.disconnect();
       stopCoarse?.();
       cancelAnimationFrame(frame);
       cancelAnimationFrame(introFrame);
+      renderer.dispose();
     };
     // Settings are constants per call site.
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -294,10 +313,12 @@ export function DitherImage({
   intro?: boolean;
 }) {
   const image = useRef<HTMLImageElement>(null);
-  const [loaded, setLoaded] = useState(false);
+  const [loadedSource, setLoadedSource] = useState<string | null>(null);
+  const loaded = loadedSource === src;
   useEffect(() => {
-    if (image.current?.complete && image.current.naturalWidth) setLoaded(true);
-  }, []);
+    if (image.current?.complete && image.current.naturalWidth)
+      setLoadedSource(src);
+  }, [src]);
   const [px, py] = position;
   const paint: Painter | null = loaded
     ? (ctx, width, height) => {
@@ -318,7 +339,11 @@ export function DitherImage({
     : null;
   const { wrap, canvas, state } = useDither(settings, paint, coarse, intro);
   return (
-    <div ref={wrap} className={`dither ${className}`} data-dither={state}>
+    <div
+      ref={wrap}
+      className={`dither ${className}`}
+      data-dither={loaded ? state : "pending"}
+    >
       <img
         ref={image}
         src={src}
@@ -326,7 +351,7 @@ export function DitherImage({
         loading={priority ? "eager" : "lazy"}
         fetchPriority={priority ? "high" : undefined}
         decoding="async"
-        onLoad={() => setLoaded(true)}
+        onLoad={() => setLoadedSource(src)}
         style={{
           objectPosition: `${px * 100}% ${py * 100}%`,
           transform: flipX ? "scaleX(-1)" : undefined,

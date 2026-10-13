@@ -1517,6 +1517,12 @@ html:has(.workspace-viewport[data-expanded]) {
 .footer-links a:focus-visible {
   opacity: 1;
 }
+@media (max-width: 1023px) {
+  .footer-links a {
+    min-height: 44px;
+    padding-block: 10px;
+  }
+}
 .footer-contact {
   padding: 0 var(--page-gutter);
   margin-bottom: 20px;

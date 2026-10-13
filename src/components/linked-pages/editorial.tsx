@@ -116,8 +116,8 @@ export function PilotPage() {
           />
           <p className="sp-lead" data-hero style={delay(0.35)}>
             We’re still building and testing the self-service platform. Our team
-            handles every licence, approval and payment for a few creators and
-            brands, to learn what works before we build the online service.
+            will handle every licence, approval and payment for a few creators
+            and brands, to learn what works before we build the online service.
           </p>
           <div className="sp-actions" data-hero style={delay(0.47)}>
             <Action href="/creator-pilot">Apply as a creator</Action>

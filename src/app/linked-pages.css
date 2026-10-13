@@ -100,7 +100,7 @@ them are fluid. Pages sit on cream, and artwork carries the colour.
   border-bottom: 1px solid color-mix(in srgb, currentColor 60%, transparent);
   font-size: 16px;
   font-weight: 500;
-  line-height: 22px;
+  line-height: 24px;
   transition: border-color 0.2s;
 }
 .sp-link:hover {
@@ -125,6 +125,11 @@ them are fluid. Pages sit on cream, and artwork carries the colour.
   display: flex;
   flex-wrap: wrap;
   gap: 0 8px;
+}
+.sp-crumbs a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
 }
 .sp-crumbs li {
   display: flex;
@@ -307,6 +312,7 @@ them are fluid. Pages sit on cream, and artwork carries the colour.
 
 /* Forms */
 .sp-form-column {
+  scroll-margin-top: 100px;
   position: relative;
   display: flex;
   flex-direction: column;
@@ -316,6 +322,21 @@ them are fluid. Pages sit on cream, and artwork carries the colour.
 .sp-form-title {
   font-size: 40px;
   line-height: 44px;
+}
+.sp-form-jump {
+  display: none;
+}
+@media (max-width: 599px) {
+  .sp-form-jump {
+    display: block;
+    margin-top: 20px;
+  }
+  .sp-form-jump .sp-link {
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
 }
 .sp-form {
   display: flex;

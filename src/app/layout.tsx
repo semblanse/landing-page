@@ -31,7 +31,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: siteTitle,
     description:
-      "Licensed AI ads starring real creators. Now recruiting for our first paid campaigns.",
+      "Licensed AI ads starring real creators. Pre-launch; recruiting for our first paid pilots.",
     url: "/",
     siteName,
     locale: "en_CA",
@@ -66,7 +66,7 @@ export default function RootLayout({
                 url: `${siteUrl}/`,
                 logo: `${siteUrl}/icon-512.png`,
                 description:
-                  "Semblanse is a licensing service that lets brands use a real creator’s face, voice and stories in AI-made ads, one campaign at a time, with the creator’s approval of every final ad.",
+                  "Semblanse is building a licensing service for a real creator’s face, voice and stories in AI-made ads, one campaign at a time, with approval of every final ad.",
                 email: "hello@semblanse.com",
                 sameAs: ["https://www.instagram.com/semblanse"],
               },

@@ -11,9 +11,9 @@ export function GET() {
     list.map(([question, answer]) => `**${question}** ${answer}`).join("\n\n");
   const text = `# Semblanse
 
-> Semblanse is a licensing service for AI ads that star real creators. A brand licenses a creator’s face, voice and stories for one campaign at a time, and the creator approves every final ad before it runs.
+> Semblanse is building a licensing service for AI ads that star real creators. The intended model lets a brand license a creator’s face, voice and stories for one campaign at a time, with creator approval of every final ad before launch.
 
-Semblanse is pre-launch. It is running its first paid pilot campaigns by hand in Canada and the US. It sells the licence, the creator’s stories and limits, and the approval step. It does not sell an ad-making tool or made-up AI faces, and no licence allows AI training on a creator’s samples.
+Semblanse is pre-launch and recruiting for its first paid pilots, which the team will run by hand. The planned service combines campaign rights, the creator’s stories and limits, approval and payment. It is a licensing service; ad production by Semblanse is limited to the pilot. A campaign licence grants no AI-training rights to a brand. Applying grants no likeness rights.
 
 ## For creators
 
@@ -26,7 +26,7 @@ ${["brands", "pilot", "brand-pilot"].map(link).join("\n")}
 
 ## Company
 
-${["about", "careers", "contact", "privacy", "terms"].map(link).join("\n")}
+${["about", "investors", "careers", "contact", "privacy", "terms"].map(link).join("\n")}
 
 ## Questions creators ask
 

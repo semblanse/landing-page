@@ -115,7 +115,7 @@ export function StageCards() {
   const cards = [
     <>
       <span className="card-label">Offer</span>
-      <h3 className="card-price">$1,200</h3>
+      <h3 className="card-price">C$1,200</h3>
       <p className="card-muted">Example creator fee</p>
       <hr />
       <p className="card-small">
@@ -174,7 +174,7 @@ export function StageCards() {
     </>,
     <>
       <span className="card-label">Payment</span>
-      <h3 className="card-price">$1,200</h3>
+      <h3 className="card-price">C$1,200</h3>
       <p className="card-body">
         Funds secured before you start. Released when you approve, before the ad
         runs.

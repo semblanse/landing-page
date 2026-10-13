@@ -116,7 +116,51 @@ export function Navigation({ home = false }: { home?: boolean }) {
     if (!open) return;
     const root = document.documentElement;
     root.classList.add("menu-open");
-    return () => root.classList.remove("menu-open");
+    const header = toggle.current?.closest("header");
+    const restored: { element: HTMLElement; inert: boolean }[] = [];
+    // The home header sits inside main. Make sibling branches inert rather
+    // than disabling main itself, which would also disable the menu.
+    let branch: Element | null = header ?? null;
+    while (branch?.parentElement && branch !== document.body) {
+      for (const sibling of branch.parentElement.children) {
+        if (sibling !== branch && sibling instanceof HTMLElement) {
+          restored.push({ element: sibling, inert: sibling.inert });
+          sibling.inert = true;
+        }
+      }
+      branch = branch.parentElement;
+    }
+    const trap = (event: KeyboardEvent) => {
+      if (event.key !== "Tab" || !header) return;
+      const targets = Array.from(
+        header.querySelectorAll<HTMLElement>(
+          "a[href],button:not([disabled]),[tabindex='0']",
+        ),
+      ).filter(
+        (item) => item.getClientRects().length && !item.closest("[inert]"),
+      );
+      const first = targets[0];
+      const last = targets[targets.length - 1];
+      if (
+        (event.shiftKey && document.activeElement === first) ||
+        (!event.shiftKey && document.activeElement === last)
+      ) {
+        event.preventDefault();
+        (event.shiftKey ? last : first)?.focus();
+      }
+    };
+    const wide = window.matchMedia("(min-width: 1024px)");
+    const closeOnWide = () => {
+      if (wide.matches) setOpen(false);
+    };
+    header?.addEventListener("keydown", trap);
+    wide.addEventListener("change", closeOnWide);
+    return () => {
+      root.classList.remove("menu-open");
+      for (const entry of restored) entry.element.inert = entry.inert;
+      header?.removeEventListener("keydown", trap);
+      wide.removeEventListener("change", closeOnWide);
+    };
   }, [open]);
   // A dropdown closes when the visitor presses anywhere outside it.
   useEffect(() => {
@@ -235,7 +279,7 @@ export function Navigation({ home = false }: { home?: boolean }) {
       >
         {open ? <X /> : <Menu />}
       </CollapsibleTrigger>
-      <CollapsibleContent className="mobile-menu">
+      <CollapsibleContent className="mobile-menu" inert={!open}>
         <div className="mobile-menu-inner" data-lenis-prevent>
           <nav aria-label="Mobile navigation">
             {menus.map(({ label, links }, n) => {
@@ -487,7 +531,7 @@ function Licence() {
             {[
               ["BRAND + CAMPAIGN", "Alto Running · Morning miles"],
               ["CHANNELS + TERRITORY", "Instagram + Facebook · Canada"],
-              ["TERM + FEE", "30 days · $1,200 creator fee"],
+              ["TERM + FEE", "30 days · C$1,200 creator fee"],
               [
                 "VERSIONS + REVIEW",
                 "1 video · 30s vertical · you approve the final version",

@@ -193,11 +193,11 @@ const pages = {
     crumbs: [["Apply as a creator", "/creator-pilot"]],
     sent: "Application received",
     title: ["Your likeness.", "Your call."],
-    lead: "Brands pay to use an AI version of your face and voice in their ads, one campaign at a time. You see every ad first, and nothing runs without your yes. Joining the waitlist takes a few minutes.",
+    lead: "We’re building a way for brands to license an AI version of your face and voice for their ads, one campaign at a time. You see every ad first, and nothing runs without your yes. Apply to join our pilot waitlist.",
     notesTitle: "What happens next",
     notes: [
       [
-        "We confirm it’s you.",
+        "We check your account.",
         "A message from your Instagram account shows us the account is really yours.",
       ],
       [
@@ -604,6 +604,8 @@ function useEnquiry(kind: FormKind, onSent: (values: EnquiryValues) => void) {
     errors,
     sending,
     form: {
+      method: "post" as const,
+      action: "/api/enquiry",
       "data-analytics-form": kind,
       // The form shows its own message under each field.
       noValidate: true,
@@ -721,7 +723,19 @@ export function EnquiryPage({ kind }: { kind: EnquiryKind }) {
             <p className="sp-panel-lead" data-hero style={delay(0.35)}>
               {page.lead}
             </p>
+            <div className="sp-form-jump">
+              <TextLink href="#application-form">
+                {kind === "creator-pilot"
+                  ? "Start your application"
+                  : kind === "brand-pilot"
+                    ? "Open the pilot form"
+                    : "Open the message form"}
+              </TextLink>
+            </div>
             <div className="sp-notes" data-hero style={delay(0.47)}>
+              {kind === "contact" && (
+                <h2 className="sr-only">Other ways to get in touch</h2>
+              )}
               {page.notesTitle && <h2>{page.notesTitle}</h2>}
               {page.notes.map(([title, copy]) => (
                 <div key={title}>
@@ -750,8 +764,20 @@ export function EnquiryPage({ kind }: { kind: EnquiryKind }) {
             </div>
           </div>
         </div>
-        <div className="sp-form-column" data-hero style={delay(0.2)}>
+        <div
+          className="sp-form-column"
+          id="application-form"
+          data-hero
+          style={delay(0.2)}
+        >
           <h2 className="sp-form-title">{page.formTitle}</h2>
+          <noscript>
+            <style>{".sp-form { display: none; }"}</style>
+            <p>
+              Enable JavaScript to use this form, or email{" "}
+              <a href="mailto:hello@semblanse.com">hello@semblanse.com</a>.
+            </p>
+          </noscript>
           <form className="sp-form" {...enquiry.form}>
             <Errors value={enquiry.errors}>
               <Fields kind={kind} />
@@ -827,6 +853,16 @@ export function ReportForm() {
         ) : (
           <>
             <h2 className="sp-form-title">Send a report.</h2>
+            <noscript>
+              <p>
+                Enable JavaScript to send a report, or email{" "}
+                <a href="mailto:hello@semblanse.com?subject=Misuse%20report">
+                  hello@semblanse.com
+                </a>
+                .
+              </p>
+              <style>{".sp-form { display: none; }"}</style>
+            </noscript>
             <form className="sp-form" {...enquiry.form}>
               <Errors value={enquiry.errors}>
                 <Field

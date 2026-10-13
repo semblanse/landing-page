@@ -44,3 +44,12 @@ Security changes otherwise leave visible copy and design intact.
 | Investor page | New hero, model, team biographies and service-first/platform-later plan, following Figma frames 684:2134 and 684:2243 | Explain the planned business and provide founder credibility from the deck and Master Doc, without unverified traction or funding claims |
 | Navigation/footer | Added “Investors” and its short description | Make the new page findable in the existing company group |
 | About link | “Meet the team and see our plan” links to Investors instead of the generic investor/press contact link | Provide the requested founder information before the contact step |
+
+| Location | Change | Reason |
+| --- | --- | --- |
+| Example fees and creator earnings FAQ | Specifies C$1,200 and explains that it is an illustrative amount in Canadian dollars | Remove currency ambiguity in the example Canada campaign without presenting it as validated pricing or earnings |
+| Mobile form panels | Adds a short jump link to the existing form | Reach the form without scrolling through the long introductory panel; desktop layout stays the same |
+| Forms without JavaScript | Adds an email alternative and hides the unusable form | Preserve a way to enquire and prevent a browser GET fallback from putting answers in the URL |
+| Metadata, structured data and llms.txt | Adds planned-service/pre-launch wording, removes claims of currently running pilots in Canada/US, and links Investors | Keep search, shares and AI summaries consistent with visible stage framing |
+| Creator application and pilot overview | Clarifies that the service is being built, names the pilot waitlist and DM as an account check, and describes manual delivery in future tense | Make standalone application/pilot pages accurate without requiring a visitor to have read the homepage |
+| Contact page headings | Adds a visually hidden “Other ways to get in touch” heading above the existing enquiry links | Keep a logical heading order for screen readers without changing the visual layout |
