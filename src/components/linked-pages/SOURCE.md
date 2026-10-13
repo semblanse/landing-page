@@ -39,5 +39,6 @@ The three forms and the misuse report send to `/api/enquiry`; the README covers 
 - The message under a field that needs fixing, the line above the submit button that counts them, and the line shown when sending fails.
 - The "Sending…" state of the submit button.
 - The Instagram username field on the creator form. It sits where the frames show the "Continue with Instagram" button.
+- The `/unsubscribe` page, reached from the link in our emails. It follows the form confirmations.
 - The "One last step" block on the creator confirmation, with the message a creator sends to @semblanse to prove the account is theirs.
   Privacy and terms carry no draft labels, but the text has not had legal review.

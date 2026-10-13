@@ -11,6 +11,7 @@ import {
 } from "@/components/linked-pages/editorial";
 import { LegalPage } from "@/components/linked-pages/legal";
 import { Breadcrumbs } from "@/components/linked-pages/shared";
+import { UnsubscribePage } from "@/components/linked-pages/unsubscribe";
 import "../linked-pages.css";
 
 const titles: Record<string, string> = {
@@ -24,6 +25,7 @@ const titles: Record<string, string> = {
   pilot: "Pilot overview",
   privacy: "Privacy policy",
   terms: "Terms of use",
+  unsubscribe: "Unsubscribe",
 };
 
 export function generateStaticParams() {
@@ -36,7 +38,11 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
-  return { title: `${titles[slug] ?? "Page"} · Semblanse` };
+  return {
+    title: `${titles[slug] ?? "Page"} · Semblanse`,
+    // Reached only from an email; keep it out of search results.
+    ...(slug === "unsubscribe" && { robots: { index: false, follow: false } }),
+  };
 }
 
 export default async function LinkedPage({
@@ -69,6 +75,8 @@ export default async function LinkedPage({
           <BrandsPage />
         ) : slug === "trust" ? (
           <TrustPage />
+        ) : slug === "unsubscribe" ? (
+          <UnsubscribePage />
         ) : (
           <LegalPage kind={slug as "privacy" | "terms"} />
         )}
