@@ -8,7 +8,9 @@
   "compatibility_date": "2026-10-01",
   "vars": {
     "EMAIL_FROM": "Semblanse <hello@semblanse.com>",
-    "EMAIL_NOTIFY": "hello@semblanse.com"
+    "EMAIL_NOTIFY": "hello@semblanse.com",
+    "POSTHOG_API_KEY": "phc_o2M3cGEHRQzchsgDxU8nRa4f3LKRk4q6uzbYB2RMStDe",
+    "ANALYTICS_EVENT_LIMIT": "25000",
   },
   "d1_databases": [
     {
@@ -16,7 +18,7 @@
       "database_name": "semblanse-enquiries-preview",
       // Replace with the id printed by `wrangler d1 create`.
       "database_id": "02ba791a-c964-409e-87c4-226e8f9bbb75",
-      "migrations_dir": "migrations"
-    }
-  ]
+      "migrations_dir": "migrations",
+    },
+  ],
 }
