@@ -228,9 +228,15 @@ export type EnquiryRequest = {
 };
 
 export type EnquiryResponse =
-  | { ok: true; code?: string }
+  | { ok: true }
   | { ok: false; reason: "invalid"; errors: EnquiryErrors }
   | { ok: false; reason: "challenge" | "unavailable" };
 
 export const instagramAccount = "semblanse";
 export const contactEmail = "hello@semblanse.com";
+
+/**
+ * The message a creator sends to @semblanse from their Instagram account to
+ * prove it is theirs. The email ties the message to one application.
+ */
+export const instagramProof = (email: string) => `Application: ${email}`;

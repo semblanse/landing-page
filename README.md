@@ -36,7 +36,7 @@ Keep new components square and use the existing brand tokens. Motion handles sec
 
 ## Preview scope
 
-Privacy and terms remain drafts from Figma. They must name Cloudflare, Resend and PostHog before launch. The workspace demo uses example campaign data and the existing Semblanse demo video.
+Privacy and terms remain drafts for legal review. They name Cloudflare, Resend and PostHog and explain the Instagram message check. The workspace demo uses example campaign data and the existing Semblanse demo video.
 
 The preview sends `noindex` headers and metadata. Remove those when the site is ready for launch.
 
@@ -44,10 +44,10 @@ The preview sends `noindex` headers and metadata. Remove those when the site is 
 
 The creator, brand and contact forms, and the misuse report on Trust & Safety, post to `/api/enquiry`, a Cloudflare Pages Function in `functions/`. It checks the answers with the same rules the browser uses (`src/lib/enquiry-schema.ts`), verifies the Turnstile bot check, stores a row in the D1 `enquiries` table, then emails the team and the sender through Resend. A stored enquiry counts as sent even when an email fails.
 
-Creator applications get a code such as `SEM-U8XF8R`, shown on the confirmation screen and in the email. The creator sends it to @semblanse in an Instagram message from the account they entered. When the message arrives, mark the row:
+A creator proves the Instagram account is theirs by sending "Application: " and their email to @semblanse from it. The confirmation screen and email show the exact message, and the team's notification email repeats it. When a message arrives from the handle on the application and its email matches, mark the row:
 
 ```sh
-npx wrangler d1 execute DB --remote --command "UPDATE enquiries SET verified_at = datetime('now') WHERE verify_code = 'SEM-U8XF8R'"
+npx wrangler d1 execute DB --remote --command "UPDATE enquiries SET verified_at = datetime('now') WHERE kind = 'creator-pilot' AND instagram = 'theirhandle' AND email = 'them@example.com'"
 ```
 
 `next dev` does not run the function. To try the forms locally, copy `.dev.vars.example` to `.dev.vars`, then:
@@ -79,9 +79,9 @@ Until step 2 is done the deployed forms refuse every submission and show the "di
 
 ## Analytics
 
-PostHog (US) starts when the build has `NEXT_PUBLIC_POSTHOG_KEY`, set as a GitHub Actions variable. It runs without cookies or browser storage, so the site shows no consent banner; turn on cookieless mode in the PostHog project settings for this to count visitors. Events travel through `/relay` on this site (`functions/relay`). Session replay and autocapture are off. `src/lib/analytics.ts` sends page views plus `cta_clicked`, `form_started`, `form_error`, `form_failed`, `form_submitted`, `verify_code_copied` and `verify_message_opened`, with field names only and never what a person typed.
+PostHog (US) starts when the build has `NEXT_PUBLIC_POSTHOG_KEY`, set as a GitHub Actions variable. The Semblanse project is `661655`; cookieless server hash mode is enabled and reporting uses `America/Toronto`. PostHog uses no cookies or browser storage. Our separate form attribution code uses session storage for campaign tags, referrer and the first page. Review consent and disclosure requirements before launch; cookieless tracking alone does not settle them. Events travel through `/relay` on this site (`functions/relay`). Session replay and autocapture are off. `src/lib/analytics.ts` sends page views plus `cta_clicked`, `form_started`, `form_error`, `form_failed`, `form_submitted`, `verify_message_copied` and `verify_message_opened`. Form events include field names and outcomes, not typed answers.
 
-For visitor counts that need no script changes, enable Cloudflare Web Analytics on the Pages project.
+Cloudflare Web Analytics is enabled on the preview Pages project. Cloudflare adds its JavaScript beacon on the next deployment; it is not a script-free count.
 
 ## Deploy
 
@@ -96,3 +96,34 @@ npm run deploy:preview
 ```
 
 Wrangler uses the signed-in Cloudflare account. No credentials belong in this repo. This direct upload does not change the existing `semblanse.com` site. [Cloudflare static Next.js guide](https://developers.cloudflare.com/pages/framework-guides/nextjs/deploy-a-static-nextjs-site/).
+
+## Production preparation
+
+The existing live Pages project is `semblanse`, serving `semblanse.com`. `wrangler.production.jsonc` targets that project and the separate `semblanse-enquiries-production` database. Its migration is applied. The existing Turnstile widget allows `semblanse.com`; its secret is set on both environments of the live project. Preview deployments still use `wrangler.jsonc` and the preview database.
+
+Before launch:
+
+- Have a reviewer approve privacy and terms, including consent, data retention, safeguards and governing law. Those decisions remain open.
+- Store `RESEND_API_KEY` on each Pages project that needs email. The sending domain is verified, but the projects have no Resend key yet. Check that `hello@semblanse.com` reaches the team through the existing mail provider before changing email routing.
+- Assign someone to check @semblanse message requests and match each sender's handle and application email before marking a row verified. Use the database for the environment that received the form.
+- The active Cloudflare rule limits `/api/enquiry` and `/api/enquiry/` on the `semblanse.com` zone to five requests per IP in ten seconds, then blocks for ten seconds. It does not cover `pages.dev` preview hosts. Check each form on the preview before replacing the live site.
+
+Set the two public keys in the shell environment, then build production:
+
+```sh
+npm run build:production
+```
+
+This uses `https://semblanse.com` for metadata and removes `noindex` from the built HTML and `out/_headers`. It rejects missing keys and Turnstile test keys. A regular `npm run build` keeps preview indexing blocked. Neither command deploys. To deploy the reviewed production build at launch:
+
+```sh
+npx wrangler pages deploy out --config wrangler.production.jsonc --project-name semblanse --branch main
+```
+
+For a creator application submitted on the live site:
+
+```sh
+npx wrangler d1 execute DB --remote --config wrangler.production.jsonc --command "UPDATE enquiries SET verified_at = datetime('now') WHERE kind = 'creator-pilot' AND instagram = 'theirhandle' AND email = 'them@example.com' AND verified_at IS NULL"
+```
+
+Replace both example values after checking the sender. Check the matching row before running the update and confirm which rows changed.

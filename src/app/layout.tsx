@@ -4,14 +4,17 @@ import "@fontsource-variable/albert-sans";
 import "./globals.css";
 import { ScrollProvider } from "@/components/landing/motion";
 import { Analytics } from "@/lib/analytics";
+const production = process.env.SITE_ENV === "production";
 export const metadata: Metadata = {
   metadataBase: new URL(
-    "https://revision-3.semblanse-landing-preview.pages.dev",
+    production
+      ? "https://semblanse.com"
+      : "https://revision-3.semblanse-landing-preview.pages.dev",
   ),
   title: "Semblanse · Your likeness. Your say.",
   description:
     "Get paid for ads you never had to film. License your likeness for one campaign, share your stories, and approve every finished ad.",
-  robots: { index: false, follow: false },
+  robots: { index: production, follow: production },
   icons: { icon: "/favicon.png" },
   openGraph: {
     title: "Semblanse · Your likeness. Your say.",

@@ -13,9 +13,10 @@ CREATE TABLE enquiries (
   -- JSON: campaign tags, referrer and first page seen.
   attribution TEXT,
   -- Creator applications only. The creator proves the account is theirs by
-  -- sending `verify_code` to @semblanse in an Instagram message; the team then
-  -- sets `verified_at`.
+  -- sending "Application: <email>" to @semblanse in an Instagram message from
+  -- it; the team then sets `verified_at`.
   instagram TEXT,
+  -- Unused. An earlier design sent a code in place of the email.
   verify_code TEXT UNIQUE,
   verified_at TEXT,
   status TEXT NOT NULL DEFAULT 'new'

@@ -1,0 +1,18 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "semblanse",
+  "pages_build_output_dir": "out",
+  "compatibility_date": "2026-10-01",
+  "vars": {
+    "EMAIL_FROM": "Semblanse <hello@semblanse.com>",
+    "EMAIL_NOTIFY": "hello@semblanse.com",
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "semblanse-enquiries-production",
+      "database_id": "469627ac-c58d-4f2b-87b0-7fa625527072",
+      "migrations_dir": "migrations",
+    },
+  ],
+}

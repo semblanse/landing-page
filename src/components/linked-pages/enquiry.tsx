@@ -29,6 +29,7 @@ import {
   contactEmail,
   enquiryFields,
   instagramAccount,
+  instagramProof,
   options,
   validateEnquiry,
   type EnquiryErrors,
@@ -393,40 +394,41 @@ function Fields({ kind }: { kind: EnquiryKind }) {
 
 /** The creator's last step: prove the Instagram account is theirs. */
 function VerifyInstagram({
-  code,
+  email,
   username,
 }: {
-  code: string;
+  email: string;
   username: string;
 }) {
   const [copied, setCopied] = useState(false);
+  const message = instagramProof(email);
   return (
     <div className="sp-verify" data-hero style={delay(0.6)}>
       <h2>One last step: confirm @{username} is yours.</h2>
       <p>
-        From that account, send this code to @{instagramAccount} in an Instagram
+        From that account, send this to @{instagramAccount} in an Instagram
         message. It’s in your confirmation email too, if you’d rather do it
         later.
       </p>
       <div className="sp-verify-code">
-        <output aria-label="Your code">{code}</output>
+        <output aria-label="Your message">{message}</output>
         <Button
           type="button"
           variant="outline"
           onClick={() => {
-            navigator.clipboard?.writeText(code).then(
+            navigator.clipboard?.writeText(message).then(
               () => {
                 setCopied(true);
-                track("verify_code_copied");
+                track("verify_message_copied");
               },
               () => {},
             );
           }}
         >
-          <span aria-live="polite">{copied ? "Copied" : "Copy code"}</span>
+          <span aria-live="polite">{copied ? "Copied" : "Copy message"}</span>
         </Button>
       </div>
-      {/* Opens in a new tab so the code stays on screen. */}
+      {/* Opens in a new tab so the message stays on screen. */}
       <a
         className="sp-link"
         href={`https://ig.me/m/${instagramAccount}`}
@@ -441,7 +443,7 @@ function VerifyInstagram({
   );
 }
 
-type Sent = { code?: string; username?: string };
+type Sent = { email?: string; username?: string };
 
 function Confirmation({ kind, sent }: { kind: EnquiryKind; sent: Sent }) {
   const home = <Action href="/">Back to the homepage</Action>;
@@ -472,8 +474,8 @@ function Confirmation({ kind, sent }: { kind: EnquiryKind; sent: Sent }) {
             {home}
             <TextLink href="/#how-it-works">See how a campaign works</TextLink>
           </>,
-          sent.code && sent.username && (
-            <VerifyInstagram code={sent.code} username={sent.username} />
+          sent.email && sent.username && (
+            <VerifyInstagram email={sent.email} username={sent.username} />
           ),
         )}
       </SplitHero>
@@ -516,10 +518,7 @@ const failures = {
  * its fields in `Errors`, and render `challenge` and `alert` beside the
  * submit button.
  */
-function useEnquiry(
-  kind: FormKind,
-  onSent: (values: EnquiryValues, code?: string) => void,
-) {
+function useEnquiry(kind: FormKind, onSent: (values: EnquiryValues) => void) {
   const [sending, setSending] = useState(false);
   const [errors, setErrors] = useState<EnquiryErrors>({});
   const [failure, setFailure] = useState<keyof typeof failures>();
@@ -579,7 +578,7 @@ function useEnquiry(
       return setFailure(reason);
     }
     track("form_submitted", { form: kind });
-    onSent(values, result.code);
+    onSent(values);
   }
 
   const count = Object.keys(errors).length;
@@ -637,8 +636,11 @@ export function EnquiryPage({ kind }: { kind: EnquiryKind }) {
   const [sent, setSent] = useState<Sent>();
   const wrap = useRef<HTMLDivElement>(null);
   const page = pages[kind];
-  const enquiry = useEnquiry(kind, (values, code) => {
-    setSent({ code, username: values.instagram as string });
+  const enquiry = useEnquiry(kind, (values) => {
+    setSent({
+      email: values.email as string,
+      username: values.instagram as string,
+    });
     requestAnimationFrame(() => {
       window.scrollTo({ top: 0, behavior: "instant" });
       wrap.current

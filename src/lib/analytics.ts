@@ -61,7 +61,8 @@ export function Analytics() {
     posthog.init(key, {
       api_host: host,
       ui_host: "https://us.posthog.com",
-      // No cookies or browser storage, so the site needs no consent banner.
+      // PostHog uses no cookies or browser storage. Attribution above uses
+      // session storage; consent requirements still need a launch review.
       cookieless_mode: "always",
       capture_pageview: "history_change",
       capture_pageleave: true,

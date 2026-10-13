@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "build:production": "node scripts/build-production.mjs",
     "start": "serve out",
     "lint": "eslint src",
     "typecheck": "tsc --noEmit && npm run types && tsc --noEmit -p functions",

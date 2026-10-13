@@ -35,14 +35,6 @@ async function passedTurnstile(secret: string, token: string, ip: string) {
   return result.success;
 }
 
-// Leaves out letters and digits that read alike, such as O and 0.
-const alphabet = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
-
-function verifyCode() {
-  const bytes = crypto.getRandomValues(new Uint8Array(6));
-  return `SEM-${Array.from(bytes, (b) => alphabet[b % alphabet.length]).join("")}`;
-}
-
 function attributionJson(input: unknown) {
   if (!input || typeof input !== "object") return null;
   const kept: Record<string, string> = {};
@@ -104,7 +96,6 @@ export const onRequestPost: PagesFunction<Env> = async ({
 
   const creator = body.kind === "creator-pilot";
   const id = crypto.randomUUID();
-  const code = creator ? verifyCode() : undefined;
   const report = body.kind === "report";
   const {
     [report ? "report-name" : "name"]: name,
@@ -116,8 +107,8 @@ export const onRequestPost: PagesFunction<Env> = async ({
   try {
     await env.DB.prepare(
       `INSERT INTO enquiries
-         (id, kind, name, email, details, consent_at, attribution, instagram, verify_code)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+         (id, kind, name, email, details, consent_at, attribution, instagram)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
     )
       .bind(
         id,
@@ -128,7 +119,6 @@ export const onRequestPost: PagesFunction<Env> = async ({
         consent ? new Date().toISOString() : null,
         attributionJson(body.attribution),
         creator ? instagram : null,
-        code ?? null,
       )
       .run();
   } catch (error) {
@@ -142,21 +132,14 @@ export const onRequestPost: PagesFunction<Env> = async ({
     Promise.all([
       send(mailer, {
         to: env.EMAIL_NOTIFY,
-        ...notification(
-          body.kind,
-          String(name),
-          String(email),
-          values,
-          id,
-          code,
-        ),
+        ...notification(body.kind, String(name), String(email), values, id),
       }),
       send(mailer, {
         to: String(email),
-        ...confirmation(body.kind, String(name), values, code),
+        ...confirmation(body.kind, String(name), values),
       }),
     ]),
   );
 
-  return reply({ ok: true, code });
+  return reply({ ok: true });
 };

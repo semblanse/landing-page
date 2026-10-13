@@ -1,6 +1,7 @@
 import {
   contactEmail,
   instagramAccount,
+  instagramProof,
   type EnquiryValues,
   type FormKind,
 } from "../src/lib/enquiry-schema";
@@ -69,7 +70,6 @@ export function notification(
   email: string,
   values: EnquiryValues,
   id: string,
-  code?: string,
 ): Omit<Message, "to"> {
   const lines = Object.entries(values)
     .filter(([field]) => field !== "consent")
@@ -77,7 +77,8 @@ export function notification(
       ([field, value]) =>
         `${field}: ${Array.isArray(value) ? value.join(", ") : value || "—"}`,
     );
-  if (code) lines.push(`verification code: ${code}`);
+  if (kind === "creator-pilot")
+    lines.push(`expected Instagram message: ${instagramProof(email)}`);
   lines.push("", `id: ${id}`);
   return {
     subject: `${labels[kind]}: ${name}`,
@@ -118,19 +119,20 @@ export function confirmation(
   kind: FormKind,
   name: string,
   values: EnquiryValues,
-  code?: string,
 ): Omit<Message, "to"> {
   const { subject, body } = copy[kind];
   const first = name.split(/\s+/)[0];
   const paragraphs = [`Hi ${first},`, ...body];
   const dm = `https://ig.me/m/${instagramAccount}`;
-  if (code)
+  const proof =
+    kind === "creator-pilot" && instagramProof(String(values.email));
+  if (proof)
     paragraphs.push(
-      `One last step: confirm @${values.instagram} is yours. From that account, send this code to @${instagramAccount} on Instagram: ${code}`,
+      `One last step: confirm @${values.instagram} is yours. From that account, send this message to @${instagramAccount} on Instagram: ${proof}`,
     );
   const text = [
     ...paragraphs,
-    ...(code ? [dm] : []),
+    ...(proof ? [dm] : []),
     `Questions? Reply to this email or write to ${contactEmail}.`,
     "Semblanse",
   ].join("\n\n");
@@ -138,6 +140,6 @@ export function confirmation(
     .map((p) => `<p style="margin:0 0 16px">${escapeHtml(p)}</p>`)
     .join(
       "",
-    )}${code ? `<p style="margin:24px 0"><a href="${dm}" style="display:inline-block;padding:12px 20px;background:#1f6f22;color:#ffffff;text-decoration:none;font-weight:600">Message @${instagramAccount}</a></p>` : ""}<p style="margin:32px 0 0;font-size:14px;line-height:20px;color:#647067">Questions? Reply to this email or write to ${contactEmail}.<br>Semblanse</p></div></body></html>`;
+    )}${proof ? `<p style="margin:24px 0"><a href="${dm}" style="display:inline-block;padding:12px 20px;background:#1f6f22;color:#ffffff;text-decoration:none;font-weight:600">Message @${instagramAccount}</a></p>` : ""}<p style="margin:32px 0 0;font-size:14px;line-height:20px;color:#647067">Questions? Reply to this email or write to ${contactEmail}.<br>Semblanse</p></div></body></html>`;
   return { subject, text, html, replyTo: contactEmail };
 }
