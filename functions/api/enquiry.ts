@@ -39,6 +39,21 @@ function attributionJson(input: unknown) {
   return Object.keys(kept).length ? JSON.stringify(kept) : null;
 }
 
+async function unsubscribed(db: D1Database, email: string) {
+  try {
+    const row = await db
+      .prepare(
+        "SELECT 1 FROM enquiries WHERE email = ? AND unsubscribed_at IS NOT NULL LIMIT 1",
+      )
+      .bind(email)
+      .first();
+    return row !== null;
+  } catch (error) {
+    console.error("Could not check for an unsubscribe:", error);
+    return false;
+  }
+}
+
 export const onRequestPost: PagesFunction<Env> = async ({
   request,
   env,
@@ -167,16 +182,23 @@ export const onRequestPost: PagesFunction<Env> = async ({
 
   // The enquiry is stored, so the person sees success even if email fails.
   const mailer = { apiKey: env.RESEND_API_KEY, from: env.EMAIL_FROM };
+  const site = new URL(request.url).origin;
   waitUntil(
     Promise.all([
       send(mailer, {
         to: env.EMAIL_NOTIFY,
         ...notification(body.kind, String(name), String(email), values, id),
       }),
-      send(mailer, {
-        to: String(email),
-        ...confirmation(body.kind, String(name), values),
-      }),
+      // An address that unsubscribed gets no confirmation. Its enquiry is
+      // still stored and the team is still told.
+      unsubscribed(env.DB, String(email)).then(
+        (stopped) =>
+          stopped ||
+          send(mailer, {
+            to: String(email),
+            ...confirmation(body.kind, String(name), values, site, id),
+          }),
+      ),
     ]),
   );
 

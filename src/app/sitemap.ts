@@ -7,10 +7,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
   const lastModified = new Date();
   return [
     { url: `${siteUrl}/`, lastModified, priority: 1 },
-    ...Object.keys(pages).map((slug) => ({
-      url: `${siteUrl}/${slug}/`,
-      lastModified,
-      priority: slug === "privacy" || slug === "terms" ? 0.3 : 0.7,
-    })),
+    ...Object.keys(pages)
+      .filter((slug) => !pages[slug].noIndex)
+      .map((slug) => ({
+        url: `${siteUrl}/${slug}/`,
+        lastModified,
+        priority: slug === "privacy" || slug === "terms" ? 0.3 : 0.7,
+      })),
   ];
 }

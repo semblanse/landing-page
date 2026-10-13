@@ -77,6 +77,25 @@ This builds the site, creates the local database and serves both at `http://loca
 
 Until step 2 is done the deployed forms refuse every submission and show the "didn't send" message.
 
+## Emails
+
+`server/email.ts` builds the confirmation each form sends, following the "Emails · Form confirmations" section (`663:2133`) in Figma. The wordmark image and the two font files it loads are in `public/email/`. Apple Mail shows GFS Didot and Albert Sans; other mail apps fall back to Georgia and Helvetica or Arial. The team's notification email is plain text.
+
+Every confirmation carries an unsubscribe link to `/unsubscribe`, and headers that let mail apps show their own unsubscribe button. Either one sets `unsubscribed_at` on every enquiry from that address (`functions/api/unsubscribe.ts`). An address that has unsubscribed gets no further confirmations; its enquiries are still stored and the team is still notified. Check `unsubscribed_at` before emailing anyone from the table:
+
+```sh
+npx wrangler d1 execute DB --remote --command "SELECT email, unsubscribed_at FROM enquiries WHERE unsubscribed_at IS NOT NULL"
+```
+
+Apply `migrations/0002_unsubscribe.sql` to each database before deploying this code to it:
+
+```sh
+npx wrangler d1 migrations apply DB --remote
+npx wrangler d1 migrations apply DB --remote --config wrangler.production.jsonc
+```
+
+The emails do not yet carry a postal address, which commercial email laws such as CASL and CAN-SPAM expect. Add it to the footer in `server/email.ts` before sending anything promotional.
+
 ## Analytics
 
 PostHog (US) starts when the build has `NEXT_PUBLIC_POSTHOG_KEY`, set as a GitHub Actions variable. The Semblanse project is `661655`; cookieless server hash mode is enabled and reporting uses `America/Toronto`. PostHog uses no cookies or browser storage. Our separate form attribution code uses session storage for campaign tags, referrer and the first page. Review consent and disclosure requirements before launch; cookieless tracking alone does not settle them. Events travel through `/relay` on this site (`functions/relay`). Session replay and autocapture are off. `src/lib/analytics.ts` sends page views plus `cta_clicked`, `form_started`, `form_error`, `form_failed`, `form_submitted`, `verify_message_copied` and `verify_message_opened`. Form events include field names and outcomes, not typed answers.

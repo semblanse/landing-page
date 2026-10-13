@@ -12,8 +12,8 @@ import {
 import { LegalPage } from "@/components/linked-pages/legal";
 import { Breadcrumbs } from "@/components/linked-pages/shared";
 import { jsonLd, pages, shareImage, siteName, siteUrl } from "@/lib/site";
+import { UnsubscribePage } from "@/components/linked-pages/unsubscribe";
 import "../linked-pages.css";
-
 export function generateStaticParams() {
   return Object.keys(pages).map((slug) => ({ slug }));
 }
@@ -29,6 +29,7 @@ export async function generateMetadata({
   const title = `${page.title} · ${siteName}`;
   return {
     title,
+    ...(page.noIndex && { robots: { index: false, follow: false } }),
     description: page.description,
     alternates: { canonical: `/${slug}/` },
     openGraph: {
@@ -94,6 +95,8 @@ export default async function LinkedPage({
           <BrandsPage />
         ) : slug === "trust" ? (
           <TrustPage />
+        ) : slug === "unsubscribe" ? (
+          <UnsubscribePage />
         ) : (
           <LegalPage kind={slug as "privacy" | "terms"} />
         )}

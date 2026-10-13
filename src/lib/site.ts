@@ -33,10 +33,21 @@ export function shareImage(name: ShareImage) {
   };
 }
 
-type Page = { title: string; description: string; image: ShareImage };
+type Page = {
+  title: string;
+  description: string;
+  image: ShareImage;
+  noIndex?: boolean;
+};
 
 /** Every page under the home page: its name, search description and share image. */
 export const pages: Record<string, Page> = {
+  unsubscribe: {
+    title: "Unsubscribe",
+    description: "Manage email from Semblanse.",
+    image: "home",
+    noIndex: true,
+  },
   "creator-pilot": {
     title: "Apply as a creator",
     description:
