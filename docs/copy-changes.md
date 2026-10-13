@@ -38,3 +38,9 @@ Security changes otherwise leave visible copy and design intact.
 | Terms: material, providers and liability | Narrow enquiry-processing permission; no likeness/training/ownership grant; qualified website liability limits | Avoid broad template rights and preserve mandatory legal rights |
 | Legal identity and governing law | Uses approved public configuration; review-draft label and build gate while missing | Do not invent a company name, address or applicable law |
 | Footer and receipts | Adds direct privacy/accessibility routes; displays approved operator/address once supplied | Make requests easy and carry business identification into future receipts |
+
+| Location | Change | Reason |
+| --- | --- | --- |
+| Investor page | New hero, model, team biographies and service-first/platform-later plan, following Figma frames 684:2134 and 684:2243 | Explain the planned business and provide founder credibility from the deck and Master Doc, without unverified traction or funding claims |
+| Navigation/footer | Added “Investors” and its short description | Make the new page findable in the existing company group |
+| About link | “Meet the team and see our plan” links to Investors instead of the generic investor/press contact link | Provide the requested founder information before the contact step |

@@ -13,6 +13,7 @@ import { LegalPage } from "@/components/linked-pages/legal";
 import { Breadcrumbs } from "@/components/linked-pages/shared";
 import { jsonLd, pages, shareImage, siteName, siteUrl } from "@/lib/site";
 import { UnsubscribePage } from "@/components/linked-pages/unsubscribe";
+import { InvestorsPage } from "@/components/linked-pages/investors";
 import "../linked-pages.css";
 export function generateStaticParams() {
   return Object.keys(pages).map((slug) => ({ slug }));
@@ -89,6 +90,8 @@ export default async function LinkedPage({
           <PilotPage />
         ) : slug === "about" ? (
           <AboutPage />
+        ) : slug === "investors" ? (
+          <InvestorsPage />
         ) : slug === "careers" ? (
           <CareersPage />
         ) : slug === "brands" ? (

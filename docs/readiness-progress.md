@@ -13,7 +13,7 @@ Branches stack so each change has a branch and commit, and the last branch inclu
 | `codex/readiness-delivery` | Preserve upstream email/unsubscribe work; transactional outbox, delivery outcomes, safe manual retry | Eleven unit/SQLite/provider checks pass; local runtime and build checks in progress. Deployment preflight remains for the release branch. |
 | `codex/readiness-analytics` | Consent-aware bounded events, funnels/dashboards, free-tier safeguards | Build, lint, Functions type check and 16 tests pass. Local provider capture and browser choices checked; eight funnels and four traffic/form charts created. Disable the injected Cloudflare beacon and check the deployed preview before release. |
 | `codex/readiness-legal-copy` | Website policies, tracking choices, stage framing, copy log | Implemented; static build, Functions types and tests pass. Production build deliberately refuses unresolved owner decisions; review previews work. |
-| Planned investor branch | Figma-first investor/team page from deck and Master Doc | Pending |
+| `codex/readiness-investors` | Figma-first investor/team page from deck and Master Doc | Implemented from editable desktop/mobile Figma frames. Build and affected-file lint pass; visual browser QA follows in the combined release branch. |
 | Planned accessibility-release branch | Responsive/accessibility/performance fixes and review previews | Pending |
 
 No founder decisions should be invented. Research unresolved points, record them for review, and continue independent work. Required decisions include legal operator/address, governing law, permitted AI providers and sample lifecycle, campaign terms, and approved public investor/raise facts.

@@ -93,7 +93,9 @@ export function AboutPage() {
             decides what we build next.
           </Reveal>
           <Reveal delay={0.25}>
-            <TextLink href="/contact">Investor or press? Get in touch</TextLink>
+            <TextLink href="/investors">
+              Meet the team and see our plan
+            </TextLink>
           </Reveal>
         </div>
       </section>

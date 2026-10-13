@@ -8,6 +8,7 @@ The source is the `Website · New pages · copy fixes` section (`633:1865`) in F
 | `/brands`        | For brands and agencies | `633:2670`    |
 | `/pilot`         | Pilot overview          | `633:1867`    |
 | `/about`         | About                   | `633:2132`    |
+| `/investors`     | Investors               | `684:2134` (mobile `684:2243`) |
 | `/careers`       | Careers                 | `653:2358`    |
 | `/creator-pilot` | Apply as a creator      | `633:4427`    |
 | `/brand-pilot`   | Book a pilot call       | `633:3876`    |
@@ -19,6 +20,8 @@ The source is the `Website · New pages · copy fixes` section (`633:1865`) in F
 The three forms use the "portrait background" frames. Their confirmations (`633:3081`, `633:3205`, `633:3748`) replace the form in place, and the breadcrumb gains a level. Each phone frame sits beside its desktop frame. Careers comes from the `Website · New pages · Careers and blog` section (`653:2357`); its buttons open an email to careers@semblanse.com.
 
 ## Layout
+
+The investor page was designed first in the separate editable section `684:2133`, cloned from About to preserve typography, components, artwork and square corners. Its hero, model, team and roadmap sections reuse the same code components and CSS as About. Founder biographies come from the supplied company deck, team slide `39:23`; the Master Doc supports the service-first/platform-later plan. No market-size, raise or traction figures were added.
 
 Pages sit on cream and the artwork carries the colour. Each page has one breadcrumb strip under the header and ends on the ink footer (`<Footer ink />`); the landing page keeps the cream footer. GFS Didot is set at -4% letter spacing throughout, as on the landing page.
 

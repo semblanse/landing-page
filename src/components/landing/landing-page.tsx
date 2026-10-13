@@ -80,6 +80,7 @@ const menus: NavMenu[] = [
     label: "Company",
     links: [
       ["About", "What we believe, and where we are", "/about"],
+      ["Investors", "The team, model and planned next steps", "/investors"],
       [
         "Trust & Safety",
         "The checks before an ad runs, and how to report misuse",
@@ -798,6 +799,7 @@ export function Footer({ ink = false }: { ink?: boolean }) {
             title: "Company",
             links: [
               ["About", "/about"],
+              ["Investors", "/investors"],
               ["Careers", "/careers"],
               ["Contact", "/contact"],
               ["Trust & Safety", "/trust"],

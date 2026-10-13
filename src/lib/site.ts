@@ -42,6 +42,12 @@ type Page = {
 
 /** Every page under the home page: its name, search description and share image. */
 export const pages: Record<string, Page> = {
+  investors: {
+    title: "Investors",
+    description:
+      "Meet the Semblanse team and the planned creator-identity licensing model: campaign rights, context, final approval, payment and renewal. Service first; platform next.",
+    image: "about",
+  },
   unsubscribe: {
     title: "Unsubscribe",
     description: "Manage email from Semblanse.",
