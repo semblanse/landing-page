@@ -7,9 +7,12 @@
     "build": "next build",
     "start": "serve out",
     "lint": "eslint src",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "tsc --noEmit && npm run types && tsc --noEmit -p functions",
     "deploy:preview": "npm run build && wrangler pages deploy out --project-name=semblanse-landing-preview --branch=revision-3",
-    "format": "prettier --write src"
+    "format": "prettier --write src",
+    "types": "wrangler types functions/worker-configuration.d.ts",
+    "db:migrate:local": "wrangler d1 migrations apply DB --local",
+    "preview": "npm run build && npm run db:migrate:local && wrangler pages dev"
   },
   "dependencies": {
     "@base-ui/react": "^1.9.0",
@@ -21,6 +24,7 @@
     "lucide-react": "^1.55.0",
     "motion": "^14.1.0",
     "next": "16.4.0",
+    "posthog-js": "^1.438.9",
     "react": "19.3.0",
     "react-dom": "19.3.0",
     "tailwind-merge": "^3.7.0",

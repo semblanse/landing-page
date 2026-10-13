@@ -30,6 +30,9 @@ jobs:
         run: npm run typecheck && npm run lint
       - name: Build static site
         run: npm run build
+        env:
+          NEXT_PUBLIC_TURNSTILE_SITE_KEY: ${{ vars.NEXT_PUBLIC_TURNSTILE_SITE_KEY }}
+          NEXT_PUBLIC_POSTHOG_KEY: ${{ vars.NEXT_PUBLIC_POSTHOG_KEY }}
       - name: Deploy preview
         uses: cloudflare/wrangler-action@v4
         with:

@@ -3,6 +3,7 @@ import "@fontsource/gfs-didot/latin-400.css";
 import "@fontsource-variable/albert-sans";
 import "./globals.css";
 import { ScrollProvider } from "@/components/landing/motion";
+import { Analytics } from "@/lib/analytics";
 export const metadata: Metadata = {
   metadataBase: new URL(
     "https://revision-3.semblanse-landing-preview.pages.dev",
@@ -33,6 +34,7 @@ export default function RootLayout({
             __html: "document.documentElement.classList.add('js')",
           }}
         />
+        <Analytics />
         <ScrollProvider>{children}</ScrollProvider>
       </body>
     </html>
