@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import "@fontsource/gfs-didot/latin-400.css";
 import "@fontsource-variable/albert-sans";
 import "./globals.css";
+import "./analytics.css";
 import { ScrollProvider } from "@/components/landing/motion";
 import { Analytics } from "@/lib/analytics";
 import {

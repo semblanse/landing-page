@@ -11,12 +11,14 @@ Branches stack so each change has a branch and commit, and the last branch inclu
 | `codex/readiness-baseline` | Preserve the existing uncommitted landing-page source and assets | Committed as `9fea0da`; generated metadata previews excluded |
 | `codex/readiness-security` | API input bounds, challenge validation, abuse limits, retry deduplication, response headers | Build, lint, both TypeScript targets, six unit/SQLite checks, and nine local API integration checks passed |
 | `codex/readiness-delivery` | Preserve upstream email/unsubscribe work; transactional outbox, delivery outcomes, safe manual retry | Eleven unit/SQLite/provider checks pass; local runtime and build checks in progress. Deployment preflight remains for the release branch. |
-| Planned analytics branch | Consent-aware bounded events, funnels/dashboards, free-tier safeguards | Pending |
+| `codex/readiness-analytics` | Consent-aware bounded events, funnels/dashboards, free-tier safeguards | Build, lint, Functions type check and 16 tests pass. Local provider capture and browser choices checked; eight funnels and four traffic/form charts created. Disable the injected Cloudflare beacon and check the deployed preview before release. |
 | Planned legal-copy branch | Website policies, tracking choices, stage framing, copy log | Pending |
 | Planned investor branch | Figma-first investor/team page from deck and Master Doc | Pending |
 | Planned accessibility-release branch | Responsive/accessibility/performance fixes and review previews | Pending |
 
 No founder decisions should be invented. Research unresolved points, record them for review, and continue independent work. Required decisions include legal operator/address, governing law, permitted AI providers and sample lifecycle, campaign terms, and approved public investor/raise facts.
+
+October 13 continuation: the saved goal was marked blocked, but current evidence does not block review builds. The remaining legal/company decisions and production email setup concern launch. Continue the preview work without inventing those details. Local analytics integration accepted 40 synthetic events, rejected invalid requests, and honored GPC/DNT; the real PostHog preview funnel returned the expected sequence. Cloudflare's local runtime rejected `redirect: error`; changed to `manual` and verified provider redirects are not followed. Investor Figma design received targeted link/marker corrections and desktop/mobile visual review. Legal copy, investor implementation, release QA and review deployments remain unfinished.
 
 Source evidence: live Figma deck `d7tFXD0vSUPwjxtuL9vE7a`; team slide `39:23` names Mateo Bivol and Stefan D’Amato. The supplied design node `641:1295` is the Social page, not the secondary-page section. Current linked-page reference section is `633:1865` on Landing Page `358:97235`; About `633:2132`, Trust `633:2322`.
 

@@ -5,6 +5,7 @@ import {
   type EnquiryResponse,
 } from "../../src/lib/enquiry-schema";
 import { deliveryStatements, deliverEnquiry } from "../../server/delivery";
+import { safeProperties } from "../../src/lib/analytics-schema";
 import {
   fingerprint,
   readJson,
@@ -33,7 +34,7 @@ function reply(body: EnquiryResponse, status = 200) {
 function attributionJson(input: unknown) {
   if (!input || typeof input !== "object") return null;
   const kept: Record<string, string> = {};
-  for (const [key, value] of Object.entries(input).slice(0, 12))
+  for (const [key, value] of Object.entries(safeProperties(input)).slice(0, 12))
     if (typeof value === "string" && value)
       kept[key.slice(0, 40)] = value.slice(0, 300);
   return Object.keys(kept).length ? JSON.stringify(kept) : null;

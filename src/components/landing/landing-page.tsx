@@ -29,6 +29,7 @@ import { Lines, Reveal, useMediaQuery, useScrollProgress } from "./motion";
 import { DitherImage, heroDither } from "./dither";
 import { StageCards } from "./stage-cards";
 import { FAQ } from "./faq";
+import { AnalyticsChoicesButton, track } from "@/lib/analytics";
 
 type NavMenu = {
   label: string;
@@ -643,6 +644,7 @@ function ProductDemo() {
   const [expanded, setExpanded] = useState(false);
   // Once the visitor pauses, scrolling back must not restart the demo.
   const pausedByVisitor = useRef(false);
+  const milestones = useRef(new Set<number>());
   useEffect(() => {
     const player = video.current;
     if (!player) return;
@@ -668,6 +670,7 @@ function ProductDemo() {
     };
   }, [expanded]);
   async function fullscreen() {
+    track("demo_fullscreen_opened");
     const player = video.current as
       (HTMLVideoElement & { webkitEnterFullscreen?: () => void }) | null;
     if (!player) return;
@@ -706,6 +709,24 @@ function ProductDemo() {
           aria-label="Semblanse creator workspace demonstration"
           onPlay={() => {
             pausedByVisitor.current = false;
+            track("demo_played", { muted: video.current?.muted ?? true });
+          }}
+          onTimeUpdate={() => {
+            const player = video.current;
+            if (
+              !player ||
+              !Number.isFinite(player.duration) ||
+              player.duration <= 0
+            )
+              return;
+            for (const milestone of [25, 50, 75, 100])
+              if (
+                (player.currentTime / player.duration) * 100 >= milestone &&
+                !milestones.current.has(milestone)
+              ) {
+                milestones.current.add(milestone);
+                track("demo_progress", { milestone });
+              }
           }}
           onPause={() => {
             if (inView) pausedByVisitor.current = true;
@@ -791,6 +812,7 @@ export function Footer({ ink = false }: { ink?: boolean }) {
                 {text}
               </Link>
             ))}
+            {group.title === "Company" && <AnalyticsChoicesButton />}
           </div>
         ))}
       </div>

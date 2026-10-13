@@ -11,6 +11,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { ease } from "./motion";
 import { creators, brands } from "@/lib/faq";
+import { track } from "@/lib/analytics";
 export function FAQ() {
   const [audience, setAudience] = useState("creators");
   const [showAll, setShowAll] = useState(false);
@@ -21,6 +22,7 @@ export function FAQ() {
     <Tabs
       value={audience}
       onValueChange={(v) => {
+        track("faq_audience_changed", { audience: String(v) });
         setAudience(String(v));
         setShowAll(false);
         setSwitched(true);
@@ -56,9 +58,23 @@ export function FAQ() {
             transition={{ duration: 0.45, ease }}
           >
             <Accordion defaultValue={[rows[0][0]]} className="faq-accordion">
-              {(showAll ? rows : rows.slice(0, 4)).map(([q, a]) => (
+              {(showAll ? rows : rows.slice(0, 4)).map(([q, a], i) => (
                 <AccordionItem className="faq-row" key={q} value={q}>
-                  <AccordionTrigger>{q}</AccordionTrigger>
+                  <AccordionTrigger
+                    onClick={(e) =>
+                      track("faq_question_toggled", {
+                        audience,
+                        question: i,
+                        state:
+                          e.currentTarget.getAttribute("aria-expanded") ===
+                          "true"
+                            ? "closed"
+                            : "opened",
+                      })
+                    }
+                  >
+                    {q}
+                  </AccordionTrigger>
                   <AccordionContent>
                     <p>{a}</p>
                   </AccordionContent>
@@ -69,7 +85,13 @@ export function FAQ() {
               variant="outline"
               className="faq-more"
               aria-expanded={showAll}
-              onClick={() => setShowAll((current) => !current)}
+              onClick={() => {
+                track("faq_list_toggled", {
+                  audience,
+                  state: showAll ? "closed" : "opened",
+                });
+                setShowAll((current) => !current);
+              }}
             >
               {showAll
                 ? "Show fewer questions"

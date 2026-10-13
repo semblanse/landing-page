@@ -419,7 +419,7 @@ function VerifyInstagram({
             navigator.clipboard?.writeText(message).then(
               () => {
                 setCopied(true);
-                track("verify_message_copied");
+                track("verify_message_copied", { form: "creator-pilot" });
               },
               () => {},
             );
@@ -434,7 +434,7 @@ function VerifyInstagram({
         href={`https://ig.me/m/${instagramAccount}`}
         target="_blank"
         rel="noreferrer"
-        onClick={() => track("verify_message_opened")}
+        onClick={() => track("verify_message_opened", { form: "creator-pilot" })}
       >
         Message @{instagramAccount} on Instagram{" "}
         <span aria-hidden="true">→</span>
@@ -524,6 +524,7 @@ function useEnquiry(kind: FormKind, onSent: (values: EnquiryValues) => void) {
   const [errors, setErrors] = useState<EnquiryErrors>({});
   const [failure, setFailure] = useState<keyof typeof failures>();
   const started = useRef(false);
+  const completed = useRef(new Set<string>());
   const requestId = useRef<string>(undefined);
   const { container, getToken } = useTurnstile();
 
@@ -538,6 +539,7 @@ function useEnquiry(kind: FormKind, onSent: (values: EnquiryValues) => void) {
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (sending) return;
+    track("form_submit_attempted", { form: kind });
     const form = event.currentTarget;
     const data = new FormData(form);
     const input: Record<string, unknown> = {};
@@ -594,13 +596,32 @@ function useEnquiry(kind: FormKind, onSent: (values: EnquiryValues) => void) {
     errors,
     sending,
     form: {
+      "data-analytics-form": kind,
       // The form shows its own message under each field.
       noValidate: true,
       onSubmit,
       onFocus: () => {
         if (started.current) return;
-        started.current = true;
-        track("form_started", { form: kind });
+        started.current = track("form_started", { form: kind });
+      },
+      onBlur: (event: FormEvent<HTMLFormElement>) => {
+        const input = event.target;
+        if (
+          !(
+            input instanceof HTMLInputElement ||
+            input instanceof HTMLTextAreaElement
+          ) ||
+          !enquiryFields(kind).includes(input.name) ||
+          !input.value ||
+          !input.validity.valid ||
+          (input instanceof HTMLInputElement &&
+            ["radio", "checkbox"].includes(input.type) &&
+            !input.checked) ||
+          completed.current.has(input.name)
+        )
+          return;
+        if (track("form_field_completed", { form: kind, field: input.name }))
+          completed.current.add(input.name);
       },
       onChange: (event: FormEvent<HTMLFormElement>) => {
         const name = (event.target as Element).getAttribute("name") ?? "";

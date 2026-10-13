@@ -1,0 +1,19 @@
+# Website analytics
+
+Project: https://us.posthog.com/project/661655. The website sends explicit events through `/api/analytics` after a visitor allows analytics. Essential-only, Global Privacy Control and Do Not Track leave optional analytics off. Visitors can change their choice in the footer.
+
+Production dashboard: https://us.posthog.com/project/661655/dashboard/2205913. Eight native funnels cover four form types, creator and brand entry paths, Instagram-message intent and investor contact intent. Four native trend charts cover referral channel, device, CTA placement and form outcomes. All twelve queries execute; there is no production-v2 traffic before release. A synthetic preview creator journey returned the expected four steps. This proves capture/query wiring, not visitor demand. Section, FAQ and demo events support further exploration.
+
+Release check: disable Cloudflare's automatically injected Web Analytics beacon on the preview project before publishing this consent setup, and inspect served HTML for it. The beacon sits outside the application and otherwise ignores the site's analytics choice.
+
+There is no PostHog browser SDK, autocapture, replay, heatmap, feature-flag request or person profile. Events contain known page paths, form/field names, outcomes, coarse browser/device/OS, referral channel and filtered campaign tags. They exclude typed answers, email addresses, Instagram handles, raw referrers, query strings and visitor IPs. Anonymous IDs are random UUIDs. The preference lasts 180 days; an opted-in visitor ID lasts 90 days and a session ends after 30 idle minutes. Turning analytics off clears optional browser identifiers and pending events; it cannot retract events already sent.
+
+The client permits at most 100 events per session, reserving ten slots for form and verification events. The API accepts at most ten events per request, caps requests per IP and reserves each event in D1 before calling PostHog. Production permits 850,000 events and preview permits 25,000 over a conservative rolling 33-calendar-day window. Calendar month changes cannot reset the allowance. Errors consume the allowance and analytics are not retried. `ANALYTICS_EVENT_LIMIT` can lower these ceilings, never raise them.
+
+These limits bound traffic from this code below PostHog's published one-million-event monthly free allowance. Other applications and direct use of the public ingestion key are outside these limits. The owner must review the project's billing limit and set it to $0 before launch; the connected tools do not expose billing changes. Capture stops at the website limit rather than causing a paid overage. Missing configuration disables capture without blocking forms.
+
+Report only the consenting audience. Browser/device figures are coarse and returning-visitor counts can change when visitors clear storage. Form success means the API accepted and stored the enquiry, not that email reached an inbox. Opening or copying the Instagram message measures intent, not completed account verification. Investor contact intent is not investor commitment.
+
+Events cover page visits/leaves, sections, scroll depth, CTA placement, form views/starts/field completion/attempts/errors/success, verification links, FAQ use and demo playback. Funnels use ordered steps with other events permitted between them. Creator, brand and contact funnels use their form value; report submissions remain separate. Production insights must filter `site_environment=production` and `analytics_version=2` so preview QA and the older SDK are excluded. No canonical metric catalog is available through the connected tools; definitions live here and in each insight description.
+
+Sources: https://posthog.com/docs/product-analytics/pricing, https://posthog.com/docs/billing/limits-alerts, https://posthog.com/docs/api/capture.

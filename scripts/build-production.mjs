@@ -14,9 +14,6 @@ if (
     "Set the real NEXT_PUBLIC_TURNSTILE_SITE_KEY before building production.",
   );
 }
-if (!process.env.NEXT_PUBLIC_POSTHOG_KEY) {
-  throw new Error("Set NEXT_PUBLIC_POSTHOG_KEY before building production.");
-}
 
 const result = spawnSync(
   process.execPath,

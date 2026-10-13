@@ -98,9 +98,9 @@ The emails do not yet carry a postal address, which commercial email laws such a
 
 ## Analytics
 
-PostHog (US) starts when the build has `NEXT_PUBLIC_POSTHOG_KEY`, set as a GitHub Actions variable. The Semblanse project is `661655`; cookieless server hash mode is enabled and reporting uses `America/Toronto`. PostHog uses no cookies or browser storage. Our separate form attribution code uses session storage for campaign tags, referrer and the first page. Review consent and disclosure requirements before launch; cookieless tracking alone does not settle them. Events travel through `/relay` on this site (`functions/relay`). Session replay and autocapture are off. `src/lib/analytics.ts` sends page views plus `cta_clicked`, `form_started`, `form_error`, `form_failed`, `form_submitted`, `verify_message_copied` and `verify_message_opened`. Form events include field names and outcomes, not typed answers.
+PostHog (US), project `661655`, receives explicit events through `/api/analytics` after the visitor allows analytics. The footer reopens their choice. GPC and Do Not Track keep optional analytics off. The SDK and open relay have been removed. There are no person profiles, session recordings, autocapture or feature-flag requests. Anonymous browser identifiers and filtered campaign tags use storage only after consent. Form events contain field names and outcomes, never answers. The API reserves events against a rolling usage cap before capture. See `docs/analytics.md` for retention, limits and measurement definitions.
 
-Cloudflare Web Analytics is enabled on the preview Pages project. Cloudflare adds its JavaScript beacon on the next deployment; it is not a script-free count.
+Cloudflare Web Analytics was enabled on the preview Pages project at audit time. Disable its automatic beacon before releasing this opt-in analytics setup, or it will collect independently of this site's choice. Confirm the served HTML after deployment.
 
 ## Deploy
 
@@ -127,13 +127,13 @@ Before launch:
 - Assign someone to check @semblanse message requests and match each sender's handle and application email before marking a row verified. Use the database for the environment that received the form.
 - The active Cloudflare rule limits `/api/enquiry` and `/api/enquiry/` on the `semblanse.com` zone to five requests per IP in ten seconds, then blocks for ten seconds. It does not cover `pages.dev` preview hosts. Check each form on the preview before replacing the live site.
 
-Set the two public keys in the shell environment, then build production:
+Set the real Turnstile public key in the shell environment, then build production:
 
 ```sh
 npm run build:production
 ```
 
-This uses `https://semblanse.com` for metadata and removes `noindex` from the built HTML and `out/_headers`. It rejects missing keys and Turnstile test keys. A regular `npm run build` keeps preview indexing blocked. Neither command deploys. To deploy the reviewed production build at launch:
+This uses `https://semblanse.com` for metadata and removes `noindex` from the built HTML and `out/_headers`. It rejects a missing Turnstile key or a test key. PostHog uses the server binding in Wrangler configuration. A regular `npm run build` keeps preview indexing blocked. Neither command deploys. To deploy the reviewed production build at launch:
 
 ```sh
 npx wrangler pages deploy out --config wrangler.production.jsonc --project-name semblanse --branch main
