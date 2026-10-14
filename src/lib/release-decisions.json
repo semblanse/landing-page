@@ -5,8 +5,8 @@
   "disputeVenue": "",
   "privacyContact": "hello@semblanse.com",
   "legalCopyApproved": true,
-  "retentionReviewed": false,
-  "productionEmailVerified": false,
+  "retentionReviewed": true,
+  "productionEmailVerified": true,
   "analyticsBillingLimitReviewed": true,
   "automaticAnalyticsDisabled": true
 }

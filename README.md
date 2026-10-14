@@ -118,12 +118,12 @@ Wrangler uses the signed-in Cloudflare account. No credentials belong in this re
 
 ## Production preparation
 
-The existing live Pages project is `semblanse`, serving `semblanse.com`. `wrangler.production.jsonc` targets that project and the separate `semblanse-enquiries-production` database. Apply all new migrations before deploying this revision to production; this readiness work applied them only to preview. The existing Turnstile widget allows `semblanse.com`; its secret is set on both environments of the live project. Preview deployments use `wrangler.jsonc` and the preview database.
+The live Pages project is `semblanse`, serving `semblanse.com`. `wrangler.production.jsonc` targets that project and the separate `semblanse-enquiries-production` database. All five migrations were applied to production for the launch, after a database export. The Turnstile widget allows `semblanse.com`; its secret is set on both environments of the live project. Preview deployments use `wrangler.jsonc` and the preview database.
 
 Before launch:
 
-- The owner approved the current website Privacy and Terms. Agree on the internal retention/deletion routine before launch and review future material changes before publishing them.
-- Store `RESEND_API_KEY` on the live Pages project and verify a controlled form receipt and team notice. Preview has a key; the live project's production environment did not at the readiness check. Check that `hello@semblanse.com` reaches the team through the existing mail provider before changing email routing.
+- The owner approved the current website Privacy and Terms. Follow the manual retention and privacy-request routine in `docs/site-operations.md` and review future material changes before publishing them.
+- Production has a domain-restricted `RESEND_API_KEY`. The verified sending domain and both current message templates passed provider test-sink delivery checks. Check a complete browser-to-inbox submission after deployment; provider acceptance does not prove inbox placement. The existing Google Workspace mail routing stays in place.
 - Assign an operator to review and retry failed email jobs. `npm run email:retry` defaults to a dry run; the script requires explicit production selection for live sending. Storage alone does not prove inbox delivery.
 - Assign someone to check @semblanse message requests and match each sender's handle and application email before marking a row verified. Use the database for the environment that received the form.
 - The active Cloudflare rule limits `/api/enquiry` and `/api/enquiry/` on the `semblanse.com` zone to five requests per IP in ten seconds, then blocks for ten seconds. It does not cover `pages.dev` preview hosts. Check each form on the preview before replacing the live site.
