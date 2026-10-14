@@ -1,6 +1,11 @@
 import operator from "./release-decisions.json";
 
-type Section = { title: string; body?: string; bullets?: string[] };
+type Section = {
+  title: string;
+  body?: string;
+  bullets?: string[];
+  operatorDetails?: boolean;
+};
 type Document = {
   title: string;
   artwork: string;
@@ -31,10 +36,6 @@ export const legalDocuments: Record<"privacy" | "terms", Document> = {
       `You can request access, correction or deletion at ${operator.privacyContact}.`,
     ],
     sections: [
-      {
-        title: "Who we are",
-        body: `${identity} Our privacy contact is ${operator.privacyContact}; put “Privacy request” in the subject.`,
-      },
       {
         title: "What we collect",
         bullets: [
@@ -96,6 +97,11 @@ export const legalDocuments: Record<"privacy" | "terms", Document> = {
         title: "Changes to this policy",
         body: "We will update the date when this policy changes. For a material new use that needs consent, we will explain it and seek that consent before the new use begins. If a new company takes over this website, we will identify the new operator and explain any proposed transfer of personal information, with the notice or consent required by law. We may also give notice on the site or by email where appropriate.",
       },
+      {
+        title: "Who we are",
+        operatorDetails: true,
+        body: `${identity} Our privacy contact is ${operator.privacyContact}; put “Privacy request” in the subject.`,
+      },
     ],
   },
   terms: {
@@ -110,10 +116,6 @@ export const legalDocuments: Record<"privacy" | "terms", Document> = {
       "A paid campaign needs its own agreement before work starts.",
     ],
     sections: [
-      {
-        title: "Who operates this site",
-        body: `${identity} Questions about these terms: ${operator.privacyContact}.`,
-      },
       {
         title: "Using this site",
         body: "You may browse the site and use its forms to enquire about Semblanse. Use it lawfully. Do not impersonate someone, submit material you lack permission to share, interfere with the site, bypass bot checks or access controls, flood our forms, or harvest personal information. These rules do not restrict rights that applicable law gives you.",
@@ -156,6 +158,11 @@ export const legalDocuments: Record<"privacy" | "terms", Document> = {
       {
         title: "Changes and contact",
         body: `The date above identifies this version. We will give appropriate notice of material changes; a website update does not change a signed campaign agreement. If a term is unenforceable, the rest continues to apply to the extent the law permits. Contact ${operator.privacyContact} with questions or an accessibility concern.`,
+      },
+      {
+        title: "Who operates this site",
+        operatorDetails: true,
+        body: `${identity} Questions about these terms: ${operator.privacyContact}.`,
       },
     ],
   },

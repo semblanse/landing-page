@@ -25,7 +25,7 @@ The site now has square native scrollbars, keyboard focus handling for the mobil
 | Analytics capture | One synthetic preview event accepted by the deployed API; earlier native PostHog funnel query verified a synthetic four-step journey. These are wiring checks, not user conversions |
 | Optional tracking | Automatic Cloudflare beacon absent from served pages. PostHog starts after opt-in; GPC and DNT keep it off |
 | Dependencies | Runtime npm audit: zero reported vulnerabilities. Full audit: nine high findings in developer tools, rooted in the unpatched braces nested-pattern advisory |
-| Production guard | Refuses a release while legal-copy approval, retention review and production email verification remain unresolved |
+| Production guard | Legal-copy approval is recorded; retention review and production email verification remain unresolved |
 
 ## Performance and limits of this review
 
@@ -37,7 +37,7 @@ This review does not establish field Core Web Vitals or formal WCAG conformance.
 
 ## Before public launch
 
-The owner confirmed Orbit Strategies Ltd. as website operator, approved the Vaughan mailing address and chose Ontario law. The owner also confirmed PostHog's Free plan has no linked card or payment method. A court-venue clause is optional and has not been selected. Approve the website legal text and a retention/deletion practice the team can carry out, and verify production email delivery. Recheck billing if the PostHog plan changes. The code caps its own events below the published free allowance; it cannot control other apps or direct use of the public ingestion key.
+The owner confirmed Orbit Strategies Ltd. as website operator, approved the Vaughan mailing address and chose Ontario law. The owner approved the website legal text on 13 October 2026 and confirmed PostHog's Free plan has no linked card or payment method. A court-venue clause is optional and has not been selected. Agree on a retention/deletion practice the team can carry out, and verify production email delivery. Recheck billing if the PostHog plan changes. The code caps its own events below the published free allowance; it cannot control other apps or direct use of the public ingestion key.
 
 Apply the new database migrations to production, assign an operator to failed email jobs and application verification, and review the founder biographies. Keep campaign samples out of this website's application flow until the separate permissions and processing disclosures are ready. See `release-review.md` for the decisions and sources.
 

@@ -36,7 +36,7 @@ Keep new components square and use the existing brand tokens. Motion handles sec
 
 ## Preview scope
 
-Privacy and terms remain drafts for legal review. They name Cloudflare, Resend and PostHog and explain the Instagram message check. The workspace demo uses example campaign data and the existing Semblanse demo video.
+The owner approved the current website Privacy and Terms on 13 October 2026. They name Cloudflare, Resend and PostHog and explain the Instagram message check. Operator details appear at the bottom of each document. The workspace demo uses example campaign data and the existing Semblanse demo video.
 
 The preview sends `noindex` headers and metadata. Remove those when the site is ready for launch.
 

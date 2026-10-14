@@ -48,11 +48,11 @@ export function LegalPage({ kind }: { kind: "privacy" | "terms" }) {
           ))}
         </nav>
         <div className="sp-document-body">
-          {doc.sections.map((section, index) => (
+          {doc.sections.map((section) => (
             <Reveal as="section" key={section.title} id={anchor(section.title)}>
               <h2>{section.title}</h2>
               {section.body && (
-                <p className={index === 0 ? "sp-operator-details" : undefined}>
+                <p className={section.operatorDetails ? "sp-operator-details" : undefined}>
                   {section.body}
                 </p>
               )}
