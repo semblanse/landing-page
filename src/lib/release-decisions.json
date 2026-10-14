@@ -1,12 +1,12 @@
 {
-  "legalOperator": "",
-  "postalAddress": "",
-  "governingLaw": "",
+  "legalOperator": "Orbit Strategies Ltd.",
+  "postalAddress": "32 Mahogany Forest Dr, Vaughan, ON L6A 4S8, Canada",
+  "governingLaw": "the laws of Ontario and the federal laws of Canada applicable there",
   "disputeVenue": "",
   "privacyContact": "hello@semblanse.com",
   "legalCopyApproved": false,
   "retentionReviewed": false,
   "productionEmailVerified": false,
-  "analyticsBillingLimitReviewed": false,
+  "analyticsBillingLimitReviewed": true,
   "automaticAnalyticsDisabled": true
 }

@@ -11,7 +11,6 @@ const unresolved = [
   "legalOperator",
   "postalAddress",
   "governingLaw",
-  "disputeVenue",
   "legalCopyApproved",
   "retentionReviewed",
   "productionEmailVerified",

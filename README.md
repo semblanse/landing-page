@@ -94,7 +94,7 @@ npx wrangler d1 migrations apply DB --remote
 npx wrangler d1 migrations apply DB --remote --config wrangler.production.jsonc
 ```
 
-The emails do not yet carry a postal address, which commercial email laws such as CASL and CAN-SPAM expect. Add it to the footer in `server/email.ts` before sending anything promotional.
+Email footers use Orbit Strategies Ltd. and the owner-approved mailing address from `src/lib/release-decisions.json`. Keep these details current. Confirm the consent and unsubscribe rules before sending promotional messages.
 
 ## Analytics
 

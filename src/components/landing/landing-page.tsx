@@ -877,7 +877,7 @@ export function Footer({ ink = false }: { ink?: boolean }) {
         {operator.legalOperator && (
           <>
             <br />
-            {operator.legalOperator} · {operator.postalAddress}
+            Website operated by {operator.legalOperator} · {operator.postalAddress}
           </>
         )}
       </p>

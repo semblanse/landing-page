@@ -10,7 +10,7 @@ type Document = {
   sections: Section[];
 };
 const identity = operator.legalOperator
-  ? `${operator.legalOperator} operates Semblanse. Mailing address: ${operator.postalAddress}.`
+  ? `${operator.legalOperator} operates this website for Semblanse, a pre-launch project that has not yet incorporated. ${operator.legalOperator} is responsible for personal information collected through this website. Mailing address: ${operator.postalAddress}.`
   : "Semblanse is a pre-launch team building a campaign-specific creator licensing service. The legal operator and mailing address must be confirmed before this policy is published for launch.";
 export const legalDraft =
   !operator.legalCopyApproved ||
@@ -56,7 +56,7 @@ export const legalDocuments: Record<"privacy" | "terms", Document> = {
       {
         title: "Who we share it with",
         bullets: [
-          "The Semblanse team members who need the information to handle your application, enquiry or report.",
+          `${operator.legalOperator || "The website operator"} and the people working on Semblanse on its behalf who need the information to handle your application, enquiry or report.`,
           "Cloudflare hosts the site, stores enquiries in D1 and provides Turnstile bot checks. Cloudflare processes security and connection information for these services.",
           "Resend processes the details needed to send confirmations and team notifications. A stored enquiry and an email delivery are separate steps.",
           "PostHog processes optional website analytics in its US region. Our website uses random anonymous identifiers, without person profiles, automatic interaction capture or session recordings.",
@@ -94,7 +94,7 @@ export const legalDocuments: Record<"privacy" | "terms", Document> = {
       },
       {
         title: "Changes to this policy",
-        body: "We will update the date when this policy changes. For a material new use that needs consent, we will explain it and seek that consent before the new use begins. We may also give notice on the site or by email where appropriate.",
+        body: "We will update the date when this policy changes. For a material new use that needs consent, we will explain it and seek that consent before the new use begins. If a new company takes over this website, we will identify the new operator and explain any proposed transfer of personal information, with the notice or consent required by law. We may also give notice on the site or by email where appropriate.",
       },
     ],
   },
@@ -136,7 +136,7 @@ export const legalDocuments: Record<"privacy" | "terms", Document> = {
       },
       {
         title: "Your material and our site",
-        body: "You keep any rights you hold in the material you submit. You give us only the permission needed to receive, store and review it, reply, and handle the enquiry or report as described in our privacy policy. That permission does not authorise ads using your face or voice, AI training, or a transfer of ownership. The Semblanse name and our original website materials belong to us or their respective owners; third-party rights remain with those owners.",
+        body: "You keep any rights you hold in the material you submit. You give us only the permission needed to receive, store and review it, reply, and handle the enquiry or report as described in our privacy policy. That permission does not authorise ads using your face or voice, AI training, or a transfer of ownership. Rights in the Semblanse name and website materials remain with their respective owners.",
       },
       {
         title: "Privacy and other services",
@@ -149,9 +149,9 @@ export const legalDocuments: Record<"privacy" | "terms", Document> = {
       {
         title: "Governing law and disputes",
         body:
-          operator.governingLaw && operator.disputeVenue
-            ? `These website terms are governed by ${operator.governingLaw}. Subject to any mandatory rights under applicable law, disputes will be heard in ${operator.disputeVenue}.`
-            : "This review draft requires confirmation of governing law and the place for resolving disputes before publication for launch. Mandatory rights under applicable law remain unaffected.",
+          operator.governingLaw
+            ? `These website terms are governed by ${operator.governingLaw}. Mandatory rights under applicable law remain unaffected.${operator.disputeVenue ? ` Subject to those rights, disputes will be heard in ${operator.disputeVenue}.` : ""}`
+            : "This review draft requires confirmation of governing law before publication for launch. Mandatory rights under applicable law remain unaffected.",
       },
       {
         title: "Changes and contact",
