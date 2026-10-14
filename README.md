@@ -106,7 +106,7 @@ Cloudflare Web Analytics automatic injection is disabled on the preview and live
 
 The separate Cloudflare Pages project is `semblanse-landing-preview`; the stable preview branch is `staging`. It uses its own database and disables form email. See `docs/staging.md`.
 
-The workflow in `.github/workflows/cloudflare-preview.yml` checks and deploys pushes to `main` to staging, and other branches to their own preview aliases. It also supports a manual run from GitHub Actions. Automatic uploads require the repository Actions secret `CLOUDFLARE_API_TOKEN`; the current CLI session cannot verify that secret (HTTP 403). Use a Cloudflare token limited to the Semblanse account with Cloudflare Pages Edit permission. Keep it in GitHub's encrypted secrets. This workflow never publishes production.
+The workflow in `.github/workflows/cloudflare-preview.yml` checks and deploys pushes to `main` to staging, and other branches to their own preview aliases. It also supports a manual run from GitHub Actions. The existing repository Actions secret `CLOUDFLARE_API_TOKEN` works: run `38507404633` passed and published the staging branch preview. Keep that token in GitHub's encrypted secrets. This workflow never publishes production.
 
 For a manual deployment from this checkout:
 

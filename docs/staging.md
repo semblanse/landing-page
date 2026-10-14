@@ -14,7 +14,7 @@ Commit the changes, set `NEXT_PUBLIC_TURNSTILE_SITE_KEY` to the existing widget'
 
 For a separate feature preview, run `node scripts/deploy-preview.mjs feature-name` after the same checks. The URL becomes `https://feature-name.semblanse-landing-preview.pages.dev/`. Each upload also gets an immutable URL for review. All preview branches share the preview database; use distinct sample data per test.
 
-The GitHub workflow uses the same script. Pushes to `main` update staging; other branches get their own preview alias. It never deploys production. Automatic uploads require the repository's `CLOUDFLARE_API_TOKEN` secret. The current GitHub CLI session cannot inspect or set repository Actions secrets (HTTP 403), so automatic deployment is not claimed as verified. Manual staging uploads use the working Wrangler login.
+The GitHub workflow uses the same script. Pushes to `main` update staging; other branches get their own preview alias. It never deploys production. Automatic uploads use the existing repository `CLOUDFLARE_API_TOKEN` secret. The first staging branch push passed GitHub Actions run `38507404633` and created deployment `15253802-6c60-4e68-9dbc-e21fb97f91aa` for commit `955c261`, which verifies the automatic path without reading the secret. Manual staging uploads also work through the Wrangler login.
 
 ## Promote a reviewed change
 
