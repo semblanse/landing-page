@@ -26,7 +26,7 @@ export function deliveryStatements(db: D1Database, id: string, site: string) {
 
 export async function deliverEnquiry(
   db: D1Database,
-  mailer: Mailer & { notify: string },
+  mailer: Mailer & { notify: string; deliveryMode?: string },
   id: string,
   sendMessage = send,
 ) {
@@ -64,44 +64,54 @@ export async function deliverEnquiry(
       let status: "sent" | "failed" | "suppressed" = "failed";
       let error: string | null = null;
       try {
-        // Fail closed: a failed suppression query must never trigger a send.
-        const stopped =
-          job.role === "sender" &&
-          (await db
-            .prepare(
-              "SELECT 1 FROM enquiries WHERE email = ? AND unsubscribed_at IS NOT NULL LIMIT 1",
-            )
-            .bind(stored.email)
-            .first());
-        if (stopped) status = "suppressed";
-        else if (!mailer.apiKey) error = "missing_api_key";
-        else {
-          const message =
-            job.role === "team"
-              ? {
-                  to: mailer.notify,
-                  ...notification(
-                    stored.kind,
-                    stored.name,
-                    stored.email,
-                    values,
-                    id,
-                  ),
-                }
-              : {
-                  to: stored.email,
-                  ...confirmation(
-                    stored.kind,
-                    stored.name,
-                    values,
-                    job.site_origin,
-                    id,
-                  ),
-                };
-          status = (await sendMessage(mailer, message, job.id))
-            ? "sent"
-            : "failed";
-          if (status === "failed") error = "provider_rejected_or_unreachable";
+        if (
+          mailer.deliveryMode !== "live" ||
+          !["https://semblanse.com", "https://www.semblanse.com"].includes(
+            job.site_origin,
+          )
+        ) {
+          status = "suppressed";
+          error = "preview_email_disabled";
+        } else {
+          // Fail closed: a failed suppression query must never trigger a send.
+          const stopped =
+            job.role === "sender" &&
+            (await db
+              .prepare(
+                "SELECT 1 FROM enquiries WHERE email = ? AND unsubscribed_at IS NOT NULL LIMIT 1",
+              )
+              .bind(stored.email)
+              .first());
+          if (stopped) status = "suppressed";
+          else if (!mailer.apiKey) error = "missing_api_key";
+          else {
+            const message =
+              job.role === "team"
+                ? {
+                    to: mailer.notify,
+                    ...notification(
+                      stored.kind,
+                      stored.name,
+                      stored.email,
+                      values,
+                      id,
+                    ),
+                  }
+                : {
+                    to: stored.email,
+                    ...confirmation(
+                      stored.kind,
+                      stored.name,
+                      values,
+                      job.site_origin,
+                      id,
+                    ),
+                  };
+            status = (await sendMessage(mailer, message, job.id))
+              ? "sent"
+              : "failed";
+            if (status === "failed") error = "provider_rejected_or_unreachable";
+          }
         }
       } catch {
         error = "delivery_or_suppression_check_failed";

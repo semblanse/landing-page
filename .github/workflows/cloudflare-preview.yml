@@ -2,14 +2,14 @@ name: Deploy Cloudflare preview
 
 on:
   push:
-    branches: [main]
+    branches: ["**"]
   workflow_dispatch:
 
 permissions:
   contents: read
 
 concurrency:
-  group: cloudflare-preview
+  group: cloudflare-preview-${{ github.ref }}
   cancel-in-progress: false
 
 jobs:
@@ -26,16 +26,12 @@ jobs:
           cache: npm
       - name: Install dependencies
         run: npm ci
-      - name: Check types and lint
-        run: npm run typecheck && npm run lint
-      - name: Build static site
-        run: npm run build
+      - name: Check tests, types and lint
+        run: npm test && npm run typecheck && npm run lint
+      - name: Build and deploy preview
+        run: node scripts/deploy-preview.mjs
         env:
-          NEXT_PUBLIC_TURNSTILE_SITE_KEY: ${{ vars.NEXT_PUBLIC_TURNSTILE_SITE_KEY }}
-      - name: Deploy preview
-        uses: cloudflare/wrangler-action@v4
-        with:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          accountId: a9d5eec9230d19166842a42f1580d558
-          wranglerVersion: "4.149.0"
-          command: pages deploy out --project-name=semblanse-landing-preview --branch=revision-3 --commit-hash=${{ github.sha }}
+          NEXT_PUBLIC_TURNSTILE_SITE_KEY: "0x4AAAAAAFVI311hWIdh2XKl"
+          PREVIEW_BRANCH: ${{ github.ref_name }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: a9d5eec9230d19166842a42f1580d558

@@ -6,6 +6,7 @@
   "vars": {
     "EMAIL_FROM": "Semblanse <hello@semblanse.com>",
     "EMAIL_NOTIFY": "hello@semblanse.com",
+    "EMAIL_DELIVERY_MODE": "live",
     "POSTHOG_API_KEY": "phc_o2M3cGEHRQzchsgDxU8nRa4f3LKRk4q6uzbYB2RMStDe",
     "ANALYTICS_EVENT_LIMIT": "850000",
   },

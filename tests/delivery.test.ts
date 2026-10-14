@@ -49,8 +49,8 @@ function fixture(unsubscribed = false) {
     sqlite,
     db,
     id,
-    async enqueue() {
-      for (const statement of deliveryStatements(db, id, "https://example.com"))
+    async enqueue(site = "https://semblanse.com") {
+      for (const statement of deliveryStatements(db, id, site))
         await statement.run();
     },
   };
@@ -59,7 +59,42 @@ const mailer = {
   apiKey: "test-key",
   from: "qa@example.invalid",
   notify: "team@example.invalid",
+  deliveryMode: "live",
 };
+
+test("preview email stays off even with a key or a mistaken live setting", async () => {
+  for (const [site, deliveryMode] of [
+    ["https://staging.semblanse-landing-preview.pages.dev", "live"],
+    ["https://semblanse.com", "disabled"],
+    ["https://semblanse.com", undefined],
+  ]) {
+    const f = fixture();
+    await f.enqueue(site);
+    let sends = 0;
+    try {
+      await deliverEnquiry(
+        f.db,
+        { ...mailer, deliveryMode },
+        f.id,
+        async () => {
+          sends++;
+          return true;
+        },
+      );
+      assert.equal(sends, 0);
+      assert.equal(
+        f.sqlite
+          .prepare(
+            "SELECT COUNT(*) AS n FROM enquiry_deliveries WHERE status='suppressed' AND last_error='preview_email_disabled'",
+          )
+          .get()!.n,
+        2,
+      );
+    } finally {
+      f.sqlite.close();
+    }
+  }
+});
 
 test("failed delivery is recorded; retry sends only the failed job", async () => {
   const f = fixture();

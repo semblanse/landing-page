@@ -68,6 +68,7 @@ if (sending)
         apiKey: process.env.RESEND_API_KEY,
         from: process.env.EMAIL_FROM ?? "Semblanse <hello@semblanse.com>",
         notify: process.env.EMAIL_NOTIFY ?? "hello@semblanse.com",
+        deliveryMode: production ? "live" : "disabled",
       },
       job.enquiry_id,
     );

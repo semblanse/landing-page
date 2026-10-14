@@ -1,6 +1,6 @@
 # Semblanse landing page
 
-Next.js implementation of landing revision 3. [Open the readiness review](https://readiness-review.semblanse-landing-preview.pages.dev). See `docs/readiness-verification.md` for checks and `docs/release-review.md` for owner decisions before launch.
+Next.js implementation of landing revision 3. [Live website](https://semblanse.com). [Staging](https://staging.semblanse-landing-preview.pages.dev). See `docs/staging.md` for the review and release steps, `docs/readiness-verification.md` for checks and `docs/site-operations.md` for the manual operating routine.
 
 ## Run
 
@@ -38,11 +38,11 @@ Keep new components square and use the existing brand tokens. Motion handles sec
 
 The owner approved the current website Privacy and Terms on 13 October 2026. They name Cloudflare, Resend and PostHog and explain the Instagram message check. Operator details appear at the bottom of each document. The workspace demo uses example campaign data and the existing Semblanse demo video.
 
-The preview sends `noindex` headers and metadata. Remove those when the site is ready for launch.
+Previews keep `noindex` headers and metadata. The production build sets the live canonical URL and permits indexing.
 
 ## Forms
 
-The creator, brand and contact forms, and the misuse report on Trust & Safety, post to `/api/enquiry`, a Cloudflare Pages Function in `functions/`. It checks the answers with the same rules the browser uses (`src/lib/enquiry-schema.ts`), verifies the Turnstile bot check, stores a row in the D1 `enquiries` table, then emails the team and the sender through Resend. A stored enquiry counts as sent even when an email fails.
+The creator, brand and contact forms, and the misuse report on Trust & Safety, post to `/api/enquiry`, a Cloudflare Pages Function in `functions/`. It checks the answers with the same rules the browser uses (`src/lib/enquiry-schema.ts`), verifies the Turnstile bot check, stores a row in the D1 `enquiries` table, then emails the team and the sender through Resend on production. Preview email jobs are suppressed. A stored enquiry counts as accepted even when an email fails.
 
 A creator proves the Instagram account is theirs by sending "Application: " and their email to @semblanse from it. The confirmation screen and email show the exact message, and the team's notification email repeats it. When a message arrives from the handle on the application and its email matches, mark the row:
 
@@ -104,14 +104,14 @@ Cloudflare Web Analytics automatic injection is disabled on the preview and live
 
 ## Deploy
 
-The separate Cloudflare Pages project is `semblanse-landing-preview`; the preview branch is `revision-3`.
+The separate Cloudflare Pages project is `semblanse-landing-preview`; the stable preview branch is `staging`. It uses its own database and disables form email. See `docs/staging.md`.
 
-The workflow in `.github/workflows/cloudflare-preview.yml` builds, checks and deploys each push to `main` to the same preview URL. It also supports a manual run from GitHub Actions. Add the repository Actions secret `CLOUDFLARE_API_TOKEN` before the first automated deployment. Use a Cloudflare token limited to the Semblanse account with the Cloudflare Pages Edit permission. The account ID is public configuration in the workflow; the token must stay in GitHub's encrypted secrets.
+The workflow in `.github/workflows/cloudflare-preview.yml` checks and deploys pushes to `main` to staging, and other branches to their own preview aliases. It also supports a manual run from GitHub Actions. Automatic uploads require the repository Actions secret `CLOUDFLARE_API_TOKEN`; the current CLI session cannot verify that secret (HTTP 403). Use a Cloudflare token limited to the Semblanse account with Cloudflare Pages Edit permission. Keep it in GitHub's encrypted secrets. This workflow never publishes production.
 
 For a manual deployment from this checkout:
 
 ```sh
-npm run deploy:preview
+npm run deploy:staging
 ```
 
 Wrangler uses the signed-in Cloudflare account. No credentials belong in this repo. This direct upload does not change the existing `semblanse.com` site. [Cloudflare static Next.js guide](https://developers.cloudflare.com/pages/framework-guides/nextjs/deploy-a-static-nextjs-site/).

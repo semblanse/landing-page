@@ -2,6 +2,15 @@
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 @import "./landing.css";
+.preview-notice {
+  background: #d9cdea;
+  color: #18231b;
+  padding: 8px 16px;
+  text-align: center;
+  font:
+    500 14px/20px "Albert Sans Variable",
+    sans-serif;
+}
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);

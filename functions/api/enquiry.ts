@@ -19,6 +19,7 @@ type Env = {
   RESEND_API_KEY?: string;
   EMAIL_FROM: string;
   EMAIL_NOTIFY: string;
+  EMAIL_DELIVERY_MODE?: string;
 };
 
 function reply(body: EnquiryResponse, status = 200) {
@@ -105,6 +106,7 @@ export const onRequestPost: PagesFunction<Env> = async ({
     apiKey: env.RESEND_API_KEY,
     from: env.EMAIL_FROM,
     notify: env.EMAIL_NOTIFY,
+    deliveryMode: env.EMAIL_DELIVERY_MODE,
   };
   const id = await fingerprint(
     env.TURNSTILE_SECRET_KEY,

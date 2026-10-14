@@ -47,6 +47,11 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body>
+        {!production && (
+          <aside className="preview-notice" aria-label="Preview environment">
+            Preview · Use test details. Form emails are off.
+          </aside>
+        )}
         {/* Entrance states apply only once scripts run, so content is never
             hidden without JavaScript. */}
         <script
