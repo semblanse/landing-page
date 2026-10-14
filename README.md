@@ -122,7 +122,7 @@ The existing live Pages project is `semblanse`, serving `semblanse.com`. `wrangl
 
 Before launch:
 
-- Have a reviewer approve privacy and terms, including consent, data retention, safeguards and governing law. Those decisions remain open.
+- The owner approved the current website Privacy and Terms. Agree on the internal retention/deletion routine before launch and review future material changes before publishing them.
 - Store `RESEND_API_KEY` on the live Pages project and verify a controlled form receipt and team notice. Preview has a key; the live project's production environment did not at the readiness check. Check that `hello@semblanse.com` reaches the team through the existing mail provider before changing email routing.
 - Assign an operator to review and retry failed email jobs. `npm run email:retry` defaults to a dry run; the script requires explicit production selection for live sending. Storage alone does not prove inbox delivery.
 - Assign someone to check @semblanse message requests and match each sender's handle and application email before marking a row verified. Use the database for the environment that received the form.
