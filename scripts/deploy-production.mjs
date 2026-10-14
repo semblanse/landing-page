@@ -1,6 +1,7 @@
 import { readFileSync, writeFileSync } from "node:fs";
 import { spawnSync } from "node:child_process";
 import { createRequire } from "node:module";
+import { dirname, join } from "node:path";
 
 const require = createRequire(import.meta.url);
 const html = readFileSync("out/index.html", "utf8");
@@ -22,7 +23,7 @@ let result;
 try {
   writeFileSync("wrangler.jsonc", productionConfig);
   result = spawnSync(process.execPath, [
-    require.resolve("wrangler/bin/wrangler.js"), "pages", "deploy", "out",
+    join(dirname(require.resolve("wrangler/package.json")), "bin", "wrangler.js"), "pages", "deploy", "out",
     "--project-name=semblanse", "--branch=main",
     `--commit-hash=${revision.stdout.trim()}`, "--commit-dirty=false",
   ], { stdio: "inherit", windowsHide: true });
