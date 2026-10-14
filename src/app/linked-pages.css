@@ -1160,6 +1160,10 @@ them are fluid. Pages sit on cream, and artwork carries the colour.
   line-height: 29px;
   opacity: 0.9;
 }
+.sp-document-body .sp-operator-details {
+  font-size: 14px;
+  line-height: 22px;
+}
 .sp-document-body ul {
   gap: 14px;
   margin-top: 14px;

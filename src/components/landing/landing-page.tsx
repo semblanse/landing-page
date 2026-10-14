@@ -874,12 +874,6 @@ export function Footer({ ink = false }: { ink?: boolean }) {
         </a>
         {" · "}
         <AnalyticsChoicesButton />
-        {operator.legalOperator && (
-          <>
-            <br />
-            Website operated by {operator.legalOperator} · {operator.postalAddress}
-          </>
-        )}
       </p>
       <p className="copyright">© 2026 Semblanse. All rights reserved.</p>
       <div ref={wordmark} className="footer-wordmark" aria-hidden="true">
