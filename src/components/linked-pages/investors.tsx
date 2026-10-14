@@ -39,7 +39,7 @@ export function InvestorsPage() {
               ],
               [
                 "A fee on the licence.",
-                "We plan to earn a transaction fee. Pricing, delivery costs and repeat demand are being tested through the pilots.",
+                "We plan to earn a transaction fee. We will test pricing, delivery costs and repeat demand through the pilots.",
               ],
             ].map(([title, body], i) => (
               <Reveal as="li" key={title} delay={i * 0.1}>
