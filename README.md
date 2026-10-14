@@ -137,8 +137,10 @@ npm run build:production
 This checks the public values and review flags in `src/lib/release-decisions.json`, uses `https://semblanse.com` for metadata and removes `noindex` from the built HTML and `out/_headers`. It rejects a missing Turnstile key or a test key. PostHog uses the server binding in Wrangler configuration. A regular `npm run build` keeps preview indexing blocked. Neither command deploys. To deploy the reviewed production build at launch:
 
 ```sh
-npx wrangler pages deploy out --config wrangler.production.jsonc --project-name semblanse --branch main
+npm run deploy:production
 ```
+
+Pages requires the standard `wrangler.jsonc` filename. The production deploy script temporarily selects the production config, uploads to the live project's `main` branch, then restores preview defaults even if deployment fails. It requires a clean checkout and a production build. D1 commands still support `--config wrangler.production.jsonc`.
 
 For a creator application submitted on the live site:
 

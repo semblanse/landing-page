@@ -8,6 +8,7 @@
     "dev": "next dev",
     "build": "next build && node scripts/security-headers.mjs",
     "build:production": "node scripts/build-production.mjs",
+    "deploy:production": "npm run build:production && node scripts/deploy-production.mjs",
     "start": "wrangler pages dev out",
     "lint": "eslint src",
     "typecheck": "tsc --noEmit && npm run types && tsc --noEmit -p functions",
